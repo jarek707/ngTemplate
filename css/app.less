@@ -1,8 +1,14 @@
-@menuColor: #3879BD;
+@menuBg: #3879BD;
+@menuHeight: 100px;
+@menuColor: #fa8;
 
 body {
     background:#eee;
     margin:0;
+}
+
+li {
+    list-style: none;
 }
 
 .pane {
@@ -12,9 +18,10 @@ body {
 }
 
 topmenu {
-    height:265px;
+    height: @menuHeight;
+    color: @menuColor;
     width:99%;
-    background: @menuColor;
+    background: @menuBg;
     padding:4px;
     margin:0;
 }
