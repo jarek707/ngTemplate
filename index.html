@@ -1,0 +1,42 @@
+<html ng-app='app'>
+    <!-- Plceholder for global scope params -->
+    <rootScope ng-init="
+        root = 'http://ang';
+        tpl  = { 'lists' : 'html/lists.html', 
+                 'lorem' : 'html/lorem.html',
+                 'right' : 'html/right.html',
+                 'content' : 'html/content.html'
+                };
+
+        jsIncludes = ['underscore','angular', 'modules', 'app'];
+
+    "/>
+
+    <head ng-controller='htmlHead'>
+        <title>Test App * * * * *</title>
+
+        <script src='js/underscore.js'></script>
+        <script src="http://ang/js/angular.js"></script>
+        <script src="http://ang/js/modules.js"></script>
+        <script src="http://ang/js/app.js"></script>
+
+        <link href="http://ang//css/app.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <script ng-repeat="i in jsIncludes" ng-src="http://ang/js/{{i}}.js"></script>
+        <topMenu class='pane' ng-controller="topMenu">
+            <div ng-include src='tpl.lists'></div>
+        </topMenu>
+        <leftPane class='pane' ng-controller="leftPane">
+        </leftPane>
+        <contentPane class='pane' ng-controller="contentPane">
+            <div ng-repeat='(i,j) in jsn'>{{i}} , {{j}}</div>
+            <div abc='abcd'></div>
+            <div ng-include src='tpl.content' />
+        </contentPane>
+        <rightPane class='pane' ng-controller="rightPane">
+            <div ng-include src="tpl.right" />
+        </rightPane>
+    </body>
+</html>

@@ -1,0 +1,30 @@
+body {
+    background:#eee;
+    margin:0;
+}
+
+.pane {
+    display:block;
+    position:relative;
+    float:left;
+}
+
+topmenu {
+    height:265px;
+    width:99%;
+    background:#fdd;
+    padding:4px;
+    margin:0;
+}
+
+rightPane, leftPane {
+    width:180px;
+    background:ddf;
+    min-height:800px;
+}
+
+contentPane {
+    background:dfd;
+    min-width:50%;
+    min-height:400px;
+}

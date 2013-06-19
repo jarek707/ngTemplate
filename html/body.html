@@ -1,0 +1,13 @@
+<topMenu class='pane' ng-controller="topMenu">
+    <ul>
+        <li ng-repeat='(i,j) in lists'>{{i}}</li>
+    </ul>
+</topMenu>
+<leftPane class='pane' ng-controller="leftPane">
+</leftPane>
+<contentPane class='pane' ng-controller="contentPane">
+    <div abc='abcd'></div>
+</contentPane>
+<rightPane class='pane' ng-controller="rightPane">
+    <div ng-include src="template" />
+</rightPane>
