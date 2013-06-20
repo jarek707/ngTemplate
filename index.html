@@ -32,12 +32,10 @@
         <leftPane class='pane' ng-controller="leftPane">
         </leftPane>
         <contentPane class='pane' ng-controller="contentPane">
-            <div ng-repeat='(i,j) in jsn'>{{i}} , {{j}}</div>
-            <div abc='abcd'></div>
-            <div ng-include src='tpl.content' />
+            <div ng-include src='tpl.content'></div>
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
-            <div ng-include src="tpl.right" />
+            <grid></grid>
         </rightPane>
     </body>
 </html>

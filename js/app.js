@@ -3,17 +3,19 @@ function topMenu($scope) {
 }
 
 function contentPane($scope, $routeParams, $http, dataSrv) {
-    $scope.jsn = {a: 'empty'};
-    $scope.fetch = function(arg) {
-        var url = 'data/list.php';
-        //dataSrv.get(url, $scope, 'jsn');
-        //dataSrv.set(url, $scope.jsn);
-        dataSrv.test();
+    //$scope.list = {a:1};
+    $scope.list = {};
+    var _scope = $scope;
+    //setTimeout(function() {_scope.list = {a:1}; }, 600);
+    setTimeout(function () { LG(_scope.list); }, 800);
+
+    $scope.del = function(k,v) {
+        LG( 'del in ctl, ', k, v);
     }
+
 }
 
 function leftPane() {}
 
 function rightPane($scope) {
-    $scope.z = [123, 323, 4432];
 }

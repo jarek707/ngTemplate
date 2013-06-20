@@ -17,7 +17,9 @@ angular.module('app.services', [])
                 LG('test', angular.element );
             },
             
-            clear: function(key) { typeof key == 'undefined' ? localStorage.clear() : localStorage[key] = ''; },
+            clear: function(key) { 
+                typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
+            },
 
             get: function(key, scope, dataObj) {
                 $http.get(key).success( function(data) { scope[dataObj] = data; } )
@@ -33,13 +35,61 @@ angular.module('app.services', [])
     })
 ;
 
+//
+//  Directives
+//
 angular.module('app.directives', [])
-    .directive('abc', function factory() {
+    .directive('addButton', function factory(dataSrv) {
         return {
-            replace: true,
-            templateUrl: 'html/lorem.html'
+            restrict: 'EA',
+            template: '<input type="button" value="Add"></input>',
+            link: function(scope, el, attrs) {
+                el.find('input').bind('click', 
+                    function (data) { 
+                        LG( scope.list );
+                    }
+                );
+            }
+        }
+    })
+    .directive('loadButton', function factory(dataSrv) {
+        return {
+            restrict: 'EA',
+            template: '<input type="button" value="Load" src="data/list.php"></input>',
+            link: function(scope, el, attrs) {
+                el.find('input').val(attrs.textval)
+                                .bind('click', function (data) { 
+                                    dataSrv.get(attrs.src, scope, 'list');
+                                    LG( scope );
+                                }
+                );
+            }
+        }
+    })
+    .directive('box', function factory() {
+        return {
+            restrict:   'EA',
+            template:   '<div class="box"></div>',
+            transclude: true,
+            replace:    true
         }
         
     })
+    .directive('grid', function factory(dataSrv) {
+        return {
+            replace:false,
+            restrict: 'CEA',
+            templateUrl: 'html/content.html',
+            //template: "<div>inside</div>",
+            link: function(scope, el, attrs) {
+            },
+            controller:  function($scope, $element, $attrs) {
+                $scope.del = function(k,v) {
+                    LG('del in directive' , k, v, $element);
+                }
+            }
+        }
+    })
 ;
+
 angular.module('app', ['app.services', 'app.directives']);

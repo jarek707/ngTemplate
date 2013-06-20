@@ -1,6 +1,36 @@
-@menuBg: #3879BD;
 @menuHeight: 100px;
+@menuBg: #3879BD;
 @menuColor: #fa8;
+
+@borderColor: #ddd;
+
+.rounded-corners (@radius: 5px) {
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+    -ms-border-radius: @radius;
+    -o-border-radius: @radius;
+    border-radius: @radius;
+}
+
+.pane {
+    display:block;
+    position:relative;
+    float:left;
+}
+
+.box {
+    .rounded-corners(10px);
+    position:relative;
+    border:3px solid @borderColor;
+    margin:10px;
+    padding:5px;
+}
+
+.delButton {
+    color:transparent;
+    background:url('image/glyph.png') -310px 2px no-repeat;
+    border:1px solid transparent;
+}
 
 body {
     background:#eee;
@@ -11,10 +41,9 @@ li {
     list-style: none;
 }
 
-.pane {
-    display:block;
-    position:relative;
-    float:left;
+input {
+    .rounded-corners(5px);
+    border:1px solid #aaa;
 }
 
 topmenu {

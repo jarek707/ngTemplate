@@ -1,3 +1,9 @@
 <div>
-    <input type="button" value="click!" ng-click="fetch()"/>
+    <div ng-repeat="(k,v) in list">
+        <label>{{k}}</label>
+        <input id ="subs" type="text" value="{{v}}"></input>
+        <input type='button' class='delButton' value='X' ng-click='del(k,v)'></input>
+    </div>
+    <add-button textVal='Add'  ></add-button>
+    <load-button textVal='Load' src="data/list.php"></load-button>
 </div>
