@@ -12,6 +12,22 @@
     border-radius: @radius;
 }
 
+table td {
+    input { 
+        max-width:80px;
+        padding:2px 0 2px 2px;
+    }
+}
+
+table td.button {
+    width:12px;
+    padding:0;
+    .delButton {
+        padding:0;
+        width:12px;
+    }
+}
+
 .pane {
     display:block;
     position:relative;
@@ -28,8 +44,9 @@
 
 .delButton {
     color:transparent;
-    background:url('image/glyph.png') -310px 2px no-repeat;
-    border:1px solid transparent;
+    background: url('image/glyph.png') -314px 2px no-repeat;
+    border: 1px solid transparent;
+    opacity: 0.7;
 }
 
 body {

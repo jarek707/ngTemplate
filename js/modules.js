@@ -79,13 +79,13 @@ angular.module('app.directives', [])
         return {
             replace:false,
             restrict: 'CEA',
-            templateUrl: 'html/content.html',
+            templateUrl: 'html/table.html',
             //template: "<div>inside</div>",
             link: function(scope, el, attrs) {
             },
             controller:  function($scope, $element, $attrs) {
-                $scope.del = function(k,v) {
-                    LG('del in directive' , k, v, $element);
+                $scope.del = function(id) {
+                    delete $scope.list.data[id];
                 }
             }
         }

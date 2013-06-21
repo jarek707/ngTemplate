@@ -5,7 +5,7 @@
         tpl  = { 'lists' : 'html/lists.html', 
                  'lorem' : 'html/lorem.html',
                  'right' : 'html/right.html',
-                 'content' : 'html/content.html'
+                 'table' : 'html/table.html'
                 };
 
         jsIncludes = ['lib/underscore','lib/angular', 'modules', 'app'];
@@ -32,7 +32,10 @@
         <leftPane class='pane' ng-controller="leftPane">
         </leftPane>
         <contentPane class='pane' ng-controller="contentPane">
-            <div ng-include src='tpl.content'></div>
+            <box ng-transclude>
+                <!-- <div ng-include src='tpl.table'></div> -->
+                <grid></grid>
+            </box>
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
             <grid></grid>
