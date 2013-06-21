@@ -4,12 +4,13 @@ function topMenu($scope) {
 
 function contentPane($scope, $routeParams, $http, dataSrv) {
     //$scope.list = {a:1};
-    $scope.list = {};
-    var _scope = $scope;
+    $scope.list = {"a":123};
+    $scope.testO = {"a":123};
+    $scope.str1 = 'str 1';
+    $scope.outside = 'outside scope is seen';
+        
+    //LGT( $scope.$id, ' outside ', $scope.ingrid, 300 );
 
-    $scope.del = function(k,v) {
-        LG( 'del in ctl, ', k, v);
-    }
 
 }
 

@@ -34,11 +34,12 @@
         <contentPane class='pane' ng-controller="contentPane">
             <box ng-transclude>
                 <!-- <div ng-include src='tpl.table'></div> -->
-                <grid></grid>
+                <grid config='renters'></grid>
+                <grid config='managers'></grid>
             </box>
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
-            <grid></grid>
+            <grid config='managers'></grid>
         </rightPane>
     </body>
 </html>

@@ -11,6 +11,20 @@ function LGT() {
 // Modules
 //
 angular.module('app.services', [])
+    .factory('config', function() {
+        return {
+            'renters'  : {
+                'headers' : ['First', 'Last' , 'Start Date', 'End Date', 'Monthly Rent'],
+                'url'     : 'data/renters.php',
+                'storage' : 'renters'
+            },
+            'managers' : {
+                'headers' : ['First', 'Last' , 'Email', 'Phone'],
+                'url'     : 'data/managers.php',
+                'storage' : 'managers'
+            }
+        }
+    })
     .factory('dataSrv', function($http) {
         return  {
             test: function() {
@@ -41,54 +55,62 @@ angular.module('app.services', [])
 angular.module('app.directives', [])
     .directive('addButton', function factory(dataSrv) {
         return {
-            restrict: 'EA',
-            template: '<input type="button" value="Add"></input>',
+            restrict: 'E',
+            template: '<input type="button" value="X"></input>',
             link: function(scope, el, attrs) {
                 el.find('input').bind('click', 
                     function (data) { 
-                        LG( scope.list );
+                        var min = _.min(_.keys(scope.list.data));
+                        scope.list.data[min < 0 ? parseInt(min)+1 : -99] 
+                            = _.map(scope.list.meta.columns, function(a) { return '';}) ;
+                        scope.$digest();
+                        LG( scope.$id,  scope.list.data );
                     }
                 );
+            },
+            scope: true,
+            controller: function($scope, $element, $attrs) {
+                $scope.inAddButton = ' add button scope ' ;
             }
         }
     })
     .directive('loadButton', function factory(dataSrv) {
         return {
-            restrict: 'EA',
+            restrict: 'E',
             template: '<input type="button" value="Load" src="data/list.php"></input>',
             link: function(scope, el, attrs) {
                 el.find('input').val(attrs.textval)
                                 .bind('click', function (data) { 
                                     dataSrv.get(attrs.src, scope, 'list');
-                                    LG( scope );
                                 }
                 );
             }
         }
     })
+    .directive('grid', function factory(dataSrv, config) {
+        return {
+            replace:false,
+            restrict: 'E',
+            scope: { testO: "=", outside : '=' },
+            templateUrl: 'html/table.html',
+            link: function(scope, el, attrs) {
+            },
+            controller:  function($scope, $element, $attrs) {
+                $scope.ingrid = 'scope in grid';
+                dataSrv.get(config[$attrs.config].url, $scope, 'list');
+
+                $scope.del = function(id) { delete $scope.list.data[id]; }
+            }
+        }
+    })
     .directive('box', function factory() {
         return {
-            restrict:   'EA',
+            restrict:   'E',
             template:   '<div class="box"></div>',
             transclude: true,
             replace:    true
         }
         
-    })
-    .directive('grid', function factory(dataSrv) {
-        return {
-            replace:false,
-            restrict: 'CEA',
-            templateUrl: 'html/table.html',
-            //template: "<div>inside</div>",
-            link: function(scope, el, attrs) {
-            },
-            controller:  function($scope, $element, $attrs) {
-                $scope.del = function(id) {
-                    delete $scope.list.data[id];
-                }
-            }
-        }
     })
 ;
 

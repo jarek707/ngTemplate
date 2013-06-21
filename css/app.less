@@ -12,20 +12,27 @@
     border-radius: @radius;
 }
 
-table td {
+table td, table th {
     input { 
         max-width:80px;
         padding:2px 0 2px 2px;
     }
 }
 
-table td.button {
+table td.button, table th.button {
     width:12px;
     padding:0;
-    .delButton {
-        padding:0;
-        width:12px;
-    }
+    .addButton { background: transparent url('image/glyph.png') -408px -96px no-repeat; }
+    .delButton { background: transparent url('image/glyph.png') -314px 2px no-repeat; }
+}
+
+.button input {
+    color:transparent;
+    background:transparent;
+    border: 1px solid transparent;
+    opacity: 0.7;
+    padding:0;
+    width:12px;
 }
 
 .pane {
@@ -40,13 +47,6 @@ table td.button {
     border:3px solid @borderColor;
     margin:10px;
     padding:5px;
-}
-
-.delButton {
-    color:transparent;
-    background: url('image/glyph.png') -314px 2px no-repeat;
-    border: 1px solid transparent;
-    opacity: 0.7;
 }
 
 body {
