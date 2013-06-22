@@ -8,11 +8,12 @@
         </thead>
         <tbody>
             <tr ng-repeat="(id,row) in list.data">
-                <td ng-repeat='field in row'>
-                    <input type="text" ng-model="field" />
+                <td ng-repeat='field in row' ng-model="row">
+                    <input type="text" ng-model="field" ng-change="showSaveButton()" />
                 </td>
                 <td class="button">
                     <input type='button' class='delButton' value='X' ng-click='del(id)'></input>
+                    <input type='button' ng-show='inputShow' class='savButton' value='X' ng-click='sav(id)'></input>
                 </td>
              </tr>
         </tbody>

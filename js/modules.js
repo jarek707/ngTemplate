@@ -60,46 +60,52 @@ angular.module('app.directives', [])
             link: function(scope, el, attrs) {
                 el.find('input').bind('click', 
                     function (data) { 
-                        var min = _.min(_.keys(scope.list.data));
-                        scope.list.data[min < 0 ? parseInt(min)+1 : -99] 
-                            = _.map(scope.list.meta.columns, function(a) { return '';}) ;
-                        scope.$digest();
-                        LG( scope.$id,  scope.list.data );
+                        var pList = scope.$parent.list;
+                        var min = _.min(_.keys(pList.data));
+                        pList.data[min < 0 ? parseInt(min)+1 : -99] = _.map(scope.$parent.list.meta.columns, function(a) { return '';}) ;
+                        scope.$parent.$digest();
                     }
                 );
             },
-            scope: true,
+            scope: {},
             controller: function($scope, $element, $attrs) {
                 $scope.inAddButton = ' add button scope ' ;
+                LGT( $scope , ' bt ctrl');
             }
         }
     })
-    .directive('loadButton', function factory(dataSrv) {
+    .directive('row', function factory(dataSrv, config) {
         return {
+            replace:false,
             restrict: 'E',
-            template: '<input type="button" value="Load" src="data/list.php"></input>',
-            link: function(scope, el, attrs) {
-                el.find('input').val(attrs.textval)
-                                .bind('click', function (data) { 
-                                    dataSrv.get(attrs.src, scope, 'list');
-                                }
-                );
-            }
+            templateUrl: 'html/row.html',
         }
+
     })
     .directive('grid', function factory(dataSrv, config) {
         return {
             replace:false,
             restrict: 'E',
-            scope: { testO: "=", outside : '=' },
+            scope: { testO: "=", outside : '='},
             templateUrl: 'html/table.html',
             link: function(scope, el, attrs) {
             },
             controller:  function($scope, $element, $attrs) {
                 $scope.ingrid = 'scope in grid';
+
                 dataSrv.get(config[$attrs.config].url, $scope, 'list');
 
+                $scope.showSaveButton = function() {
+                    LG( 'show button ');
+                    $scope.inputShow = true;
+                }
+
+                $scope.sav = function(id) {
+                    LG( id );
+                },
+
                 $scope.del = function(id) { delete $scope.list.data[id]; }
+                $scope.chg = function(elm) { LG( elm ); }
             }
         }
     })
