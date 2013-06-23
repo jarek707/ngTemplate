@@ -8,6 +8,7 @@ function contentPane($scope, $routeParams, $http, dataSrv) {
     $scope.testO = {"a":123};
     $scope.str1 = 'str 1';
     $scope.outside = 'outside scope is seen';
+    LG( $scope.$id, ' in content pane' , $scope);
         
     //LGT( $scope.$id, ' outside ', $scope.ingrid, 300 );
 

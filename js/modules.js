@@ -1,10 +1,14 @@
+function SER( arg ) {
+   return JSON.stringify( arg ); 
+}
+
 function LG() {
     console.log(arguments);
 }
 
 function LGT() {
     var args  = _.map(arguments, function(v,k) {return v});
-    setTimeout( function() {LG( args );}, args.pop() );
+    setTimeout( function() {console.log( args );}, args.pop() );
 }
 
 //
@@ -22,6 +26,11 @@ angular.module('app.services', [])
                 'headers' : ['First', 'Last' , 'Email', 'Phone'],
                 'url'     : 'data/managers.php',
                 'storage' : 'managers'
+            },
+            'loc' : {
+                'headers' : ['First', 'Last' , 'Local'],
+                'url'     : 'data/loc.php',
+                'storage' : 'loc'
             }
         }
     })
@@ -36,8 +45,15 @@ angular.module('app.services', [])
             },
 
             get: function(key, scope, dataObj) {
-                $http.get(key).success( function(data) { scope[dataObj] = data; } )
-                              .error(   function(data) { scope[dataObj] = JSON.parse(localStorage[key]) } );
+                $http.get(key).success( function(data) { 
+                                            scope.list  = data; 
+                                            scope.listP = angular.copy(data);
+                                            
+                              })
+                              .error(   function(data) { 
+                                LG( localStorage[key], ' ls key', key, dataObj );
+                                scope[dataObj] = _.isEmpty(localStorage[key]) ? {} : JSON.parse(localStorage[key]) } 
+                              );
             },
 
             set: function(key, data) {
@@ -60,52 +76,74 @@ angular.module('app.directives', [])
             link: function(scope, el, attrs) {
                 el.find('input').bind('click', 
                     function (data) { 
-                        var pList = scope.$parent.list;
-                        var min = _.min(_.keys(pList.data));
-                        pList.data[min < 0 ? parseInt(min)+1 : -99] = _.map(scope.$parent.list.meta.columns, function(a) { return '';}) ;
+                        var list = scope.$parent.list;
+                        var min = _.min(_.keys(list.data));
+                        var newIdx =  min < 0 ? parseInt(min)+1 : -99;
+                        list.data[newIdx] = _.map(list.meta.columns, function(a) { return '';}) ;
+                        scope.$parent.listP.data[newIdx] = _.map(list.meta.columns, function(a) { return '';}) ;
                         scope.$parent.$digest();
                     }
                 );
             },
             scope: {},
             controller: function($scope, $element, $attrs) {
-                $scope.inAddButton = ' add button scope ' ;
-                LGT( $scope , ' bt ctrl');
             }
         }
     })
-    .directive('row', function factory(dataSrv, config) {
+    .directive('tdInput', function factory() {
         return {
-            replace:false,
+            replace:true,
             restrict: 'E',
-            templateUrl: 'html/row.html',
-        }
+            scope: true,
+            template: '<input type="text" ng-model="field" ng-change="chg(id, i)" ng-click="clk(id)" />',
+            link: function(sc, el) {
+                el.bind('blur', sc.blr);
+            },
+            controller: function($scope, $element, $attrs) {
+                var rowScope = $scope.$parent.$parent;
 
+                $scope.blr = function() {
+                    rowScope.trClass = isDirty(rowScope.id) ? 'dirty' : '';
+
+                };
+
+                $scope.clk = function(id) {
+                    rowScope.rowId = id;
+                    rowScope.trClass = 'selected';   
+                };
+
+                $scope.chg = function(id, i) {
+                    $scope.listP.data[id][i] = $scope.field;
+                    LG( rowScope, ' rs'  );
+                    rowScope.dirty = isDirty(id);
+                    rowScope.trClass = rowScope.dirty ? 'dirty selected' : 'selected';
+                };
+
+                function isDirty(id) { 
+                    return !_.isEmpty(
+                        _.filter($scope.list.data[id], function(v,k) { return v !== $scope.listP.data[id][k]; })
+                    );
+                };
+            }
+        }
     })
     .directive('grid', function factory(dataSrv, config) {
         return {
             replace:false,
             restrict: 'E',
-            scope: { testO: "=", outside : '='},
+            scope: {},
             templateUrl: 'html/table.html',
-            link: function(scope, el, attrs) {
-            },
+            link: function(scope, el, attrs) {},
             controller:  function($scope, $element, $attrs) {
-                $scope.ingrid = 'scope in grid';
-
                 dataSrv.get(config[$attrs.config].url, $scope, 'list');
 
-                $scope.showSaveButton = function() {
-                    LG( 'show button ');
-                    $scope.inputShow = true;
-                }
-
-                $scope.sav = function(id) {
-                    LG( id );
-                },
+                $scope.sav = function(id, scope) {
+                    _.each($scope.listP.data[id], function(v,k) { $scope.list.data[id][k] = v; });
+                    scope.dirty = false;
+                    scope.trClass = '';
+                };
 
                 $scope.del = function(id) { delete $scope.list.data[id]; }
-                $scope.chg = function(elm) { LG( elm ); }
             }
         }
     })

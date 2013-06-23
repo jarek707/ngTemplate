@@ -7,13 +7,13 @@
             </th>
         </thead>
         <tbody>
-            <tr ng-repeat="(id,row) in list.data">
-                <td ng-repeat='field in row' ng-model="row">
-                    <input type="text" ng-model="field" ng-change="showSaveButton()" />
+            <tr ng-repeat="(id,row) in list.data" class="{{trClass}}">
+                <td ng-repeat='(i,field) in row'> 
+                   <td-input></td-input> 
                 </td>
                 <td class="button">
                     <input type='button' class='delButton' value='X' ng-click='del(id)'></input>
-                    <input type='button' ng-show='inputShow' class='savButton' value='X' ng-click='sav(id)'></input>
+                    <input type='button' ng-show='dirty' class='savButton' value='X' ng-click='sav(id, this)'></input>
                 </td>
              </tr>
         </tbody>
