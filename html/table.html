@@ -3,7 +3,8 @@
         <thead>
             <th ng-repeat="colName in list.meta.columns">{{colName}}</th>
             <th class="button">
-                <add-button class='addButton' textVal='X'  ></add-button>
+                <input type="button" class="addButton"    value='X' ng-click="add()" />
+                <input type='button' class='reloadButton' value='X' ng-click='reload()'/>
             </th>
         </thead>
         <tbody>

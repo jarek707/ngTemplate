@@ -12,41 +12,17 @@
     border-radius: @radius;
 }
 
-table {
-    tr.selected td input[type='text'] {
-        border: 2px solid black;
-        background: #ddd;
-    }
-    tr.dirty td input[type='text'] {
-        border: 2px solid red;
-    }
-    td, th {
-        input { 
-            text-overflow: ellipsis;
-            border:2px solid transparent;
-            border-bottom:1px dotted #aaa;
-            background:transparent;
-            max-width:80px;
-            padding:2px 0 2px 2px;
-        }
-    }
-    td.button, th.button {
-        width:30px;
-        padding:0;
-        .addButton { background: transparent url('image/glyph.png') -408px -96px no-repeat; }
-        .delButton { background: transparent url('image/glyph.png') -314px 2px no-repeat; }
-        .savButton { background: transparent url('image/glyph.png') 0px -72px no-repeat; }
-    }
+body {
+    background:#eee;
+    margin:0;
 }
 
-.button input {
-    color:transparent;
-    background:transparent;
-    border: 1px solid transparent;
-    opacity: 0.7;
-    padding:0;
-    width:12px;
+input {
+    .rounded-corners(5px);
+    border:1px solid #aaa;
 }
+
+li { list-style: none; }
 
 .pane {
     display:block;
@@ -60,20 +36,6 @@ table {
     border:3px solid @borderColor;
     margin:10px;
     padding:5px;
-}
-
-body {
-    background:#eee;
-    margin:0;
-}
-
-li {
-    list-style: none;
-}
-
-input {
-    .rounded-corners(5px);
-    border:1px solid #aaa;
 }
 
 topmenu {
@@ -96,3 +58,46 @@ contentPane {
     min-width:50%;
     min-height:400px;
 }
+
+table {
+    width : 100%;
+    tr th {
+        font-family: Helvetica;
+        font-size:0.8em;
+        text-align:left;
+        padding-left:5px;
+    }
+    tr.selected td input[type='text'] {
+        border: 2px solid black;
+        background: #ddd;
+    }
+    tr.dirty td input[type='text'] {
+        border: 2px solid red;
+    }
+    td, th {
+        input { 
+            text-overflow: ellipsis;
+            border:2px solid transparent;
+            border-bottom:1px dotted #aaa;
+            background:transparent;
+            max-width:80px;
+            padding:2px 0 2px 2px;
+        }
+    }
+    td.button, th.button {
+        width:30px;
+        padding:0 0 0 5px;
+        .delButton { background: transparent url('image/glyph.png') -314px 2px no-repeat; }
+        .addButton { background: transparent url('image/glyph.png') -409px -96px no-repeat; }
+        .savButton { background: transparent url('image/glyph.png') -290px 0px no-repeat; }
+        .reloadButton { background: transparent url('image/glyph.png') -218px -24px no-repeat; }
+    }
+    .button input {
+        color:transparent;
+        background:transparent;
+        border: 1px solid transparent;
+        padding:0;
+        width:12px;
+    }
+}
+

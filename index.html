@@ -35,8 +35,12 @@
             <box ng-transclude>
                 <!-- <div ng-include src='tpl.table'></div> -->
                 <grid config='renters'></grid>
-                <grid config='managers'></grid>
             </box>
+            <box ng-transclude>
+                <grid config='zmanagers'></grid>
+            </box>
+
+            <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
             <!-- <grid config='managers'></grid> -->
