@@ -4,7 +4,6 @@
         root = 'http://ang';
         tpl  = { 'lists' : 'html/lists.html', 
                  'lorem' : 'html/lorem.html',
-                 'right' : 'html/right.html',
                  'table' : 'html/table.html'
                 };
 
@@ -22,7 +21,6 @@
         <script src="http://ang/js/app.js"></script>
 
         <script src="http://ang/js/lib/less.js"></script>
-
     </head>
 
     <body>
@@ -43,7 +41,7 @@
             <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
-            <!-- <grid config='managers'></grid> -->
+            <grid config='localstuff'></grid>
         </rightPane>
     </body>
 </html>
