@@ -6,7 +6,12 @@ function contentPane($scope, $routeParams, $http, gridDataSrv) {
     $scope.clearLocalStorage = function() {
         if (confirm ('This will clear your entire local storage.\nPlease confirm.\n\nAftwrwards you need to reload the page to see changes.'))
             gridDataSrv.clear();
+    },
+
+    $scope.addTable = function() {
+
     }
+
 }
 
 function leftPane() {}

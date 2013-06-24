@@ -1,14 +1,9 @@
 // GLOBAL Utility START
-function SER( arg ) { return JSON.stringify( arg ); }
-
-function LG() {
-    console.log(arguments);
-}
-
-function LGT() {
-    var args  = _.map(arguments, function(v,k) {return v});
-    setTimeout( function() {console.log( args );}, args.pop() );
-}
+function SER(arg) { return JSON.stringify(arg); }
+function LG()     { console.log(arguments);     }
+function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
+                    setTimeout(function() {console.log(args);}, args.pop()); }
+LG ("Local Storage", localStorage);
 // GLOBAL Utility END
 
 //
@@ -55,33 +50,26 @@ angular.module('app.services', ['app.gridConf'])
                 typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
             },
 
-            get: function(key, scope, dataObj) {
+            get: function(attrs, scope) {
+                var key = attrs.key;
                 var url = config.getMeta(key, 'url');
                 if ( url )
                     $http.get(url).success( function(data) { 
-                                    scope.list       = { data : data }; 
-                                    scope.list.meta  = config.getMeta(key);
-                                    scope.listW      = { data : angular.copy(data) };
-                                    scope.listW.meta = config.getMeta(key);
-                                })
-                                .error(   function(data) { 
-                                    LG( ' not found ' );
-                                    scope[dataObj] = _.isEmpty(localStorage[key]) ? {} : JSON.parse(localStorage[key]) } 
-                                );
+                        scope.listW = angular.copy( scope.list = {data:data, meta:config.getMeta(key)} );
+                    });
                  else {
-                    LG ( "Local Storage" , localStorage );
                     if ( _.isEmpty(localStorage[key]) ) {
-                        var cols = prompt(
-                            'Field ' + key + ' is not defined.\nPlease enter column names separated by commas:'
-                        ).split(',');
 
-                        scope.list = { meta : {columns : cols}, data : { "-99": this.mkEmpty(cols)} };
-                        scope.listW = angular.copy( scope.list );
+                        var cols = _.isEmpty(attrs.columns) 
+                        ? prompt('Field ' + key + ' is not defined.\nPlease enter column names separated by commas:').split(',')
+                        : attrs.columns.split(',');
+
+                        //scope.listW = angular.copy( scope.list = {meta:{columns:cols}, data:{"-1":this.mkEmpty(cols)}} );
+                        scope.listW = angular.copy( scope.list = {meta:{columns:cols}, data:{}} );
                         
                         localStorage[key] = JSON.stringify(scope.list);
                     } else {
-                        scope.list  = JSON.parse(localStorage[key]);
-                        scope.listW = JSON.parse(localStorage[key]);
+                        scope.listW = angular.copy( scope.list = JSON.parse(localStorage[key]) );
                     }
                  }
             },
@@ -114,20 +102,20 @@ angular.module('app.directives', [])
             },
 
             controller: function($scope, $element, $attrs) {
-                var rowScope = $scope.$parent.$parent;
+                var rScope = $scope.$parent.$parent;
+                rScope.$parent.rScope = rScope; // in grid scope
 
                 $scope.blr = function() {
-                    rowScope.trClass = isDirty(rowScope.id) ? 'dirty' : '';
+                    rScope.trClass = isDirty(rScope.id) ? 'dirty' : '';
                 };
 
                 $scope.clk = function(id) {
-                    rowScope.rowId = id;
-                    rowScope.trClass = 'selected' + (isDirty(id) ? ' dirty' : '');   
+                    rScope.trClass = 'selected' + (isDirty(id) ? ' dirty' : '');   
                 };
 
                 $scope.chg = function(id, i) {
                     $scope.listW.data[id][i] = $scope.field;
-                    rowScope.dirty = isDirty(id);
+                    rScope.dirty = isDirty(id);
                     $scope.clk(id);
                 };
 
@@ -145,34 +133,37 @@ angular.module('app.directives', [])
             restrict    : 'E',
             scope       : {},
             templateUrl : 'html/table.html',
-
             controller:  function($scope, $element, $attrs) {
-                gridDataSrv.get($attrs.config, $scope, 'list');
+                $scope.rScope = null;
 
-                $scope.sav = function(id, scope) {
-                    _.each($scope.listW.data[id], function(v,k) { $scope.list.data[id][k] = v; });
-                    scope.dirty = false;
-                    scope.trClass = '';
-                    gridDataSrv.sav($attrs.config, $scope.list);
+                gridDataSrv.get($attrs, $scope);
+
+                $scope.sav = function(id, rScope) {
+                    rScope.dirty = false;
+                    rScope.trClass = '';
+                    $scope.list.data[id] = angular.copy($scope.listW.data[id]);
+                    gridDataSrv.sav($attrs.key, $scope.list);
                 };
 
                 $scope.del = function(id)  { 
                     delete $scope.list.data[id];
-                    gridDataSrv.sav($attrs.config, $scope.list);
+                    gridDataSrv.sav($attrs.key, $scope.list);
                 };
 
                 $scope.reload = function() { 
                     $scope.listW = angular.copy($scope.list); 
                     $scope.list  = angular.copy($scope.list); // Need to refresh list to re-render from original data
-                                                              // TODO: there's gotta be a better way
-                };
+                };                                            // TODO: there's gotta be a better way
 
                 $scope.add = function() {
-                    var min    = _.min(_.keys($scope.list.data));
-                    var newIdx =  min < 0 ? parseInt(min)+1 : -99;
+                    var newIdx = parseInt(_.max(_.keys($scope.list.data), function(a) {return parseInt(a)})) - 1;
                     
                     $scope.list.data[newIdx]  = gridDataSrv.mkEmpty($scope.list.meta.columns);
                     $scope.listW.data[newIdx] = gridDataSrv.mkEmpty($scope.list.meta.columns);
+                    setTimeout(
+                        function () { $scope.rScope.trClass = 'selected'; $scope.rScope.$digest(); }
+                        , 100
+                    );
                 }
             }
         }
