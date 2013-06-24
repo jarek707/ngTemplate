@@ -1,11 +1,3 @@
-<style>
-    body  { background:#ddd; font-family:TrebuchetMS; }
-    h2,h4 { font-family:Arial; }
-    code  { color:#a35; }
-    li    { list-style:none; }
-    p     { margin-left:20px; }
-</style>
-
 <h2>Grid Directive</h2>
 <h4>Requriements (all provided in js/lib)</h4>
 <ul>
