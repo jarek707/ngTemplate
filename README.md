@@ -1,9 +1,9 @@
 <h2>Grid Directive</h2>
 <h4>Requriements (all provided in js/lib)</h4>
 <ul>
-    <li>- angular.js</li>
-    <li>- underscore.js</li>
-    <li>- less.js (optional)</li>
+    <li> angular.js</li>
+    <li> underscore.js</li>
+    <li> less.js (optional)</li>
 </ul>
 <h4>Description</h4>
 <p>
@@ -36,7 +36,7 @@
 </ul>
 
 <h4>Config</h4>
-<code><pre>
+<code>
 angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
@@ -53,4 +53,4 @@ angular.module('app.gridConf', [])
                 }
             },
 ...
-</pre></code>
+</code>
