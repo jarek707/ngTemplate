@@ -4,6 +4,18 @@ function LG()     { console.log(arguments);     }
 function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
                     setTimeout(function() {console.log(args);}, args.pop()); }
 LG ("Local Storage", localStorage);
+
+_.mixin({
+    minIntKey : function(obj) {
+        if ( _.isEmpty(obj) ) {
+            return 0;
+        } else {
+            var minKey = _.min(_(_.keys(obj)).map(function(a) {return parseInt(a)}));
+            return minKey > 0 ? 0 : minKey;
+        }
+    }
+});
+
 // GLOBAL Utility END
 
 //
@@ -14,29 +26,32 @@ angular.module('app.gridConf', [])
         return {
             'meta' : {
                 'renters'  : {
-                    'columns' : ['First', 'Last' , 'Start Date', 'End Date', 'Monthly Rent'],
                     'url'     : 'data/renters.php',
-                    'storage' : 'renters'
+                    'columns' : ['First', 'Last' , 'Start Date', 'End Date', 'Monthly Rent']
                 },
                 'managers' : {
                     'columns' : ['First', 'Last' , 'Email', 'Phone'],
-                    'url'     : 'data/managers.php',
-                    'storage' : 'managers'
+                    'url'     : 'data/managers.php'
                 },
-                'loc' : {
-                    'columns' : ['First', 'Last' , 'Local'],
-                    'url'     : 'data/loc.php',
-                    'storage' : 'loc'
+                'localstuff' : {
+                    'columns' : ['First', 'Last' , 'Local']
                 }
             },
 
             getMeta : function(key, field) {
-                return  _.isEmpty(this.meta[key]) 
-                        ?   false
-                        :   (!_.isEmpty(field) && !_.isEmpty(this.meta[key][field]) 
-                                ? this.meta[key][field] 
-                                : this.meta[key]
-                            );
+                if (_.isUndefined(this.meta[key])) {
+                    return false; 
+                } else {
+                    if (_.isUndefined(field)) {
+                        return this.meta[key];
+                    } else {
+                        if (_.isUndefined(this.meta[key][field])) {
+                            return null;
+                        } else {
+                            return this.meta[key][field];
+                        }
+                    }
+                }
             }
 
         }
@@ -50,32 +65,44 @@ angular.module('app.services', ['app.gridConf'])
                 typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
             },
 
-            get: function(attrs, scope) {
-                var key = attrs.key;
-                var url = config.getMeta(key, 'url');
-                if ( url )
-                    $http.get(url).success( function(data) { 
-                        scope.listW = angular.copy( scope.list = {data:data, meta:config.getMeta(key)} );
-                    });
-                 else {
-                    if ( _.isEmpty(localStorage[key]) ) {
+            setParams : function(attrs) {
+                var $return = {key:attrs.key, columns:[], url:null};
 
-                        var cols = _.isEmpty(attrs.columns) 
-                        ? prompt('Field ' + key + ' is not defined.\nPlease enter column names separated by commas:').split(',')
-                        : attrs.columns.split(',');
+                if ( _.isUndefined(attrs.columns)) {
+                    $return.columns = config.getMeta(attrs.key, 'columns');
 
-                        //scope.listW = angular.copy( scope.list = {meta:{columns:cols}, data:{"-1":this.mkEmpty(cols)}} );
-                        scope.listW = angular.copy( scope.list = {meta:{columns:cols}, data:{}} );
-                        
-                        localStorage[key] = JSON.stringify(scope.list);
-                    } else {
-                        scope.listW = angular.copy( scope.list = JSON.parse(localStorage[key]) );
+                    if ($return.columns === null) {
+                        $return.columns = 
+                            prompt('Field ' + key + ' is not defined.\nPlease enter column names separated by commas:').split(',');
                     }
-                 }
+                } else {
+                    $return.columns = attrs.columns.split(',');
+                }
+
+                $return.url = _.isUndefined(attrs.url) ? config.getMeta(attrs.key, 'url') : attrs.url;
+
+                return _.isEmpty($return.columns) ? false : $return;
             },
 
-            mkEmpty : function( columns ) { 
-                return _.map(columns, function(a) { return '';}) 
+            get: function(attrs, scope) {
+                function setLists(src){
+                    scope.listW = angular.copy( scope.list = src );
+                };
+
+                var params = this.setParams(attrs);
+
+                if ( params.url )
+                    $http.get(params.url).success( function(data) { 
+                        setLists({data:data, meta:config.getMeta(params.key)});
+                    });
+                 else {
+                    if ( _.isEmpty(localStorage[params.key]) ) {
+                        setLists({meta:params, data:{}});
+                        localStorage[params.key] = JSON.stringify(scope.list);
+                    } else {
+                        setLists(JSON.parse(localStorage[params.key]));
+                    }
+                 }
             },
 
             sav: function(key, list) {
@@ -95,8 +122,8 @@ angular.module('app.directives', [])
             replace  : true,
             restrict : 'E',
             scope    : true,
-            template : '<input type="text" ng-model="field" ng-change="chg(id, i)" ng-click="clk(id)" />',
-
+            //template : '<input type="text" ng-model="field" ng-change="chg(id, i)" ng-click="clk(id)" />',
+            templateUrl : 'html/grid/textInput.html',
             link: function(scope, el) {
                 el.bind('blur', scope.blr);
             },
@@ -132,7 +159,7 @@ angular.module('app.directives', [])
             replace     : false,
             restrict    : 'E',
             scope       : {},
-            templateUrl : 'html/table.html',
+            templateUrl : 'html/grid/main.html',
             controller:  function($scope, $element, $attrs) {
                 $scope.rScope = null;
 
@@ -156,13 +183,12 @@ angular.module('app.directives', [])
                 };                                            // TODO: there's gotta be a better way
 
                 $scope.add = function() {
-                    var newIdx = parseInt(_.max(_.keys($scope.list.data), function(a) {return parseInt(a)})) - 1;
-                    
-                    $scope.list.data[newIdx]  = gridDataSrv.mkEmpty($scope.list.meta.columns);
-                    $scope.listW.data[newIdx] = gridDataSrv.mkEmpty($scope.list.meta.columns);
+                    var newIdx = _($scope.list.data).minIntKey(-1);
+
+                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns);
+                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns);
                     setTimeout(
-                        function () { $scope.rScope.trClass = 'selected'; $scope.rScope.$digest(); }
-                        , 100
+                        function () { $scope.rScope.trClass = 'selected'; $scope.rScope.$digest(); }, 100
                     );
                 }
             }
