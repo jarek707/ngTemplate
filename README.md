@@ -36,7 +36,7 @@
 </ul>
 
 <h4>Config</h4>
-<code>
+<code><pre>
 angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
@@ -53,4 +53,4 @@ angular.module('app.gridConf', [])
                 }
             },
 ...
-</code>
+</pre></code>
