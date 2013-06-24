@@ -160,8 +160,11 @@ angular.module('app.directives', [])
             restrict    : 'E',
             scope       : {},
             templateUrl : 'html/grid/main.html',
-            controller:  function($scope, $element, $attrs) {
-                $scope.rScope = null;
+            link        : function($scope, $element) {
+                $element.css( {"display": _.isUndefined($scope.list) ? "none" : "block"} );
+            },
+            controller  :  function($scope, $element, $attrs) {
+                $scope.rScope = null; // row Scope
 
                 gridDataSrv.get($attrs, $scope);
 
@@ -188,7 +191,7 @@ angular.module('app.directives', [])
                     $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns);
                     $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns);
                     setTimeout(
-                        function () { $scope.rScope.trClass = 'selected'; $scope.rScope.$digest(); }, 100
+                        function () {$scope.rScope.trClass = 'selected'; $scope.rScope.$digest();}, 100
                     );
                 }
             }
