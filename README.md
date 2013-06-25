@@ -20,12 +20,12 @@
 <ul>
     <li>
         Option 1: Specify all grid params in HTML markup:<br />
-            <code>&lt;grid key="users" columns="First,Last,Email" url="data'users.php"&gt;&lt;/grid&gt;</code><br />
+            <code>&lt;grid key="users" columns="First,Last,Email" url="data/users.php"&gt;&lt;/grid&gt;</code><br />
     </li>
     <br />
     <li>
         Option 2: Specify grid some params in HTML markup:<br />
-            a. <code>&lt;grid key="users" url="data'users.php"&gt;&lt;/grid&gt;</code><br />
+            a. <code>&lt;grid key="users" url="data/users.php"&gt;&lt;/grid&gt;</code><br />
             b. <code>&lt;grid key="managers" columns="First,Last,Email"&gt;&lt;/grid&gt;</code><br />
     </li>
     <br />
