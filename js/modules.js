@@ -3,19 +3,6 @@ function SER(arg) { return JSON.stringify(arg); }
 function LG()     { console.log(arguments);     }
 function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
                     setTimeout(function() {console.log(args);}, args.pop()); }
-LG ("Local Storage", localStorage);
-
-_.mixin({
-    minIntKey : function(obj) {
-        if ( _.isEmpty(obj) ) {
-            return 0;
-        } else {
-            var minKey = _.min(_(_.keys(obj)).map(function(a) {return parseInt(a)}));
-            return minKey > 0 ? 0 : minKey;
-        }
-    }
-});
-
 // GLOBAL Utility END
 
 //
@@ -107,6 +94,7 @@ angular.module('app.services', ['app.gridConf'])
 
             sav: function(key, list) {
                 localStorage[key] = JSON.stringify( list );
+                return 'success';
             }
         }
     })
@@ -169,18 +157,22 @@ angular.module('app.directives', [])
                 gridDataSrv.get($attrs, $scope);
 
                 $scope.sav = function(id, rScope) {
-                    rScope.dirty = false;
-                    rScope.trClass = '';
+                    rScope.dirty         = false;
+                    rScope.trClass       = '';
                     $scope.list.data[id] = angular.copy($scope.listW.data[id]);
-                    gridDataSrv.sav($attrs.key, $scope.list);
+
+                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
                 };
 
                 $scope.del = function(id)  { 
                     delete $scope.list.data[id];
-                    gridDataSrv.sav($attrs.key, $scope.list);
+                    $scope.notify('', gridDataSrv.sav($attrs.key, $scope.list), 'Deleting row with id <b>' + id + '</b>');
+                    
                 };
 
                 $scope.reload = function() { 
+                    $scope.notify('rel', 'success');
+
                     $scope.listW = angular.copy($scope.list); 
                     $scope.list  = angular.copy($scope.list); // Need to refresh list to re-render from original data
                 };                                            // TODO: there's gotta be a better way
@@ -188,12 +180,47 @@ angular.module('app.directives', [])
                 $scope.add = function() {
                     var newIdx = _($scope.list.data).minIntKey(-1);
 
-                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns);
-                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns);
+                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns, '');
+                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns, '');
                     setTimeout(
                         function () {$scope.rScope.trClass = 'selected'; $scope.rScope.$digest();}, 100
                     );
-                }
+                };
+            }
+        }
+    })
+    .directive('notify', function factory() {
+        return {
+            restrict   : 'C',
+            replace    : true,
+            scope      : true,
+            controller : function($scope, $element) {
+
+                $scope.$parent.notify = function(msgId, type, msg) {
+                    if ( _.isUndefined(type)) type = 'info';
+                    if ( _.isUndefined(msg))  msg  = '';
+
+                    switch (msgId) {
+                        case 'sav' : flash('Saving Row.'      + msg, type); break;
+                        case 'rel' : flash('Reloading Table.' + msg, type); break;
+                        default    : flash(                     msg, type); break;
+                    }
+                };
+
+                function flash(msg, type, howLong) {
+                    var colors = {"success":"green", "warn":"#a80", "error":"red", "info":"blue"};
+
+                    if (_.isUndefined(howLong)) howLong = 1;
+
+                    $element.html('<b><i>' + _(type).camelize() + ':</i></b> ' + msg)
+                            .css( {opacity:1, color:colors[type]} );
+
+                    setTimeout(function() {$element.css({opacity:0})}, 2000*howLong);
+                };
+
+                setTimeout(function() {     if (_.isEmpty($scope.list.data))
+                                                flash("Please click on the '+' icon to add rows", 'info', 3);
+                                      }, 300);
             }
         }
     })

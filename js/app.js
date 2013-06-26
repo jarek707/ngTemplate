@@ -1,14 +1,21 @@
 _.mixin({
     minIntKey : function(obj, offset) {
+        if (_.isUndefined(offset)) offset = 0;
+
         if ( _.isEmpty(obj) ) {
-            return 0;
+            return parseInt(offset);
         } else {
             var minKey = _.min(_(_.keys(obj)).map(function(a) {return parseInt(a)}));
-            return (minKey > 0 ? 0 : minKey) + parseInt(offset);;
+            return (minKey > 0 ? 0 : minKey) + parseInt(offset);
         }
     },
-    mkEmpty : function( arr ) {
-        return _.map(arr, function(a) { return ''});
+    mkEmpty : function( arr , id) {
+        return _.map(arr, function(a) {return (_.isUndefined(id) ? '' : id)});
+    },
+    camelize : function(str) {
+        return ( _(str.split('_')).map( 
+            function(a,b) { return  a.charAt(0).toUpperCase() + a.substring(1).toLowerCase() }
+        )).join('');
     }
 });
 
