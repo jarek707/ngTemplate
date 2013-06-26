@@ -29,6 +29,10 @@
             b. <code>&lt;grid key="managers" columns="First,Last,Email"&gt;&lt;/grid&gt;</code><br />
     </li>
     <br />
+    <li>
+        Option 3: Only specify grid <code>key</code> param in HTML markup:<br />
+            <code>&lt;grid key="users"&gt;&lt;/grid&gt;</code><br />
+    </li>
 </ul>
 
 <h4>Config</h4>
