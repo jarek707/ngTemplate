@@ -142,6 +142,40 @@ angular.module('app.directives', [])
             }
         }
     })
+    .directive('trButtons', function factory($compile) {
+        return {
+            replace  :false,
+            restrict : 'A',
+            templateUrl : 'html/grid/trButtons.html',
+            controller  : function($scope, $element, $attrs) {
+                $scope.sub = function() {
+                    $element.parent().parent().find('tr').css({"display":"none"});
+                    $element.parent().css({'display' : 'table-row'});
+                    console.log( 'sub in tr but');
+                    var el = $compile('<grid key="z123" columns="One,two"></grid>')($scope);
+                    $element.parent().parent().parent().after(el);
+                };
+
+                $scope.exp = function(id, el) {
+                    insertHtml(
+                        '<div>stuff here</div>'
+                    );
+                };
+
+                function insertHtml(html) { 
+                    $element.parent().parent().find('tr').css({"display":"none"});
+                    $element.parent().css({'display' : 'table-row'});
+                    var tab = $element.parent().parent().parent();
+                    tab.after( html + "<input type='button' value='X' onclick='console.log(this)'/>" );
+                }; 
+
+                function restoreHtml() {
+                    $element.parent().parent().find('tr').css({"display":"table-row"});
+                }
+
+            }
+        }
+    })
     .directive('grid', function factory(gridDataSrv, config) {
         return {
             replace     : false,
@@ -157,8 +191,10 @@ angular.module('app.directives', [])
                 gridDataSrv.get($attrs, $scope);
 
                 $scope.sav = function(id, rScope) {
+
                     rScope.dirty         = false;
                     rScope.trClass       = '';
+
                     $scope.list.data[id] = angular.copy($scope.listW.data[id]);
 
                     $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
@@ -171,11 +207,11 @@ angular.module('app.directives', [])
                 };
 
                 $scope.reload = function() { 
-                    $scope.notify('rel', 'success');
 
                     $scope.listW = angular.copy($scope.list); 
                     $scope.list  = angular.copy($scope.list); // Need to refresh list to re-render from original data
-                };                                            // TODO: there's gotta be a better way
+                    $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
+                };
 
                 $scope.add = function() {
                     var newIdx = _($scope.list.data).minIntKey(-1);
@@ -213,9 +249,9 @@ angular.module('app.directives', [])
                     if (_.isUndefined(howLong)) howLong = 1;
 
                     $element.html('<b><i>' + _(type).camelize() + ':</i></b> ' + msg)
-                            .css( {opacity:1, color:colors[type]} );
+                            .css( {display:"block", color:colors[type]} );
 
-                    setTimeout(function() {$element.css({opacity:0})}, 2000*howLong);
+                    setTimeout(function() {$element.css({display:"none"})}, 2000*howLong);
                 };
 
                 setTimeout(function() {     if (_.isEmpty($scope.list.data))
@@ -230,6 +266,20 @@ angular.module('app.directives', [])
             template:   '<div class="box"></div>',
             transclude: true,
             replace:    true
+        }
+        
+    })
+    .directive('imgInput', function factory() {
+        return {
+            restrict:   'E',
+            template:   '<div class="imgPar"><img ng-src="{{src}}" align="left" width="80" height="100"/><p>{{content}}</p></div>',
+            transclude: true,
+            replace:    true,
+            controller : function($scope, $element, $attrs) {
+                $scope.src = 'shot.png';
+                $scope.content ='Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... ';
+                //$scope.content ='Lorem ipsum dolor bla, bla, bla, bla, bla, bla';
+            }
         }
         
     })

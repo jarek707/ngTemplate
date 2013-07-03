@@ -13,6 +13,7 @@
 }
 
 body {
+    min-width:990px;
     background:#eee;
     margin:0;
 }
@@ -33,7 +34,7 @@ li { list-style: none; }
 topmenu {
     height: @menuHeight;
     color: @menuColor;
-    width:99%;
+    width:99.7%;
     background: @menuBg;
     padding:4px;
     margin:0;
@@ -59,7 +60,10 @@ contentPane {
     .rounded-corners(10px);
     border:3px solid @borderColor;
     margin:10px;
-    padding:5px 5px 25px 5px;
+    padding:5px 5px 5px 5px;
+    overflow:auto;
+    float:left;
+    clear:both;
 }
 
 grid {
@@ -93,20 +97,27 @@ grid {
         }
         td.button, th.button {
             .rounded-corners(4px);
-            width:30px;
-            padding:0 5px 0 10px;
+            width:58px;
+            padding:0 2px 0 1px;
             background:#cfdfef;
-            .delButton { background: transparent url('image/glyph.png') -314px 2px no-repeat; }
+            .delButton { background: transparent url('image/glyph.png') -458px 0px no-repeat; }
+            .expButton { background: transparent url('image/glyph.png') -2px   -72px no-repeat; }
+            .subButton { background: transparent url('image/glyph.png') -410px -120px no-repeat; width:14px; }
+            .savButton { background: transparent url('image/glyph.png') -290px -1px no-repeat; }
+
             .addButton { background: transparent url('image/glyph.png') -409px -96px no-repeat; }
-            .savButton { background: transparent url('image/glyph.png') -290px 0px no-repeat; }
             .reloadButton { background: transparent url('image/glyph.png') -218px -24px no-repeat; }
         }
         .button input {
+            float:right;
+            cursor:pointer;
             color:transparent;
             background:transparent;
             border: 1px solid transparent;
             padding:0;
             width:12px;
+            margin-left:2px;
+            -webkit-border-radius:0;
         }
     }
     div.notify {
@@ -118,7 +129,12 @@ grid {
         margin:0 2px 0 0;
         padding:3px 5px;
         background:#cfdfef;
-        opacity:0;
+        display:none;
+        margin:3px 4px 0px 5px;
     }
+}
+
+div.imgPar img {
+    margin-right:12px;
 }
 

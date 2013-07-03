@@ -17,7 +17,7 @@
 
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/angular.js"></script>
-        <script src="http://ang/js/modules.js"></script>
+        <script src="http://ang/js/grid.js"></script>
         <script src="http://ang/js/app.js"></script>
 
         <script src="http://ang/js/lib/less.js"></script>
@@ -40,6 +40,12 @@
         </contentPane>
         <rightPane class='pane' ng-controller="rightPane">
             <grid key='localstuff' columns="One,Two"></grid>
+            <box ng-transclude>
+                <img-input />
+            </box>
+            <box ng-transclude>
+            <img src='shot.png' width="130" height="180" align='right' /><p>Text here ... Text here ... Text here ... Text here ...</p>
+        </box>
         </rightPane>
     </body>
 </html>

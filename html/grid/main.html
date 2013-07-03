@@ -3,8 +3,8 @@
         <thead>
             <th ng-repeat="colName in list.meta.columns">{{colName}}</th>
             <th class="button">
-                <input type="button" class="addButton"    value='X' ng-click="add()" />
                 <input type='button' class='reloadButton' value='X' ng-click='reload()'/>
+                <input type="button" class="addButton"    value='X' ng-click="add()" />
             </th>
         </thead>
         <tbody>
@@ -12,10 +12,7 @@
                 <td ng-repeat='(i,field) in row'> 
                    <td-input></td-input> 
                 </td>
-                <td class="button">
-                    <input type='button' class='delButton' value='X' ng-click='del(id)'></input>
-                    <input type='button' ng-show='dirty' class='savButton' value='X' ng-click='sav(id, this)'></input>
-                </td>
+                <td class="button" tr-buttons></td>
              </tr>
         </tbody>
     </table>
