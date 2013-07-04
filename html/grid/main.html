@@ -1,4 +1,7 @@
-<div>
+<div id='{{$id}}'>
+    <div class='gridHead' ng-click="restore()">
+        <div>{{key}}</div><div>{{workRow}}</div>
+    </div>
     <table>
         <thead>
             <th ng-repeat="colName in list.meta.columns">{{colName}}</th>

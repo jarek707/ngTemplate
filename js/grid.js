@@ -12,9 +12,17 @@ angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
             'meta' : {
-                'renters'  : {
-                    'url'     : 'data/renters.php',
-                    'columns' : ['First', 'Last' , 'Start Date', 'End Date', 'Monthly Rent']
+                'cluster'  : {
+                    'url'      : 'data/cluster.php',
+                    'columns'  : ['Name', 'Age' , 'Number'],
+                    'children' : {
+                        'system' : {
+                            'columns' : ['Name', 'Position','Orientation']
+                        },
+                        'observers' : {
+                            'columns' : ['First', 'Last','Contact']
+                        }
+                    }
                 },
                 'managers' : {
                     'columns' : ['First', 'Last' , 'Email', 'Phone'],
@@ -40,7 +48,6 @@ angular.module('app.gridConf', [])
                     }
                 }
             }
-
         }
     })
 ;
@@ -104,7 +111,7 @@ angular.module('app.services', ['app.gridConf'])
 //
 //  Directives START
 //
-angular.module('app.directives', [])
+angular.module('app.directives', ['app.gridConf'])
     .directive('tdInput', function factory() {
         return {
             replace  : true,
@@ -148,11 +155,15 @@ angular.module('app.directives', [])
             restrict : 'A',
             templateUrl : 'html/grid/trButtons.html',
             controller  : function($scope, $element, $attrs) {
-                $scope.sub = function() {
-                    $element.parent().parent().find('tr').css({"display":"none"});
-                    $element.parent().css({'display' : 'table-row'});
-                    console.log( 'sub in tr but');
+
+                $scope.sub = function(id) {
+                    tableEl().find('tr').css({"display":"none"});
+                    $scope.$parent.workRow = 
+                        _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
+
                     var el = $compile('<grid key="z123" columns="One,two"></grid>')($scope);
+                    LG( $scope.getGridEl() );
+
                     $element.parent().parent().parent().after(el);
                 };
 
@@ -164,7 +175,6 @@ angular.module('app.directives', [])
 
                 function insertHtml(html) { 
                     $element.parent().parent().find('tr').css({"display":"none"});
-                    $element.parent().css({'display' : 'table-row'});
                     var tab = $element.parent().parent().parent();
                     tab.after( html + "<input type='button' value='X' onclick='console.log(this)'/>" );
                 }; 
@@ -172,6 +182,8 @@ angular.module('app.directives', [])
                 function restoreHtml() {
                     $element.parent().parent().find('tr').css({"display":"table-row"});
                 }
+
+                function tableEl() { return $element.parent().parent().parent(); }
 
             }
         }
@@ -187,8 +199,16 @@ angular.module('app.directives', [])
             },
             controller  :  function($scope, $element, $attrs) {
                 $scope.rScope = null; // row Scope
+                $scope.restore = function() {
+                    $element.find('tr').css({"display" : "table-row"});
+                    var inGrid = $element.find('grid');
+                }
 
                 gridDataSrv.get($attrs, $scope);
+
+                $scope.key = _($attrs.key).camelize();
+
+                $scope.getGridEl  = function() { return $element; }
 
                 $scope.sav = function(id, rScope) {
 

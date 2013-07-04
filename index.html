@@ -9,7 +9,7 @@
 
         jsIncludes = ['lib/underscore','lib/angular', 'modules', 'app'];
 
-    "/>
+    "></rootScope>
 
     <head ng-controller='htmlHead'>
         <title>Test App * * * * *</title>
@@ -24,28 +24,27 @@
     </head>
 
     <body>
-        <topMenu class='pane' ng-controller="topMenu">
-            <div ng-include src='tpl.lists'></div>
-        </topMenu>
-        <leftPane class='pane' ng-controller="leftPane">
-        </leftPane>
-        <contentPane class='pane' ng-controller="contentPane">
-            <box ng-transclude>
-                <grid key='renters' columns='First,Last,Start Date,Rent' ng-show='list'></grid>
-            </box>
-            <box ng-transclude>
-                <grid key='zmanagers' columns="Invoice #, Amount"></grid>
-            </box>
-            <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
-        </contentPane>
-        <rightPane class='pane' ng-controller="rightPane">
-            <grid key='localstuff' columns="One,Two"></grid>
-            <box ng-transclude>
-                <img-input />
-            </box>
-            <box ng-transclude>
-            <img src='shot.png' width="130" height="180" align='right' /><p>Text here ... Text here ... Text here ... Text here ...</p>
-        </box>
-        </rightPane>
+        <div id='page'>
+            <topMenu ng-controller="topMenu">
+                <div ng-include src='tpl.lists'></div>
+            </topMenu>
+            <div class='contentWrap'>
+                <contentPane ng-controller="contentPane">
+                    <box ng-transclude>
+                        <grid key='cluster' ng-show='list'></grid>
+                    </box>
+                    <box ng-transclude>
+                        <grid key='zmanagers' columns="Invoice #, Amount"></grid>
+                    </box>
+                    <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
+                </contentPane>
+                <div class='left'>
+                    data here left
+                </div>
+                <div class='right'>
+                    <div style='position:relative; float:left'>data right</div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

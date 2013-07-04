@@ -18,6 +18,12 @@ body {
     margin:0;
 }
 
+div#page {
+    min-width:500px;
+    max-width:64em;
+    margin:0 auto;
+}
+
 input {
     .rounded-corners(5px);
     border:1px solid #aaa;
@@ -25,13 +31,9 @@ input {
 
 li { list-style: none; }
 
-.pane {
-    display:block;
+topmenu {
     position:relative;
     float:left;
-}
-
-topmenu {
     height: @menuHeight;
     color: @menuColor;
     width:99.7%;
@@ -40,20 +42,28 @@ topmenu {
     margin:0;
 }
 
-rightPane, leftPane {
-    width:300px;
-    background:#adf;
-    min-height:800px;
+div.contentWrap {
+    border-left:170px solid #ef9;
+    border-right:160px solid #cce844;
 }
 
-leftPane {
-    width: 120px;
-}
+contentPane, .left, .right  { float:left; }
+.right, .left               { position:relative; }
 
 contentPane {
+    width:100%;
     background:#def;
-    min-width:50%;
-    min-height:200px;
+}
+
+.right, .left{
+    width:160px;
+    margin-right:-160px;
+}
+
+.left {
+    width: 170px;
+    margin-left:-170px;
+    left:-100%;
 }
 
 .box {
@@ -67,7 +77,25 @@ contentPane {
 }
 
 grid {
+    .gridHead {
+        width:99%;
+        float:left;
+        background: @menuBg;
+        color:#ddd;
+        font-family:Helvetica;
+        font-size:0.7em;
+        padding:3px;
+        .rounded-corners(2px);
+        div {
+            position:relative;
+            float:left;
+            margin-left: 12px; }
+    }
+
     table {
+        tr td {
+            min-width:56px;
+        }
         width:100%;
         tr th.ng-scope {
             font-family: Helvetica;
