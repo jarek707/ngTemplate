@@ -1,8 +1,24 @@
-@menuHeight: 0px;
-@menuBg: #3879BD;
+@menuHeight: 75px;
+@rightWidth: 80px;
+@leftWidth:  220px;
+
+@menuBg: lighten(#377095, 20%);
 @menuColor: #eee;
 
-@borderColor: #ddd;
+@mainPaneBg: #D0E5F2;
+@leftPaneBg: #D3DCE0;
+@rightPaneBg: #D3DCE0;
+@borderColor: darken(#D3DCE0, 12%);
+@borderDirtyColor: #A03A5E;
+
+@successColor: green;
+@infoColor: blue;
+@warningColor: yellow;
+@errorColor: #A03A5E;
+
+.glyphBg(@left, @top) {
+    background: transparent url('../image/glyph.png') @left @top  no-repeat;
+}
 
 .rounded-corners (@radius: 5px) {
     -webkit-border-radius: @radius;
@@ -13,15 +29,22 @@
 }
 
 body {
-    min-width:990px;
+    min-width:790px;
     background:#eee;
     margin:0;
 }
 
 div#page {
-    min-width:500px;
-    max-width:64em;
+    min-width:400px;
+    max-width:68em;
     margin:0 auto;
+}
+
+div#footer {
+    position:absolute;
+    bottom:0;
+    height:45px;
+    background:red;
 }
 
 input {
@@ -36,15 +59,16 @@ topmenu {
     float:left;
     height: @menuHeight;
     color: @menuColor;
-    width:99.7%;
+    width:100%;
     background: @menuBg;
-    padding:4px;
+    padding:0px;
     margin:0;
 }
 
 div.contentWrap {
-    border-left:170px solid #ef9;
-    border-right:160px solid #cce844;
+    border-left:@leftWidth solid @leftPaneBg;
+    border-right:@rightWidth solid @rightPaneBg;
+    height:100%;
 }
 
 contentPane, .left, .right  { float:left; }
@@ -52,17 +76,17 @@ contentPane, .left, .right  { float:left; }
 
 contentPane {
     width:100%;
-    background:#def;
+    background:@mainPaneBg;
 }
 
-.right, .left{
-    width:160px;
-    margin-right:-160px;
+.right {
+    width: @rightWidth;
+    margin-right:(0-@rightWidth);
 }
 
 .left {
-    width: 170px;
-    margin-left:-170px;
+    width: @leftWidth;
+    margin-left:(0-@leftWidth);
     left:-100%;
 }
 
@@ -72,7 +96,6 @@ contentPane {
     margin:10px;
     padding:5px 5px 5px 5px;
     overflow:auto;
-    float:left;
     clear:both;
 }
 
@@ -83,13 +106,31 @@ grid {
         background: @menuBg;
         color:#ddd;
         font-family:Helvetica;
-        font-size:0.7em;
+        font-size:0.9em;
         padding:3px;
         .rounded-corners(2px);
+        margin-bottom:4px;
         div {
             position:relative;
             float:left;
-            margin-left: 12px; }
+            margin-left: 12px; 
+        }
+        span{
+            .rounded-corners(2px);
+            float:right;
+            font-family: Helvetica;
+            font-size:1em;
+            color : green;
+            margin:0 2px 0 0;
+            padding:0px 2px;
+            background:@mainPaneBg;
+            display:none;
+            margin:0;
+        }
+        span.success {color:@successColor;}
+        span.info    {color:@infoColor;   }
+        span.warning {color:@warningColor;}
+        span.error   {color:@errorColor;  }
     }
 
     table {
@@ -107,19 +148,19 @@ grid {
             padding-left:5px;
         }
         tr.selected td input[type='text'] {
-            border: 2px solid black;
+            border: 2px solid lighten(@borderColor, 20%);
             background: #ddd;
         }
         tr.dirty td input[type='text'] {
-            border: 2px solid red;
+            border: 2px solid @borderDirtyColor;
         }
         td, th {
             input { 
                 text-overflow: ellipsis;
                 border:2px solid transparent;
-                border-bottom:1px dotted #aaa;
+                border-bottom:1px dashed @borderColor;
                 background:transparent;
-                max-width:80px;
+                width:99%;
                 padding:2px 0 2px 2px;
             }
         }
@@ -127,14 +168,14 @@ grid {
             .rounded-corners(4px);
             width:58px;
             padding:0 2px 0 1px;
-            background:#cfdfef;
-            .delButton { background: transparent url('image/glyph.png') -458px 0px no-repeat; }
-            .expButton { background: transparent url('image/glyph.png') -2px   -72px no-repeat; }
-            .subButton { background: transparent url('image/glyph.png') -410px -120px no-repeat; width:14px; }
-            .savButton { background: transparent url('image/glyph.png') -290px -1px no-repeat; }
+            background: lighten(@borderColor,8%);
+            .delButton { .glyphBg(-458px, 0px);    }
+            .expButton { .glyphBg(-2px, -72px);    }
+            .subButton { .glyphBg(-410px, -120px); }
+            .savButton { .glyphBg(-290px, -1px);   }
 
-            .addButton { background: transparent url('image/glyph.png') -409px -96px no-repeat; }
-            .reloadButton { background: transparent url('image/glyph.png') -218px -24px no-repeat; }
+            .addButton    { .glyphBg(-409px, -96px); }
+            .reloadButton { .glyphBg(-218px, -24px); }
         }
         .button input {
             float:right;
@@ -147,18 +188,6 @@ grid {
             margin-left:2px;
             -webkit-border-radius:0;
         }
-    }
-    div.notify {
-        .rounded-corners(4px);
-        float:right;
-        font-family: Helvetica;
-        font-size:0.8em;
-        color : green;
-        margin:0 2px 0 0;
-        padding:3px 5px;
-        background:#cfdfef;
-        display:none;
-        margin:3px 4px 0px 5px;
     }
 }
 

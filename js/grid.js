@@ -33,7 +33,21 @@ angular.module('app.gridConf', [])
                 }
             },
 
+            findMeta : function(key) {
+                LG( key );
+                var keys = key.split(':');
+                var root = keys.shift();
+                var meta = angular.copy(this.meta[root]);
+                for (var i=0 ; i<keys.length ; i++ ) {
+                    LG( 'key:::' , keys[i], meta, meta.children[keys[i]]);
+                    meta = meta.children[keys[i]];
+                }
+                
+                LG( meta, 'meta' );
+            },
+
             getMeta : function(key, field) {
+                this.findMeta(key);
                 if (_.isUndefined(this.meta[key])) {
                     return false; 
                 } else {
@@ -79,6 +93,7 @@ angular.module('app.services', ['app.gridConf'])
             },
 
             get: function(attrs, scope) {
+            LG( scope );
                 function setLists(src){
                     scope.listW = angular.copy( scope.list = src );
                 };
@@ -94,6 +109,11 @@ angular.module('app.services', ['app.gridConf'])
                         setLists({meta:params, data:{}});
                         localStorage[params.key] = JSON.stringify(scope.list);
                     } else {
+                        LG( params.key , ' in get', localStorage[params.key] );
+                        if ( _.isUndefined(localStorage[params.key]) ) {
+                            LG( params );
+                            setLists({meta:params, data:{}});
+                        }
                         setLists(JSON.parse(localStorage[params.key]));
                     }
                  }
@@ -112,7 +132,7 @@ angular.module('app.services', ['app.gridConf'])
 //  Directives START
 //
 angular.module('app.directives', ['app.gridConf'])
-    .directive('tdInput', function factory() {
+    .directive('tdInput', function factory(config) {
         return {
             replace  : true,
             restrict : 'E',
@@ -149,7 +169,7 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
-    .directive('trButtons', function factory($compile) {
+    .directive('trButtons', function factory($compile, config) {
         return {
             replace  :false,
             restrict : 'A',
@@ -157,34 +177,29 @@ angular.module('app.directives', ['app.gridConf'])
             controller  : function($scope, $element, $attrs) {
 
                 $scope.sub = function(id) {
-                    tableEl().find('tr').css({"display":"none"});
+                    hideGrid();
+                    LG( $scope.$parent.key, $scope.$parent.pKey);
                     $scope.$parent.workRow = 
                         _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
 
-                    var el = $compile('<grid key="z123" columns="One,two"></grid>')($scope);
-                    LG( $scope.getGridEl() );
+                    _(config.getMeta($scope.$parent.key).children).each( function(v,k) { 
+                        var el = $compile('<grid key="' + $scope.$parent.pKey + ':' + k + '"></grid>')($scope);
+                        tableEl().after(el);
+                    });
 
-                    $element.parent().parent().parent().after(el);
                 };
 
                 $scope.exp = function(id, el) {
-                    insertHtml(
-                        '<div>stuff here</div>'
-                    );
+                    hideGrid();
+                    tableEl().after( html + "<input type='button' value='X' onclick='console.log(this)'/>" );
                 };
-
-                function insertHtml(html) { 
-                    $element.parent().parent().find('tr').css({"display":"none"});
-                    var tab = $element.parent().parent().parent();
-                    tab.after( html + "<input type='button' value='X' onclick='console.log(this)'/>" );
-                }; 
 
                 function restoreHtml() {
                     $element.parent().parent().find('tr').css({"display":"table-row"});
                 }
 
-                function tableEl() { return $element.parent().parent().parent(); }
-
+                function tableEl()  { return $element.parent().parent().parent(); }
+                function hideGrid() { tableEl().find('tr').css({"display":"none"}); }
             }
         }
     })
@@ -201,17 +216,16 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.rScope = null; // row Scope
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
-                    var inGrid = $element.find('grid');
                 }
 
+                LG ( 'in grid cont');
                 gridDataSrv.get($attrs, $scope);
+                $scope.pKey = _.isUndefined($attrs.pKey) ? $attrs.key : $attrs.pKey;
 
-                $scope.key = _($attrs.key).camelize();
-
+                $scope.key = $attrs.key;
                 $scope.getGridEl  = function() { return $element; }
 
                 $scope.sav = function(id, rScope) {
-
                     rScope.dirty         = false;
                     rScope.trClass       = '';
 
