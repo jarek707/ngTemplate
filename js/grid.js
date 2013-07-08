@@ -26,7 +26,14 @@ angular.module('app.gridConf', [])
                 },
                 'managers' : {
                     'columns' : ['First', 'Last' , 'Email', 'Phone'],
-                    'url'     : 'data/managers.php'
+                    'children': {
+                        'office' : {
+                            'columns' : ['Address', 'Phone', 'Branch']
+                        },
+                        'field' : {
+                            'columns' : ['Location', 'Cell', 'Region']
+                        }
+                    }
                 },
                 'localstuff' : {
                     'columns' : ['First', 'Last' , 'Local']
@@ -34,16 +41,17 @@ angular.module('app.gridConf', [])
             },
 
             findMeta : function(key) {
-                LG( key );
                 var keys = key.split(':');
                 var root = keys.shift();
                 var meta = angular.copy(this.meta[root]);
                 for (var i=0 ; i<keys.length ; i++ ) {
-                    LG( 'key:::' , keys[i], meta, meta.children[keys[i]]);
                     meta = meta.children[keys[i]];
                 }
-                
-                LG( meta, 'meta' );
+                return meta;
+            },
+
+            getColumns: function(key) {
+                return this.findMeta(key).columns;
             },
 
             getMeta : function(key, field) {
@@ -73,11 +81,10 @@ angular.module('app.services', ['app.gridConf'])
                 typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
             },
 
-            setParams : function(attrs) {
+            setParams : function(attrs, scope) {
                 var $return = {key:attrs.key, columns:[], url:null};
-
                 if ( _.isUndefined(attrs.columns)) {
-                    $return.columns = config.getMeta(attrs.key, 'columns');
+                    $return.columns = config.getColumns(attrs.key);
 
                     if ($return.columns === null) {
                         $return.columns = 
@@ -93,34 +100,33 @@ angular.module('app.services', ['app.gridConf'])
             },
 
             get: function(attrs, scope) {
-            LG( scope );
                 function setLists(src){
                     scope.listW = angular.copy( scope.list = src );
                 };
 
-                var params = this.setParams(attrs);
+                var params = this.setParams(attrs, scope);
 
                 if ( params.url )
                     $http.get(params.url).success( function(data) { 
                         setLists({data:data, meta:config.getMeta(params.key)});
                     });
                  else {
-                    if ( _.isEmpty(localStorage[params.key]) ) {
+                    var key = params.key + '/' + scope.pId;
+
+                    if ( _.isEmpty(localStorage[key]) ) {
                         setLists({meta:params, data:{}});
-                        localStorage[params.key] = JSON.stringify(scope.list);
+                        //localStorage[params.key] = JSON.stringify(scope.list);
                     } else {
-                        LG( params.key , ' in get', localStorage[params.key] );
-                        if ( _.isUndefined(localStorage[params.key]) ) {
-                            LG( params );
+                        if ( _.isUndefined(localStorage[key]) ) {
                             setLists({meta:params, data:{}});
                         }
-                        setLists(JSON.parse(localStorage[params.key]));
+                        setLists(JSON.parse(localStorage[key]));
                     }
                  }
             },
 
-            sav: function(key, list) {
-                localStorage[key] = JSON.stringify( list );
+            sav: function(key, list, id) {
+                localStorage[key + '/' + id] = JSON.stringify( list );
                 return 'success';
             }
         }
@@ -178,12 +184,11 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.sub = function(id) {
                     hideGrid();
-                    LG( $scope.$parent.key, $scope.$parent.pKey);
                     $scope.$parent.workRow = 
                         _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
 
                     _(config.getMeta($scope.$parent.key).children).each( function(v,k) { 
-                        var el = $compile('<grid key="' + $scope.$parent.pKey + ':' + k + '"></grid>')($scope);
+                        var el = $compile('<grid pid="' + $scope.$parent.pId + ':' + id + '"' + 'key="' + $scope.$parent.pKey + ':' + k + '"></grid>')($scope);
                         tableEl().after(el);
                     });
 
@@ -214,15 +219,17 @@ angular.module('app.directives', ['app.gridConf'])
             },
             controller  :  function($scope, $element, $attrs) {
                 $scope.rScope = null; // row Scope
+                
+                $scope.pId  = _.isUndefined($attrs.pid)  ? 'r'        : $attrs.pid;
+                $scope.pKey = _.isUndefined($attrs.pKey) ? $attrs.key : $attrs.pKey;
+                $scope.key  = $attrs.key;
+
+                gridDataSrv.get($attrs, $scope);
+
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
                 }
 
-                LG ( 'in grid cont');
-                gridDataSrv.get($attrs, $scope);
-                $scope.pKey = _.isUndefined($attrs.pKey) ? $attrs.key : $attrs.pKey;
-
-                $scope.key = $attrs.key;
                 $scope.getGridEl  = function() { return $element; }
 
                 $scope.sav = function(id, rScope) {
@@ -231,7 +238,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                     $scope.list.data[id] = angular.copy($scope.listW.data[id]);
 
-                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
+                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list, $scope.pId));
                 };
 
                 $scope.del = function(id)  { 

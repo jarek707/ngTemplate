@@ -39,3 +39,5 @@ function leftPane() {}
 
 function rightPane($scope) {
 }
+
+LG( localStorage );
