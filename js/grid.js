@@ -43,7 +43,7 @@ angular.module('app.gridConf', [])
             findMeta : function(key) {
                 var keys = key.split(':');
                 var root = keys.shift();
-                var meta = angular.copy(this.meta[root]);
+                var meta = _.deepCopy(this.meta[root]);
                 for (var i=0 ; i<keys.length ; i++ ) {
                     meta = meta.children[keys[i]];
                 }
@@ -98,10 +98,12 @@ angular.module('app.services', ['app.gridConf'])
 
                 return _.isEmpty($return.columns) ? false : $return;
             },
+            getLocal: function(key) {
+            },
 
             get: function(attrs, scope) {
                 function setLists(src){
-                    scope.listW = angular.copy( scope.list = src );
+                    scope.listW = _.deepCopy( scope.list = src );
                 };
 
                 var params = this.setParams(attrs, scope);
@@ -115,7 +117,6 @@ angular.module('app.services', ['app.gridConf'])
 
                     if ( _.isEmpty(localStorage[key]) ) {
                         setLists({meta:params, data:{}});
-                        //localStorage[params.key] = JSON.stringify(scope.list);
                     } else {
                         if ( _.isUndefined(localStorage[key]) ) {
                             setLists({meta:params, data:{}});
@@ -184,12 +185,28 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.sub = function(id) {
                     hideGrid();
-                    $scope.$parent.workRow = 
-                        _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
+                    var pScope = $scope.$parent;
 
-                    _(config.getMeta($scope.$parent.key).children).each( function(v,k) { 
-                        var el = $compile('<grid pid="' + $scope.$parent.pId + ':' + id + '"' + 'key="' + $scope.$parent.pKey + ':' + k + '"></grid>')($scope);
-                        tableEl().after(el);
+                    pScope.workRow = _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
+
+                    var parentGrids = pScope.getGridEl().find('grid');
+                     
+                    _(config.getMeta(pScope.key).children).each( function(v,k) { 
+                        var key = pScope.pKey + ':' + k;
+                        var found   = false;
+
+                        for ( var i = 0 ; i<parentGrids.length; i++ ){
+                            found = key == angular.element(parentGrids[i]).attr('key');
+                            if ( found )  { 
+                                foundEl = angular.element(parentGrids[i]).css({"display":"block"});
+                                // need to update $scope.$parent.list with correct data
+                                break;
+                            }
+                        }
+                        if ( !found ) {
+                            var el = $compile('<grid pid="' + pScope.pId + ':' + id + '"' + 'key="' + key  + '"></grid>')($scope);
+                            tableEl().after(el);
+                        }
                     });
 
                 };
@@ -228,6 +245,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
+                    $scope.workRow = '';
                 }
 
                 $scope.getGridEl  = function() { return $element; }
@@ -236,7 +254,7 @@ angular.module('app.directives', ['app.gridConf'])
                     rScope.dirty         = false;
                     rScope.trClass       = '';
 
-                    $scope.list.data[id] = angular.copy($scope.listW.data[id]);
+                    $scope.list.data[id] = _.deepCopy($scope.listW.data[id]);
 
                     $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list, $scope.pId));
                 };
@@ -248,9 +266,7 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.reload = function() { 
-
-                    $scope.listW = angular.copy($scope.list); 
-                    $scope.list  = angular.copy($scope.list); // Need to refresh list to re-render from original data
+                    $scope.list  = _($scope.list).deepCopy($scope.listW);
                     $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
                 };
 

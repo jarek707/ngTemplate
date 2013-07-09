@@ -16,6 +16,11 @@ _.mixin({
         return ( _(str.split('_')).map( 
             function(a,b) { return  a.charAt(0).toUpperCase() + a.substring(1).toLowerCase() }
         )).join('');
+    },
+    deepCopy : function(src, dest) {
+        if (_(dest).isObject()) angular.copy(src,dest);
+
+        return angular.copy(src);
     }
 });
 
