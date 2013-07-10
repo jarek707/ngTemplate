@@ -9,7 +9,7 @@ _.mixin({
             return (minKey > 0 ? 0 : minKey) + parseInt(offset);
         }
     },
-    mkEmpty : function( arr , id) {
+    mkEmpty : function(arr, id) {
         return _.map(arr, function(a) {return (_.isUndefined(id) ? '' : id)});
     },
     camelize : function(str) {
@@ -21,6 +21,15 @@ _.mixin({
         if (_(dest).isObject()) angular.copy(src,dest);
 
         return angular.copy(src);
+    },
+    $ : function(domEl) {
+        return anglular.element(domEl);
+    },
+    $attr : function(domEl, key, val) {
+        if ( _.isUndefined(val) )
+            return angular.element(domEl).attr(key);
+        else 
+            anglular.element(domEl).attr(key, val);
     }
 });
 

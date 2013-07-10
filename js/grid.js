@@ -197,6 +197,8 @@ angular.module('app.directives', ['app.gridConf'])
 
                         for ( var i = 0 ; i<parentGrids.length; i++ ){
                             found = key == angular.element(parentGrids[i]).attr('key');
+                            found = key == _.$(parentGrids[i]).attr('key');
+                            found = key == _(parentGrids[i]).$attr('key');
                             if ( found )  { 
                                 foundEl = angular.element(parentGrids[i]).css({"display":"block"});
                                 // need to update $scope.$parent.list with correct data
@@ -232,9 +234,11 @@ angular.module('app.directives', ['app.gridConf'])
             scope       : {},
             templateUrl : 'html/grid/main.html',
             link        : function($scope, $element) {
+                LG( 'link grid' );
                 $element.css( {"display": _.isUndefined($scope.list) ? "none" : "block"} );
             },
             controller  :  function($scope, $element, $attrs) {
+                LG( 'controller');
                 $scope.rScope = null; // row Scope
                 
                 $scope.pId  = _.isUndefined($attrs.pid)  ? 'r'        : $attrs.pid;
