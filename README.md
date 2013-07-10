@@ -1,4 +1,5 @@
 <h2>Grid Directive</h2>
+
 <h4>Requriements (all provided in js/lib)</h4>
 <ul>
     <li> angular.js</li>
