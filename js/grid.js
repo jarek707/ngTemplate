@@ -41,16 +41,17 @@ angular.module('app.gridConf', [])
             },
 
             findMeta : function(key) {
-                var keys = key.split(':');
+                var keys = key.split('/');
                 var root = keys.shift();
                 var meta = _.deepCopy(this.meta[root]);
                 for (var i=0 ; i<keys.length ; i++ ) {
-                    meta = meta.children[keys[i]];
+                    meta = meta.children[keys[++i]];
                 }
                 return meta;
             },
 
             getColumns: function(key) {
+                var keyA = key.split('/');
                 return this.findMeta(key).columns;
             },
 
@@ -192,12 +193,10 @@ angular.module('app.directives', ['app.gridConf'])
                     var parentGrids = pScope.getGridEl().find('grid');
                      
                     _(config.getMeta(pScope.key).children).each( function(v,k) { 
-                        var key = pScope.pKey + ':' + k;
+                        var key = pScope.pKey + '/' + id + '/' + k;
                         var found   = false;
 
                         for ( var i = 0 ; i<parentGrids.length; i++ ){
-                            found = key == angular.element(parentGrids[i]).attr('key');
-                            found = key == _.$(parentGrids[i]).attr('key');
                             found = key == _(parentGrids[i]).$attr('key');
                             if ( found )  { 
                                 foundEl = angular.element(parentGrids[i]).css({"display":"block"});
@@ -206,7 +205,7 @@ angular.module('app.directives', ['app.gridConf'])
                             }
                         }
                         if ( !found ) {
-                            var el = $compile('<grid pid="' + pScope.pId + ':' + id + '"' + 'key="' + key  + '"></grid>')($scope);
+                            var el = $compile('<grid key="' + key + '" grid>')($scope);
                             tableEl().after(el);
                         }
                     });
@@ -234,11 +233,9 @@ angular.module('app.directives', ['app.gridConf'])
             scope       : {},
             templateUrl : 'html/grid/main.html',
             link        : function($scope, $element) {
-                LG( 'link grid' );
                 $element.css( {"display": _.isUndefined($scope.list) ? "none" : "block"} );
             },
             controller  :  function($scope, $element, $attrs) {
-                LG( 'controller');
                 $scope.rScope = null; // row Scope
                 
                 $scope.pId  = _.isUndefined($attrs.pid)  ? 'r'        : $attrs.pid;
@@ -343,6 +340,11 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
         
+    })
+    .filter('last', function() {
+        return function(input, delim) {
+            return input.split(_.isUndefined(delim) ? '/' : delim)pop();
+        }
     })
 ;
 //  Directives END
