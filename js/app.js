@@ -23,13 +23,13 @@ _.mixin({
         return angular.copy(src);
     },
     $ : function(domEl) {
-        return anglular.element(domEl);
+        return angular.element(domEl);
     },
     $attr : function(domEl, key, val) {
         if ( _.isUndefined(val) )
             return angular.element(domEl).attr(key);
         else 
-            anglular.element(domEl).attr(key, val);
+            angular.element(domEl).attr(key, val);
     }
 });
 
