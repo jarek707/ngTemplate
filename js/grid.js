@@ -201,31 +201,32 @@ angular.module('app.directives', ['app.gridConf'])
             controller  : function($scope, $element, $attrs) {
 
                 $scope.sub = function(id) {
-                    hideGrid();
-                    var pScope = $scope.$parent;
-
-                    pScope.workRow = _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
-
+                    var pScope      = $scope.$parent;
                     var parentGrids = pScope.getGridEl().find('grid');
+                    var hasSub      = false;
                      
                     _(config.getMeta(pScope.key).children).each( function(v,k) { 
                         var key = pScope.key + '/' + id + '/' + k;
                         var found   = false;
+                        hasSub = true;
 
                         for ( var i = 0 ; i<parentGrids.length; i++ ){
                             found = key == _(parentGrids[i]).$attr('key');
                             if ( found )  { 
-                                foundEl = angular.element(parentGrids[i]).css({"display":"block"});
+                                angular.element(parentGrids[i]).css({"display":"block"});
                                 // need to update $scope.$parent.list with correct data
                                 break;
                             }
                         }
-                        if ( !found ) {
-                            var el = $compile('<grid key="' + key + '" grid>')($scope);
-                            tableEl().after(el);
-                        }
+
+                        if ( !found ) 
+                            tableEl().after($compile('<grid key="' + key + '" grid>')($scope));
                     });
 
+                    if (hasSub) {
+                        pScope.workRow = _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
+                        hideGrid();
+                    }
                 };
 
                 $scope.exp = function(id, el) {
