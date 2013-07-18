@@ -41,17 +41,16 @@ angular.module('app.gridConf', [])
             },
 
             findMeta : function(key) {
-                var keys = key.split('/');
+                var keys = _.gridKey(key).split('/');
                 var root = keys.shift();
                 var meta = _.deepCopy(this.meta[root]);
                 for (var i=0 ; i<keys.length ; i++ ) {
-                    meta = meta.children[keys[++i]];
+                    meta = meta.children[keys[i]];
                 }
                 return meta;
             },
 
             getColumns: function(key) {
-                var keyA = key.split('/');
                 return this.findMeta(key).columns;
             },
 
@@ -99,8 +98,6 @@ angular.module('app.services', ['app.gridConf'])
 
                 return _.isEmpty($return.columns) ? false : $return;
             },
-            getLocal: function(key) {
-            },
 
             get: function(attrs, scope) {
                 function setLists(src){
@@ -113,22 +110,19 @@ angular.module('app.services', ['app.gridConf'])
                     $http.get(params.url).success( function(data) { 
                         setLists({data:data, meta:config.getMeta(params.key)});
                     });
-                 else {
-                    var key = params.key + '/' + scope.pId;
-
-                    if ( _.isEmpty(localStorage[key]) ) {
+                 else 
+                    if ( _.isEmpty(localStorage[params.key]) )
                         setLists({meta:params, data:{}});
-                    } else {
-                        if ( _.isUndefined(localStorage[key]) ) {
+                    else {
+                        if ( _.isUndefined(localStorage[params.key]) )
                             setLists({meta:params, data:{}});
-                        }
-                        setLists(JSON.parse(localStorage[key]));
+
+                        setLists(JSON.parse(localStorage[params.key]));
                     }
-                 }
             },
 
             sav: function(key, list, id) {
-                localStorage[key + '/' + id] = JSON.stringify( list );
+                localStorage[key] = JSON.stringify( list );
                 return 'success';
             }
         }
@@ -179,8 +173,8 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .directive('trButtons', function factory($compile, config) {
         return {
-            replace  :false,
-            restrict : 'A',
+            replace     : false,
+            restrict    : 'A',
             templateUrl : 'html/grid/trButtons.html',
             controller  : function($scope, $element, $attrs) {
 
@@ -193,11 +187,11 @@ angular.module('app.directives', ['app.gridConf'])
                     var parentGrids = pScope.getGridEl().find('grid');
                      
                     _(config.getMeta(pScope.key).children).each( function(v,k) { 
-                        var key = pScope.pKey + '/' + id + '/' + k;
+                        var key = pScope.key + '/' + id + '/' + k;
                         var found   = false;
 
                         for ( var i = 0 ; i<parentGrids.length; i++ ){
-                            found = key == _(parentGrids[i]).$attr('key');
+                            found = _.gridKey(key) == _(parentGrids[i]).$attr('key');
                             if ( found )  { 
                                 foundEl = angular.element(parentGrids[i]).css({"display":"block"});
                                 // need to update $scope.$parent.list with correct data
@@ -236,16 +230,14 @@ angular.module('app.directives', ['app.gridConf'])
                 $element.css( {"display": _.isUndefined($scope.list) ? "none" : "block"} );
             },
             controller  :  function($scope, $element, $attrs) {
-                $scope.rScope = null; // row Scope
-                
-                $scope.pId  = _.isUndefined($attrs.pid)  ? 'r'        : $attrs.pid;
-                $scope.pKey = _.isUndefined($attrs.pKey) ? $attrs.key : $attrs.pKey;
-                $scope.key  = $attrs.key;
+                $scope.rScope = null; // row Scope of the active row
+                $scope.key    = $attrs.key;
 
                 gridDataSrv.get($attrs, $scope);
 
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
+                    $element.find('grid').css({"display" : "none"});
                     $scope.workRow = '';
                 }
 
@@ -257,7 +249,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                     $scope.list.data[id] = _.deepCopy($scope.listW.data[id]);
 
-                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list, $scope.pId));
+                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
                 };
 
                 $scope.del = function(id)  { 
@@ -343,7 +335,7 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .filter('last', function() {
         return function(input, delim) {
-            return input.split(_.isUndefined(delim) ? '/' : delim)pop();
+            return input.split(_.isUndefined(delim) ? '/' : delim).pop();
         }
     })
 ;

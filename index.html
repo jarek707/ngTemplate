@@ -1,14 +1,12 @@
 <html ng-app='app'>
     <!-- Plceholder for global scope params -->
     <rootScope ng-init="
-        root = 'http://ang';
-        tpl  = { 'lists' : 'html/lists.html', 
-                 'lorem' : 'html/lorem.html',
-                 'table' : 'html/table.html'
-                };
-
-        jsIncludes = ['lib/underscore','lib/angular', 'modules', 'app'];
-
+        root        = 'http://ang';
+        tpl         =   {   'lists' : 'html/lists.html', 
+                            'lorem' : 'html/lorem.html',
+                            'table' : 'html/table.html'
+                        };
+        jsIncludes  = ['lib/underscore','lib/angular', 'modules', 'app'];
     "></rootScope>
 
     <head ng-controller='htmlHead'>

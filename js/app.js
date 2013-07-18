@@ -22,6 +22,11 @@ _.mixin({
 
         return angular.copy(src);
     },
+
+    gridKey : function( inKey ) {
+        return inKey.replace(/\d+\//g, '');
+    },
+
     $ : function(domEl) {
         return angular.element(domEl);
     },
