@@ -24,7 +24,7 @@ _.mixin({
     },
 
     gridKey : function( inKey ) {
-        return inKey.replace(/\d+\//g, '');
+        return inKey.replace(/-*\d+\//g, '');
     },
 
     $ : function(domEl) {

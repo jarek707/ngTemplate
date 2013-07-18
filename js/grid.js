@@ -17,10 +17,25 @@ angular.module('app.gridConf', [])
                     'columns'  : ['Name', 'Age' , 'Number'],
                     'children' : {
                         'system' : {
-                            'columns' : ['Name', 'Position','Orientation']
+                            'columns' : ['Name', 'Position','Orientation'],
+                            'children' : {
+                                'moons' : {
+                                    'columns' : ['Planet', 'Name', 'Rotation', 'Distance']
+                                }
+                            }
                         },
                         'observers' : {
-                            'columns' : ['First', 'Last','Contact']
+                            'columns' : ['First', 'Last','Contact'],
+                            'children' : {
+                                'planets' : {
+                                    'columns' : ['Name', 'Rotation', 'Distance'],
+                                    'children' : {
+                                        'meteors' : {
+                                            'columns' : ['Name', 'Freequency', 'Size']
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -55,7 +70,14 @@ angular.module('app.gridConf', [])
             },
 
             getMeta : function(key, field) {
-                this.findMeta(key);
+                var meta = this.findMeta(key);
+                key = _.gridKey(key);
+
+                if ( _.isUndefined(field) ) 
+                    return meta 
+                else 
+                    return meta[field];
+
                 if (_.isUndefined(this.meta[key])) {
                     return false; 
                 } else {
@@ -111,18 +133,18 @@ angular.module('app.services', ['app.gridConf'])
                         setLists({data:data, meta:config.getMeta(params.key)});
                     });
                  else 
-                    if ( _.isEmpty(localStorage[params.key]) )
+                    if ( _.isEmpty(localStorage['GRID:' + params.key]) )
                         setLists({meta:params, data:{}});
                     else {
-                        if ( _.isUndefined(localStorage[params.key]) )
+                        if ( _.isUndefined(localStorage['GRID:' + params.key]) )
                             setLists({meta:params, data:{}});
 
-                        setLists(JSON.parse(localStorage[params.key]));
+                        setLists(JSON.parse(localStorage['GRID:' + params.key]));
                     }
             },
 
             sav: function(key, list, id) {
-                localStorage[key] = JSON.stringify( list );
+                localStorage['GRID:' + key] = JSON.stringify( list );
                 return 'success';
             }
         }
@@ -191,7 +213,7 @@ angular.module('app.directives', ['app.gridConf'])
                         var found   = false;
 
                         for ( var i = 0 ; i<parentGrids.length; i++ ){
-                            found = _.gridKey(key) == _(parentGrids[i]).$attr('key');
+                            found = key == _(parentGrids[i]).$attr('key');
                             if ( found )  { 
                                 foundEl = angular.element(parentGrids[i]).css({"display":"block"});
                                 // need to update $scope.$parent.list with correct data
@@ -232,6 +254,8 @@ angular.module('app.directives', ['app.gridConf'])
             controller  :  function($scope, $element, $attrs) {
                 $scope.rScope = null; // row Scope of the active row
                 $scope.key    = $attrs.key;
+                var shift = ((_.gridKey($scope.key).split('/').length-1) * 20) + 'px';
+                $element.find('space').css({"width":shift});
 
                 gridDataSrv.get($attrs, $scope);
 
@@ -338,6 +362,13 @@ angular.module('app.directives', ['app.gridConf'])
             return input.split(_.isUndefined(delim) ? '/' : delim).pop();
         }
     })
+    .filter('Last', function() {
+        return function(input, delim) {
+            var last = input.split(_.isUndefined(delim) ? '/' : delim).pop();
+            return last.charAt(0).toUpperCase() + last.substr(1);
+        }
+    })
+
 ;
 //  Directives END
 
