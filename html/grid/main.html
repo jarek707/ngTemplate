@@ -1,17 +1,17 @@
 <div id='{{$id}}'>
     <div class='gridHead' ng-click="restore()">
-        <space></space>
-        <div>{{key|Last}}</div>
+        <spaces></spaces>
+        <div><div>{{key|Last}}</div></div>
         <div>{{workRow}}</div>
+        <div class='button'>
+            <input type='button' class='reloadButton' value='X' ng-click='reload()'/>
+            <input type="button" class="addButton"    value='X' ng-click="add()" />
+        </div>
         <span class='notify'></span>
     </div>
     <table>
         <thead>
             <th ng-repeat="colName in list.meta.columns">{{colName}}</th>
-            <th class="button">
-                <input type='button' class='reloadButton' value='X' ng-click='reload()'/>
-                <input type="button" class="addButton"    value='X' ng-click="add()" />
-            </th>
         </thead>
         <tbody>
             <tr ng-repeat="(id,row) in list.data" class="{{trClass}}">

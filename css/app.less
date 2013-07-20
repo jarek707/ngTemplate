@@ -105,36 +105,58 @@ grid {
     .gridHead {
         float:left;
         width:100%;
-        margin-bottom:4px;
+        margin-bottom:0;
         padding:0px;
         background: @menuBg;
         .rounded-corners(2px);
         font-family:Helvetica;
         font-size:0.9em;
+        div:first-child {
+             font-style:italic;
+             font-weight:bold;
+             margin:0;
+             padding:0px 3px;
+             border-radius:2px;
+        }
         div {
             padding:3px 0;
             position:relative;
             float:left;
-            margin-left: 12px; 
-            &:first-child {
-                font-style:italic;
-                font-weight:bold;
-            }
+            margin-left: 3px; 
         }
-        space {
+        .button {
+            float:right;
+            margin:3px 2px 0px 1px;
+            padding:0px 1px 6px 0px;
+            height:11px;
+            background:#c7d2d8;
+            border-radius:2px;
+        }
+
+        input {
+            &.addButton    { .glyphBg(-409px, -98px); }
+            &.reloadButton { .glyphBg(-218px, -25px); }
+        }
+        spaces {
             position:relative;
             float:left;
-            width:0;
             height:22px;
             margin: 0px;
             background-color:#c7d2d8;
+            space {
+                float:left;
+                width:22px;
+                height:22px;
+                border-right:1px dashed @menuBg;
+            }
         }
         span{
             display:none;
             .rounded-corners(2px);
             float:right;
-            margin:3px 3px  0 0;
-            padding:0px 2px;
+            margin:2px 4px  0 0;
+            height: 16px;
+            padding:1px 2px;
             font-family: Helvetica;
             font-size:1em;
             color : green;
@@ -144,6 +166,17 @@ grid {
         span.info    {color:@infoColor;   }
         span.warning {color:@warningColor;}
         span.error   {color:@errorColor;  }
+    }
+    .button input {
+        float:right;
+        cursor:pointer;
+        color:transparent;
+        background:transparent;
+        border: 1px solid transparent;
+        padding:0;
+        width:13px;
+        margin-left:2px;
+        -webkit-border-radius:0;
     }
 
     table {
@@ -184,20 +217,6 @@ grid {
             .expButton { .glyphBg(  -2px,  -72px); }
             .subButton { .glyphBg(-410px, -120px); }
             .savButton { .glyphBg(-290px,   -1px); }
-
-            .addButton    { .glyphBg(-409px, -97px); }
-            .reloadButton { .glyphBg(-218px, -24px); }
-        }
-        .button input {
-            float:right;
-            cursor:pointer;
-            color:transparent;
-            background:transparent;
-            border: 1px solid transparent;
-            padding:0;
-            width:13px;
-            margin-left:2px;
-            -webkit-border-radius:0;
         }
     }
 }

@@ -1,4 +1,4 @@
     <input type='button' class='delButton' value='X' ng-click='del(id)'>      </input>
     <input type='button' class='expButton' value='X' ng-click='exp(id, this)'></input>
-    <input type='button' class='subButton' value='X' ng-click='sub(id, this)'></input>
+    <input type='button' class='subButton' value="$id" ng-click='sub(id, this)' ng-show='showSub'></input>
     <input type='button' class='savButton' value='X' ng-click='sav(id, this)' ng-show='dirty'></input>

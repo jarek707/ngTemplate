@@ -12,26 +12,41 @@ angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
             'meta' : {
-                'cluster'  : {
+                'continent'  : {
                     'url'      : 'data/cluster.php',
-                    'columns'  : ['Name', 'Age' , 'Number'],
+                    'columns'  : ['Name', '# of Countries' , 'Population'],
                     'children' : {
-                        'system' : {
-                            'columns' : ['Name', 'Position','Orientation'],
+                        'country' : {
+                            'columns' : ['Name', 'Area','Population'],
                             'children' : {
-                                'moons' : {
-                                    'columns' : ['Planet', 'Name', 'Rotation', 'Distance']
+                                'region' : {
+                                    'columns' : ['Designation', 'Timezone', 'Size', 'Population'],
+                                    'children' : {
+                                        'town' : {
+                                            'columns' : ['Name', 'Size', 'Population'],
+                                            'children' : {
+                                                'hood' : {
+                                                    'columns' : ['Name', 'Size', 'Population', 'Number of Units'],
+                                                    'children' : {
+                                                        'address' : {
+                                                            'columns' : ['Street', 'Number', 'Apt. Number', 'Room Number']
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
-                        'observers' : {
-                            'columns' : ['First', 'Last','Contact'],
+                        'statistics' : {
+                            'columns' : ['Type'], 
                             'children' : {
-                                'planets' : {
-                                    'columns' : ['Name', 'Rotation', 'Distance'],
+                                'population' : {
+                                    'columns' : ['Type', 'Percentage', 'Language'],
                                     'children' : {
-                                        'meteors' : {
-                                            'columns' : ['Name', 'Freequency', 'Size']
+                                        'minorities' : {
+                                            'columns' : ['Name', 'Percentage', 'Language']
                                         }
                                     }
                                 }
@@ -55,42 +70,29 @@ angular.module('app.gridConf', [])
                 }
             },
 
-            findMeta : function(key) {
-                var keys = _.gridKey(key).split('/');
-                var root = keys.shift();
-                var meta = _.deepCopy(this.meta[root]);
-                for (var i=0 ; i<keys.length ; i++ ) {
-                    meta = meta.children[keys[i]];
-                }
-                return meta;
+            'tplUrls' : {
+                'main'      : 'html/grid/main.html',
+                'trButtons' : 'html/grid/trButtons.html',
+                'tdInput'   : 'html/grid/tdInput.html',
             },
 
-            getColumns: function(key) {
-                return this.findMeta(key).columns;
+            getColumns:  function(key) { return this.findMeta(key).columns;  },
+            getChildren: function(key) { return this.findMeta(key).children; },
+
+            findMeta : function(key) {
+                var keys = _.gridKey(key).split('/');
+                var meta = _.deepCopy(this.meta[keys.shift()]);
+
+                for (var i=0 ; i<keys.length ; i++ )
+                    meta = meta.children[keys[i]];
+
+                return meta;
             },
 
             getMeta : function(key, field) {
                 var meta = this.findMeta(key);
-                key = _.gridKey(key);
 
-                if ( _.isUndefined(field) ) 
-                    return meta 
-                else 
-                    return meta[field];
-
-                if (_.isUndefined(this.meta[key])) {
-                    return false; 
-                } else {
-                    if (_.isUndefined(field)) {
-                        return this.meta[key];
-                    } else {
-                        if (_.isUndefined(this.meta[key][field])) {
-                            return null;
-                        } else {
-                            return this.meta[key][field];
-                        }
-                    }
-                }
+                return  _.isUndefined(field) ? meta : meta[field];
             }
         }
     })
@@ -121,9 +123,11 @@ angular.module('app.services', ['app.gridConf'])
                 return _.isEmpty($return.columns) ? false : $return;
             },
 
-            get: function(attrs, scope) {
+            get: function(attrs, scope, cb) {
                 function setLists(src){
-                    scope.listW = _.deepCopy( scope.list = src );
+                    scope.listW    = _.deepCopy( scope.list = src );
+                    scope.gridShow = scope.list;
+                    cb(scope.list);
                 };
 
                 var params = this.setParams(attrs, scope);
@@ -161,10 +165,9 @@ angular.module('app.directives', ['app.gridConf'])
             replace  : true,
             restrict : 'E',
             scope    : true,
-            //template : '<input type="text" ng-model="field" ng-change="chg(id, i)" ng-click="clk(id)" />',
-            templateUrl : 'html/grid/textInput.html',
-            link: function(scope, el) {
-                el.bind('blur', scope.blr);
+            templateUrl : config.tplUrls.tdInput,
+            link: function($scope, $element) {
+                $element.bind('blur', $scope.blr);
             },
 
             controller: function($scope, $element, $attrs) {
@@ -197,41 +200,30 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace     : false,
             restrict    : 'A',
-            templateUrl : 'html/grid/trButtons.html',
+            templateUrl : config.tplUrls.trButtons,
             controller  : function($scope, $element, $attrs) {
+                var pScope     = $scope.$parent;
+                $scope.showSub = config.getChildren(pScope.key);
 
                 $scope.sub = function(id) {
-                    var pScope      = $scope.$parent;
-                    var parentGrids = pScope.getGridEl().find('grid');
-                    var hasSub      = false;
+                    var hasSub = false;
                      
                     _(config.getMeta(pScope.key).children).each( function(v,k) { 
-                        var key = pScope.key + '/' + id + '/' + k;
-                        var found   = false;
                         hasSub = true;
+                        var key = pScope.key + '/' + id + '/' + k;
 
-                        for ( var i = 0 ; i<parentGrids.length; i++ ){
-                            found = key == _(parentGrids[i]).$attr('key');
-                            if ( found )  { 
-                                angular.element(parentGrids[i]).css({"display":"block"});
-                                // need to update $scope.$parent.list with correct data
-                                break;
-                            }
-                        }
-
-                        if ( !found ) 
-                            tableEl().after($compile('<grid key="' + key + '" grid>')($scope));
+                        tableEl().after($compile('<grid key="' + key + '" grid>')($scope));
                     });
 
                     if (hasSub) {
-                        pScope.workRow = _($scope.list.data[id]).map( function(v,k) { return v }).join(':');
+                        pScope.workRow = '{' + _($scope.list.data[id]).map( function(v,k) { return v }).join(', ') + '}';
                         hideGrid();
                     }
                 };
 
                 $scope.exp = function(id, el) {
                     hideGrid();
-                    tableEl().after( html + "<input type='button' value='X' onclick='console.log(this)'/>" );
+                    tableEl().after( "<input type='button' value='X' onclick='console.log(this)'/>" );
                 };
 
                 function restoreHtml() {
@@ -248,29 +240,29 @@ angular.module('app.directives', ['app.gridConf'])
             replace     : false,
             restrict    : 'E',
             scope       : {},
-            templateUrl : 'html/grid/main.html',
-            link        : function($scope, $element) {
-                $element.css( {"display": _.isUndefined($scope.list) ? "none" : "block"} );
-            },
-            controller  :  function($scope, $element, $attrs) {
+            templateUrl : config.tplUrls.main,
+            link        : function($scope, $element, $attrs) {
                 $scope.rScope = null; // row Scope of the active row
                 $scope.key    = $attrs.key;
-                var shift = ((_.gridKey($scope.key).split('/').length-1) * 20) + 'px';
-                $element.find('space').css({"width":shift});
 
-                gridDataSrv.get($attrs, $scope);
+                gridDataSrv.get($attrs, $scope, function( listData ) {});
 
+                for (var i=0; i<_.gridKey($scope.key).split('/').length-1 ; i++)
+                    $element.find('spaces').append('<space></space>');
+            },
+            controller  :  function($scope, $element, $attrs) {
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
                     $element.find('grid').css({"display" : "none"});
                     $scope.workRow = '';
+                    $element.find('grid').remove();
                 }
 
                 $scope.getGridEl  = function() { return $element; }
 
                 $scope.sav = function(id, rScope) {
-                    rScope.dirty         = false;
-                    rScope.trClass       = '';
+                    rScope.dirty   = false;
+                    rScope.trClass = '';
 
                     $scope.list.data[id] = _.deepCopy($scope.listW.data[id]);
 
@@ -319,7 +311,7 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 function flash(msg, type, howLong) {
-                    var colors = {"success":"green", "warn":"#a80", "error":"red", "info":"blue"};
+                    var colors = {"success":"green", "warn":"#a80", "error":"red", "info":"#888"};
 
                     if (_.isUndefined(howLong)) howLong = 1;
 

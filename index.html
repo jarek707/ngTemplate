@@ -15,6 +15,7 @@
 
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/angular.js"></script>
+        <script src="http://ang/js/lib/jquery.js"></script>
         <script src="http://ang/js/grid.js"></script>
         <script src="http://ang/js/app.js"></script>
 
@@ -29,10 +30,10 @@
             <div class='contentWrap'>
                 <contentPane ng-controller="contentPane">
                     <box ng-transclude>
-                        <grid key='cluster' ng-show='list'></grid>
+                        <grid key='continent' ng-show='gridShow'></grid>
                     </box>
                     <box ng-transclude>
-                        <grid key='managers'></grid>
+                        <grid key='managers' ng-show='gridShow'></grid>
                     </box>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </contentPane>
