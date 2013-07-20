@@ -167,6 +167,16 @@ grid {
         span.warning {color:@warningColor;}
         span.error   {color:@errorColor;  }
     }
+    .button {
+        .rounded-corners(4px);
+        padding:0 2px 0 1px;
+        background: lighten(@borderColor,8%);
+        height:12px;
+        .delButton { .glyphBg(-458px,    0px); }
+        .expButton { .glyphBg(  -2px,  -72px); }
+        .subButton { .glyphBg(-410px, -120px); }
+        .savButton { .glyphBg(-290px,   -1px); }
+    }
     .button input {
         float:right;
         cursor:pointer;
@@ -180,6 +190,9 @@ grid {
     }
 
     table {
+        .button {
+            width:62px;
+        }
         width:100%;
         tr th {
             font-family: Helvetica;
@@ -199,6 +212,7 @@ grid {
                 background:transparent;
                 width:99%;
                 padding:2px 0 2px 2px;
+                height:20px;
             }
         }
         tr.selected td input[type='text'] {
@@ -207,16 +221,6 @@ grid {
         }
         tr.dirty td input[type='text'] {
             border: 2px solid @borderDirtyColor;
-        }
-        td.button, th.button {
-            .rounded-corners(4px);
-            width:62px;
-            padding:0 2px 0 1px;
-            background: lighten(@borderColor,8%);
-            .delButton { .glyphBg(-458px,    0px); }
-            .expButton { .glyphBg(  -2px,  -72px); }
-            .subButton { .glyphBg(-410px, -120px); }
-            .savButton { .glyphBg(-290px,   -1px); }
         }
     }
 }

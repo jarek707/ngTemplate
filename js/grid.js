@@ -187,6 +187,9 @@ angular.module('app.directives', ['app.gridConf'])
                     rScope.dirty = isDirty(id);
                     $scope.clk(id);
                 };
+                $scope.focusNext = function() {
+                    LG( ' in row scope focus');
+                }
 
                 function isDirty(id) { 
                     return !_.isEmpty(
@@ -202,6 +205,7 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             templateUrl : config.tplUrls.trButtons,
             controller  : function($scope, $element, $attrs) {
+                LG( $scope.$parent.$id , ' rsc');
                 var pScope     = $scope.$parent;
                 $scope.showSub = config.getChildren(pScope.key);
 
@@ -245,7 +249,10 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.rScope = null; // row Scope of the active row
                 $scope.key    = $attrs.key;
 
-                gridDataSrv.get($attrs, $scope, function( listData ) {});
+                gridDataSrv.get($attrs, $scope, function( listData ) {
+                    if ( _.isEmpty(listData.data) )
+                        $scope.add();
+                });
 
                 for (var i=0; i<_.gridKey($scope.key).split('/').length-1 ; i++)
                     $element.find('spaces').append('<space></space>');
@@ -253,9 +260,8 @@ angular.module('app.directives', ['app.gridConf'])
             controller  :  function($scope, $element, $attrs) {
                 $scope.restore = function() {
                     $element.find('tr').css({"display" : "table-row"});
-                    $element.find('grid').css({"display" : "none"});
-                    $scope.workRow = '';
                     $element.find('grid').remove();
+                    $scope.workRow = '';
                 }
 
                 $scope.getGridEl  = function() { return $element; }
@@ -267,6 +273,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.list.data[id] = _.deepCopy($scope.listW.data[id]);
 
                     $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
+                    LG( rScope.$id, ' row $id ' );
                 };
 
                 $scope.del = function(id)  { 
@@ -320,10 +327,6 @@ angular.module('app.directives', ['app.gridConf'])
 
                     setTimeout(function() {$element.css({display:"none"})}, 2000*howLong);
                 };
-
-                setTimeout(function() {     if (_.isEmpty($scope.list.data))
-                                                flash("Please click on the '+' icon to add rows", 'info', 3);
-                                      }, 300);
             }
         }
     })
