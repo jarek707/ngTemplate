@@ -226,9 +226,9 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.notify('', gridDataSrv.sav($scope.$attrs.key, $scope.list), 'Deleting row with id <b>' + $scope.id + '</b>');
                 };
 
-                $scope.sub = function(id) {
+                $scope.sub = function() {
                     _(config.getMeta($scope.$attrs.key).children).each( function(v,k) { 
-                        this.key = $scope.$attrs.key + '/' + id + '/' + k;
+                        this.key = $scope.$attrs.key + '/' + $scope.id + '/' + k;
 
                         tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
                     });
