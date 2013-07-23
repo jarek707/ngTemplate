@@ -105,7 +105,7 @@ grid {
     .gridHead {
         float:left;
         width:100%;
-        margin-bottom:0;
+        margin-bottom:2px;
         padding:0px;
         background: @menuBg;
         .rounded-corners(2px);
@@ -136,6 +136,8 @@ grid {
         input {
             &.addButton    { .glyphBg(-409px, -98px); }
             &.reloadButton { .glyphBg(-218px, -25px); }
+            &.hideTable    { .glyphBg(-217px, -97px); }
+            &.showTable    { .glyphBg(-265px, -25px); }
         }
         spaces {
             position:relative;
@@ -173,9 +175,9 @@ grid {
         background: lighten(@borderColor,8%);
         height:12px;
         .delButton { .glyphBg(-458px,    0px); }
-        .expButton { .glyphBg(  -2px,  -72px); }
+        .expButton { .glyphBg(  -1px,  -72px); }
         .subButton { .glyphBg(-410px, -120px); }
-        .savButton { .glyphBg(-290px,   -1px); }
+        .savButton { .glyphBg(-290px,   -0px); }
     }
     .button input {
         float:right;
@@ -221,6 +223,9 @@ grid {
         }
         tr.dirty td input[type='text'] {
             border: 2px solid @borderDirtyColor;
+        }
+        &.hidden, tr.hidden {
+            display:none;
         }
     }
 }

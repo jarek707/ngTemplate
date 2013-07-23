@@ -30,10 +30,10 @@
             <div class='contentWrap'>
                 <contentPane ng-controller="contentPane">
                     <box ng-transclude>
-                        <grid key='continent' ng-show='gridShow'></grid>
+                        <grid key='continent'></grid>
                     </box>
                     <box ng-transclude>
-                        <grid key='managers' ng-show='gridShow'></grid>
+                        <grid key='managers'></grid>
                     </box>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </contentPane>

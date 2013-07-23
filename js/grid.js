@@ -57,8 +57,13 @@ angular.module('app.gridConf', [])
                 'managers' : {
                     'columns' : ['First', 'Last' , 'Email', 'Phone'],
                     'children': {
-                        'office' : {
-                            'columns' : ['Address', 'Phone', 'Branch']
+                        'division' : {
+                            'columns' : ['Address', 'Phone', 'Branch'],
+                            'children': {
+                                'office' : {
+                                    'columns' : ['Address', 'Phone', 'Contact Name']
+                                }
+                            }
                         },
                         'field' : {
                             'columns' : ['Location', 'Cell', 'Region']
@@ -71,13 +76,18 @@ angular.module('app.gridConf', [])
             },
 
             'tplUrls' : {
-                'main'      : 'html/grid/main.html',
-                'trButtons' : 'html/grid/trButtons.html',
-                'tdInput'   : 'html/grid/tdInput.html',
+                'main'        : 'html/grid/main.html',
+                'rowButtons'  : 'html/grid/rowButtons.html',
+                'tdInput'     : 'html/grid/tdInput.html',
+                'headButtons' : 'html/grid/headButtons.html'
             },
 
-            getColumns:  function(key) { return this.findMeta(key).columns;  },
-            getChildren: function(key) { return this.findMeta(key).children; },
+            getColumns:  function(key) { 
+                return _.isUndefined(m = this.findMeta(key)) ? false : m.columns;  
+            },
+            getChildren: function(key) {
+                return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
+            },
 
             findMeta : function(key) {
                 var keys = _.gridKey(key).split('/');
@@ -92,7 +102,9 @@ angular.module('app.gridConf', [])
             getMeta : function(key, field) {
                 var meta = this.findMeta(key);
 
-                return  _.isUndefined(field) ? meta : meta[field];
+                return _.isUndefined(meta) ? false
+                                           : _.isUndefined(field) ? meta 
+                                                                  : meta[field];
             }
         }
     })
@@ -100,6 +112,7 @@ angular.module('app.gridConf', [])
 angular.module('app.services', ['app.gridConf'])
     .factory('gridDataSrv', function($http,config) {
         return  {
+            prefix: 'GRID:',
 
             clear: function(key) { 
                 typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
@@ -107,18 +120,11 @@ angular.module('app.services', ['app.gridConf'])
 
             setParams : function(attrs, scope) {
                 var $return = {key:attrs.key, columns:[], url:null};
-                if ( _.isUndefined(attrs.columns)) {
-                    $return.columns = config.getColumns(attrs.key);
-
-                    if ($return.columns === null) {
-                        $return.columns = 
-                            prompt('Field ' + key + ' is not defined.\nPlease enter column names separated by commas:').split(',');
-                    }
-                } else {
-                    $return.columns = attrs.columns.split(',');
-                }
-
-                $return.url = _.isUndefined(attrs.url) ? config.getMeta(attrs.key, 'url') : attrs.url;
+                
+                $return.columns = _.isUndefined(attrs.columns) ? config.getColumns(attrs.key)
+                                                               : attrs.columns.split(',');
+                $return.url     = _.isUndefined(attrs.url)     ? config.getMeta(attrs.key, 'url') 
+                                                               : attrs.url;
 
                 return _.isEmpty($return.columns) ? false : $return;
             },
@@ -126,7 +132,6 @@ angular.module('app.services', ['app.gridConf'])
             get: function(attrs, scope, cb) {
                 function setLists(src){
                     scope.listW    = _.deepCopy( scope.list = src );
-                    scope.gridShow = scope.list;
                     cb(scope.list);
                 };
 
@@ -137,18 +142,18 @@ angular.module('app.services', ['app.gridConf'])
                         setLists({data:data, meta:config.getMeta(params.key)});
                     });
                  else 
-                    if ( _.isEmpty(localStorage['GRID:' + params.key]) )
+                    if ( _.isEmpty(localStorage[this.prefix + params.key]) )
                         setLists({meta:params, data:{}});
                     else {
-                        if ( _.isUndefined(localStorage['GRID:' + params.key]) )
+                        if ( _.isUndefined(localStorage[this.prefix + params.key]) )
                             setLists({meta:params, data:{}});
 
-                        setLists(JSON.parse(localStorage['GRID:' + params.key]));
+                        setLists(JSON.parse(localStorage[this.prefix + params.key]));
                     }
             },
 
             sav: function(key, list, id) {
-                localStorage['GRID:' + key] = JSON.stringify( list );
+                localStorage[this.prefix + key] = JSON.stringify( list );
                 return 'success';
             }
         }
@@ -164,78 +169,127 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace  : true,
             restrict : 'E',
-            scope    : true,
+            scope: true,
             templateUrl : config.tplUrls.tdInput,
             link: function($scope, $element) {
                 $element.bind('blur', $scope.blr);
             },
 
             controller: function($scope, $element, $attrs) {
-                var rScope = $scope.$parent.$parent;
-                rScope.$parent.rScope = rScope; // in grid scope
+                var rScope = $scope.$parent.$parent; // row scope
 
-                $scope.blr = function() {
-                    rScope.trClass = isDirty(rScope.id) ? 'dirty' : '';
-                };
-
-                $scope.clk = function(id) {
-                    rScope.trClass = 'selected' + (isDirty(id) ? ' dirty' : '');   
-                };
-
-                $scope.chg = function(id, i) {
-                    $scope.listW.data[id][i] = $scope.field;
-                    rScope.dirty = isDirty(id);
-                    $scope.clk(id);
-                };
-                $scope.focusNext = function() {
-                    LG( ' in row scope focus');
-                }
-
-                function isDirty(id) { 
-                    return !_.isEmpty(
-                        _.filter($scope.list.data[id], function(v,k) { return v !== $scope.listW.data[id][k]; })
-                    );
-                };
+                $scope.blr = function() { rScope.blr();                                  };
+                $scope.chg = function() { rScope.chg($scope.id, $scope.i, $scope.field); };
             }
         }
     })
-    .directive('trButtons', function factory($compile, config) {
+    .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
         return {
             replace     : false,
             restrict    : 'A',
-            templateUrl : config.tplUrls.trButtons,
+            templateUrl : config.tplUrls.rowButtons,
+            link        : function($scope, $element) {
+                            if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
+                                $scope.trClass = 'selected'; 
+                                $scope.showSub = false;
+                            };
+            },
             controller  : function($scope, $element, $attrs) {
-                LG( $scope.$parent.$id , ' rsc');
-                var pScope     = $scope.$parent;
-                $scope.showSub = config.getChildren(pScope.key);
+                $scope.showSub = config.getChildren($scope.$attrs.key);
 
-                $scope.sub = function(id) {
-                    var hasSub = false;
-                     
-                    _(config.getMeta(pScope.key).children).each( function(v,k) { 
-                        hasSub = true;
-                        var key = pScope.key + '/' + id + '/' + k;
-
-                        tableEl().after($compile('<grid key="' + key + '" grid>')($scope));
-                    });
-
-                    if (hasSub) {
-                        pScope.workRow = '{' + _($scope.list.data[id]).map( function(v,k) { return v }).join(', ') + '}';
-                        hideGrid();
-                    }
+                function isDirty() { 
+                    return $scope.dirty 
+                            = !_.isEmpty(_.filter($scope.row, function(v,k) { return v !== $scope.listW.data[$scope.id][k]; }));
                 };
 
-                $scope.exp = function(id, el) {
-                    hideGrid();
+                $scope.blr = function() { 
+                    $scope.trClass = isDirty() ? 'dirty' : '';
+                };
+
+                $scope.clk = function() {
+                    $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
+                };
+
+                $scope.chg = function(id, i, field) {
+                    $scope.listW.data[id][i] = field;
+                    $scope.clk();
+                };
+
+                $scope.sav = function() {
+                    $scope.list.data[$scope.id] = _.deepCopy($scope.listW.data[$scope.id]);
+                    $scope.notify('sav', gridDataSrv.sav($scope.$attrs.key, $scope.list));
+                    $scope.blr();
+                };
+
+                $scope.del = function()  { 
+                    delete $scope.list.data[$scope.id];
+                    $scope.notify('', gridDataSrv.sav($scope.$attrs.key, $scope.list), 'Deleting row with id <b>' + $scope.id + '</b>');
+                };
+
+                $scope.sub = function(id) {
+                    _(config.getMeta($scope.$attrs.key).children).each( function(v,k) { 
+                        this.key = $scope.$attrs.key + '/' + id + '/' + k;
+
+                        tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
+                    });
+
+                    if (!_.isUndefined(key)) setSubPane();
+                };
+
+                $scope.exp = function() {
+                    setSubPane();
                     tableEl().after( "<input type='button' value='X' onclick='console.log(this)'/>" );
                 };
 
-                function restoreHtml() {
-                    $element.parent().parent().find('tr').css({"display":"table-row"});
-                }
+                function setSubPane() {
+                    var pScope = $scope.$parent;
+                    pScope.workRow = '{' + _($scope.list.data[$scope.id]).map( function(v,k) { return v }).join(', ') + '}';
+                    pScope.tableHide = pScope.tableHide ? false : 'showTable';
+                };
 
                 function tableEl()  { return $element.parent().parent().parent(); }
-                function hideGrid() { tableEl().find('tr').css({"display":"none"}); }
+            }
+        }
+    })
+    .directive('headButtons', function factory(gridDataSrv, config) { // head scope
+        return {
+            replace  : false,
+            restrict : 'C',
+            templateUrl : config.tplUrls.headButtons,
+            link        : function($scope, $attrs) {
+                gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
+                    if ( _.isEmpty(listData.data) ) {
+                        $scope.tableHide = 'showTable';
+                        if ( !_.isUndefined($scope.$attrs.child) ) 
+                            $scope.add();
+                        else
+                            $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
+                    }
+                });
+
+                ($scope.spaces = _.gridKey($scope.$attrs.key).split('/')).pop();
+            },
+            controller  : function($scope, $element, $attrs ) {
+                $scope.toggleTable = function(sc) {
+                    $scope.tableHide = $scope.tableHide ? $scope.restore() : 'showTable';
+                };
+
+                $scope.reload = function() { 
+                    $scope.list  = _($scope.list).deepCopy($scope.listW);
+                    $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
+                    if ($scope.tableHide) $scope.toggleTable();
+                };
+
+                $scope.add = function() {
+                    var newIdx = _($scope.list.data).minIntKey(-1);
+
+                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns, '');
+                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns, '');
+                    if ($scope.tableHide) { 
+                        $scope.showSub = true;
+                        $scope.tableHide = false;
+                    }
+                };
             }
         }
     })
@@ -246,56 +300,18 @@ angular.module('app.directives', ['app.gridConf'])
             scope       : {},
             templateUrl : config.tplUrls.main,
             link        : function($scope, $element, $attrs) {
-                $scope.rScope = null; // row Scope of the active row
-                $scope.key    = $attrs.key;
-
-                gridDataSrv.get($attrs, $scope, function( listData ) {
-                    if ( _.isEmpty(listData.data) )
-                        $scope.add();
-                });
-
-                for (var i=0; i<_.gridKey($scope.key).split('/').length-1 ; i++)
-                    $element.find('spaces').append('<space></space>');
+                // Attributes inherited and shared by row Scope and head Scope
+                $scope.$attrs    = $attrs;
+                $scope.tableHide = false;
+                $scope.workRow   = '';
+                $scope.list,
+                $scope.listW     = {};
             },
             controller  :  function($scope, $element, $attrs) {
-                $scope.restore = function() {
-                    $element.find('tr').css({"display" : "table-row"});
+                $scope.restore = function( a ) {
                     $element.find('grid').remove();
-                    $scope.workRow = '';
+                    return $scope.workRow = '';
                 }
-
-                $scope.getGridEl  = function() { return $element; }
-
-                $scope.sav = function(id, rScope) {
-                    rScope.dirty   = false;
-                    rScope.trClass = '';
-
-                    $scope.list.data[id] = _.deepCopy($scope.listW.data[id]);
-
-                    $scope.notify('sav', gridDataSrv.sav($attrs.key, $scope.list));
-                    LG( rScope.$id, ' row $id ' );
-                };
-
-                $scope.del = function(id)  { 
-                    delete $scope.list.data[id];
-                    $scope.notify('', gridDataSrv.sav($attrs.key, $scope.list), 'Deleting row with id <b>' + id + '</b>');
-                    
-                };
-
-                $scope.reload = function() { 
-                    $scope.list  = _($scope.list).deepCopy($scope.listW);
-                    $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
-                };
-
-                $scope.add = function() {
-                    var newIdx = _($scope.list.data).minIntKey(-1);
-
-                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns, '');
-                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns, '');
-                    setTimeout(
-                        function () {$scope.rScope.trClass = 'selected'; $scope.rScope.$digest();}, 100
-                    );
-                };
             }
         }
     })
@@ -306,14 +322,14 @@ angular.module('app.directives', ['app.gridConf'])
             scope      : true,
             controller : function($scope, $element) {
 
-                $scope.$parent.notify = function(msgId, type, msg) {
+                $scope.$parent.notify = function(msgId, type, msg, howLong) {
                     if ( _.isUndefined(type)) type = 'info';
                     if ( _.isUndefined(msg))  msg  = '';
 
                     switch (msgId) {
-                        case 'sav' : flash('Saving Row.'      + msg, type); break;
-                        case 'rel' : flash('Reloading Table.' + msg, type); break;
-                        default    : flash(                     msg, type); break;
+                        case 'sav' : flash('Saving Row.'      + msg, type, howLong); break;
+                        case 'rel' : flash('Reloading Table.' + msg, type, howLong); break;
+                        default    : flash(                     msg, type, howLong); break;
                     }
                 };
 
@@ -336,20 +352,6 @@ angular.module('app.directives', ['app.gridConf'])
             template:   '<div class="box"></div>',
             transclude: true,
             replace:    true
-        }
-        
-    })
-    .directive('imgInput', function factory() {
-        return {
-            restrict:   'E',
-            template:   '<div class="imgPar"><img ng-src="{{src}}" align="left" width="80" height="100"/><p>{{content}}</p></div>',
-            transclude: true,
-            replace:    true,
-            controller : function($scope, $element, $attrs) {
-                $scope.src = 'shot.png';
-                $scope.content ='Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... Lorem ipsum dolor bla, bla, bla, bla, bla, bla, bla, bla, ... ';
-                //$scope.content ='Lorem ipsum dolor bla, bla, bla, bla, bla, bla';
-            }
         }
         
     })
