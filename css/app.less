@@ -20,6 +20,10 @@
     background: transparent url('../image/glyph.png') @left @top  no-repeat;
 }
 
+.glyphBgWhite(@left, @top) {
+    background: transparent url('../image/glyph-white.png') @left @top  no-repeat;
+}
+
 .rounded-corners (@radius: 5px) {
     -webkit-border-radius: @radius;
     -moz-border-radius: @radius;
@@ -129,15 +133,15 @@ grid {
             margin:3px 2px 0px 1px;
             padding:0px 1px 6px 0px;
             height:11px;
-            background:#c7d2d8;
             border-radius:2px;
         }
 
         input {
             &.addButton    { .glyphBg(-409px, -98px); }
             &.reloadButton { .glyphBg(-218px, -25px); }
-            &.hideTable    { .glyphBg(-217px, -97px); }
-            &.showTable    { .glyphBg(-265px, -25px); }
+            &.hideTable    { .glyphBg(-409px, -73px); }
+            &.peekTable    { .glyphBgWhite(-266px,  -25px); }
+            &.peekTable.showTable { .glyphBg(-266px,  -25px); }
         }
         spaces {
             position:relative;
@@ -172,12 +176,13 @@ grid {
     .button {
         .rounded-corners(4px);
         padding:0 2px 0 1px;
-        background: lighten(@borderColor,8%);
+        //background: lighten(@borderColor,8%);
+        background: #aaa;
         height:12px;
-        .delButton { .glyphBg(-458px,    0px); }
-        .expButton { .glyphBg(  -1px,  -72px); }
-        .subButton { .glyphBg(-410px, -120px); }
-        .savButton { .glyphBg(-290px,   -0px); }
+        .delButton { .glyphBg(-458px,    2px); }
+        .expButton { .glyphBg(  -1px,  -70px); }
+        .subButton { .glyphBg(-410px, -118px); }
+        .savButton { .glyphBg(-290px,    2px); }
     }
     .button input {
         float:right;

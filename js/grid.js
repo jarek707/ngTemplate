@@ -14,10 +14,10 @@ angular.module('app.gridConf', [])
             'meta' : {
                 'continent'  : {
                     'url'      : 'data/cluster.php',
-                    'columns'  : ['Name', '# of Countries' , 'Population'],
+                    'columns'  : ['Name:M', '# of Countries:M' , 'Population:M', 'Image:A'],
                     'children' : {
                         'country' : {
-                            'columns' : ['Name', 'Area','Population'],
+                            'columns' : ['Name:M:T', 'Area:M','Population:M', 'Active:M:R:Yes:No'],
                             'children' : {
                                 'region' : {
                                     'columns' : ['Designation', 'Timezone', 'Size', 'Population'],
@@ -82,9 +82,22 @@ angular.module('app.gridConf', [])
                 'headButtons' : 'html/grid/headButtons.html'
             },
 
-            getColumns:  function(key) { 
-                return _.isUndefined(m = this.findMeta(key)) ? false : m.columns;  
+            getAllColumns:  function(key) { 
+                return this.findMeta(key);
             },
+
+            getTabColumns:  function(key) { 
+                var colNames = [], colsA = [];
+
+                _(this.findMeta(key).columns).each( function(v,k) {
+                    colsA = v.split(':');
+                    if ( (colsA[1] == 'M') || _.isUndefined(colsA[1]))
+                        colNames.push(colsA[0]);
+                        
+                });
+                return colNames;
+            },
+
             getChildren: function(key) {
                 return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
             },
@@ -99,12 +112,16 @@ angular.module('app.gridConf', [])
                 return meta;
             },
 
-            getMeta : function(key, field) {
+            getMeta : function(key, allCols) {
                 var meta = this.findMeta(key);
 
-                return _.isUndefined(meta) ? false
-                                           : _.isUndefined(field) ? meta 
-                                                                  : meta[field];
+                if (_.isUndefined(meta))
+                    return false;
+                else {
+                    meta.columns = _.isUndefined(allCols)   ? this.getTabColumns(key) 
+                                                            : this.getAllColumns(key);
+                    return meta;
+                }
             }
         }
     })
@@ -115,17 +132,17 @@ angular.module('app.services', ['app.gridConf'])
             prefix: 'GRID:',
 
             clear: function(key) { 
-                typeof key == 'undefined' ? localStorage.clear() : delete localStorage[key]; 
+                _.isUndefined(key) ? localStorage.clear() : delete localStorage[key]; 
             },
+
 
             setParams : function(attrs, scope) {
                 var $return = {key:attrs.key, columns:[], url:null};
                 
-                $return.columns = _.isUndefined(attrs.columns) ? config.getColumns(attrs.key)
-                                                               : attrs.columns.split(',');
-                $return.url     = _.isUndefined(attrs.url)     ? config.getMeta(attrs.key, 'url') 
-                                                               : attrs.url;
+                $return.columns = config.getTabColumns(attrs.key);
 
+                $return.url     = _.isUndefined(attrs.url)     ? config.getMeta(attrs.key).url 
+                                                               : attrs.url;
                 return _.isEmpty($return.columns) ? false : $return;
             },
 
@@ -198,8 +215,7 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.showSub = config.getChildren($scope.$attrs.key);
 
                 function isDirty() { 
-                    return $scope.dirty 
-                            = !_.isEmpty(_.filter($scope.row, function(v,k) { return v !== $scope.listW.data[$scope.id][k]; }));
+                    return $scope.dirty = !_($scope.row).isEqual($scope.listW.data[$scope.id]);
                 };
 
                 $scope.blr = function() { 
@@ -227,7 +243,7 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.sub = function() {
-                    _(config.getMeta($scope.$attrs.key).children).each( function(v,k) { 
+                    _(config.getMeta($scope.$attrs.key).children, true).each( function(v,k) { 
                         this.key = $scope.$attrs.key + '/' + $scope.id + '/' + k;
 
                         tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
@@ -270,8 +286,9 @@ angular.module('app.directives', ['app.gridConf'])
                 ($scope.spaces = _.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  : function($scope, $element, $attrs ) {
-                $scope.toggleTable = function(sc) {
-                    $scope.tableHide = $scope.tableHide ? $scope.restore() : 'showTable';
+
+                $scope.peekTable = function() {
+                    $scope.tableHide = $scope.tableHide ? false : 'showTable';
                 };
 
                 $scope.reload = function() { 
@@ -308,8 +325,11 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.listW     = {};
             },
             controller  :  function($scope, $element, $attrs) {
+                $scope.trClass = 'none';
+
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
+                    $scope.tableHide = false;
                     return $scope.workRow = '';
                 }
             }
@@ -366,6 +386,12 @@ angular.module('app.directives', ['app.gridConf'])
             return last.charAt(0).toUpperCase() + last.substr(1);
         }
     })
+    .filter('colName', function() {
+        return function(input, delim) {
+            return input.split(_.isUndefined(delim) ? ':' : delim).shift();
+        }
+    })
+
 
 ;
 //  Directives END
