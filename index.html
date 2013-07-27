@@ -11,7 +11,12 @@
 
     <head ng-controller='htmlHead'>
         <title>Test App * * * * *</title>
+
+        <!--
+        <link href="http://ang/css/app.css" rel="stylesheet" type="text/css" />
+        -->
         <link href="http://ang//css/app.less" rel="stylesheet/less" type="text/css" />
+        <script src="http://ang/js/lib/less.js"></script>
 
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/angular.js"></script>
@@ -19,7 +24,6 @@
         <script src="http://ang/js/grid.js"></script>
         <script src="http://ang/js/app.js"></script>
 
-        <script src="http://ang/js/lib/less.js"></script>
     </head>
 
     <body>
@@ -30,10 +34,7 @@
             <div class='contentWrap'>
                 <contentPane ng-controller="contentPane">
                     <box ng-transclude>
-                        <grid key='continent'></grid>
-                    </box>
-                    <box ng-transclude>
-                        <grid key='managers'></grid>
+                        <grid key='continent' sid='{{$id}}'></grid>
                     </box>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </contentPane>

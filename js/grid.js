@@ -40,7 +40,7 @@ angular.module('app.gridConf', [])
                             }
                         },
                         'statistics' : {
-                            'columns' : ['Type'], 
+                            'columns' : ['Type','Range'], 
                             'children' : {
                                 'population' : {
                                     'columns' : ['Type', 'Percentage', 'Language'],
@@ -135,14 +135,12 @@ angular.module('app.services', ['app.gridConf'])
                 _.isUndefined(key) ? localStorage.clear() : delete localStorage[key]; 
             },
 
-
             setParams : function(attrs, scope) {
                 var $return = {key:attrs.key, columns:[], url:null};
                 
                 $return.columns = config.getTabColumns(attrs.key);
-
-                $return.url     = _.isUndefined(attrs.url)     ? config.getMeta(attrs.key).url 
-                                                               : attrs.url;
+                $return.url     = _.isUndefined(attrs.url) ? config.getMeta(attrs.key).url 
+                                                           : attrs.url;
                 return _.isEmpty($return.columns) ? false : $return;
             },
 
@@ -186,17 +184,10 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace  : true,
             restrict : 'E',
-            scope: true,
+            scope    : false, 
             templateUrl : config.tplUrls.tdInput,
-            link: function($scope, $element) {
+            link    : function($scope, $element) {
                 $element.bind('blur', $scope.blr);
-            },
-
-            controller: function($scope, $element, $attrs) {
-                var rScope = $scope.$parent.$parent; // row scope
-
-                $scope.blr = function() { rScope.blr();                                  };
-                $scope.chg = function() { rScope.chg($scope.id, $scope.i, $scope.field); };
             }
         }
     })
@@ -249,18 +240,12 @@ angular.module('app.directives', ['app.gridConf'])
                         tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
                     });
 
-                    if (!_.isUndefined(key)) setSubPane();
+                    if (!_.isUndefined(key)) $scope.$emit('openSub', $scope.id);
                 };
 
                 $scope.exp = function() {
-                    setSubPane();
                     tableEl().after( "<input type='button' value='X' onclick='console.log(this)'/>" );
-                };
-
-                function setSubPane() {
-                    var pScope = $scope.$parent;
-                    pScope.workRow = '{' + _($scope.list.data[$scope.id]).map( function(v,k) { return v }).join(', ') + '}';
-                    pScope.tableHide = pScope.tableHide ? false : 'showTable';
+                    $scope.$emit('openSub', $scope.id);
                 };
 
                 function tableEl()  { return $element.parent().parent().parent(); }
@@ -286,7 +271,6 @@ angular.module('app.directives', ['app.gridConf'])
                 ($scope.spaces = _.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  : function($scope, $element, $attrs ) {
-
                 $scope.peekTable = function() {
                     $scope.tableHide = $scope.tableHide ? false : 'showTable';
                 };
@@ -310,12 +294,32 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
+    .directive('test', function factory(gridDataSrv, config) {
+        return {
+            replace     : false,
+            restrict    : 'E',
+            scope       : { lth : '=' },
+            template    : '<div sid="{{$id}}">TESTING{{lth}}<input type="button" value="X...X" ng-click="set()"</div>',
+            link        : function($scope, $element, $attrs) {
+                $scope.$watch('lth', function(a,b,scope) {
+                }, true);
+            },
+            controller  :  function($scope, $element, $attrs) {
+                $scope.set = function() {
+                    $scope.lth='showTable';
+                };
+
+                $scope.$$_name = 'test';
+            }
+        }
+    })
     .directive('grid', function factory(gridDataSrv, config) {
         return {
             replace     : false,
             restrict    : 'E',
             scope       : {},
             templateUrl : config.tplUrls.main,
+            transclude  : true,
             link        : function($scope, $element, $attrs) {
                 // Attributes inherited and shared by row Scope and head Scope
                 $scope.$attrs    = $attrs;
@@ -323,6 +327,12 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.workRow   = '';
                 $scope.list,
                 $scope.listW     = {};
+                $scope.$$_name = 'grid';
+                $scope.$on('openSub', function(arg, listId) {
+                    var SC       = arg.currentScope;
+                    SC.tableHide = SC.tableHide ? false : 'showTable';
+                    SC.workRow   = '{' + _(SC.list.data[listId]).map( function(v,k) { return v }).join(', ') + '}';
+                });
             },
             controller  :  function($scope, $element, $attrs) {
                 $scope.trClass = 'none';
