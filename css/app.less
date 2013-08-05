@@ -32,6 +32,8 @@
     border-radius: @radius;
 }
 
+.hidden { display:none; }
+
 body {
     min-width: 790px;
     background: #eee;
@@ -99,13 +101,35 @@ contentPane {
 .box {
     clear:both;
     margin:10px;
-    padding:5px;
+    padding:8px;
     border:3px solid @borderColor;
     .rounded-corners(10px);
     overflow:auto;
 }
 
 grid {
+    .button {
+        .rounded-corners(4px);
+        padding:0 2px 0 1px;
+        //background: lighten(@borderColor,8%);
+        background: #aaa;
+        height:12px;
+        .delButton { .glyphBg(-458px,    2px); }
+        .expButton { .glyphBg(  -1px,  -70px); }
+        .subButton { .glyphBg(-410px, -118px); }
+        .savButton { .glyphBg(-290px,    2px); }
+    }
+    .button input {
+        float:left;
+        cursor:pointer;
+        color:transparent;
+        background:transparent;
+        border: 1px solid transparent;
+        padding:0;
+        width:13px;
+        margin-left:2px;
+        -webkit-border-radius:0;
+    }
     .gridHead {
         float:left;
         width:100%;
@@ -141,7 +165,7 @@ grid {
             &.reloadButton { .glyphBg(-218px, -25px); }
             &.restoreTable { .glyphBg(-409px, -73px); }
             &.peekTable    { .glyphBgWhite(-266px,  -25px); }
-            &.peekTable.showTable { .glyphBg(-266px,  -25px); }
+            &.peekTable.hidden { .glyphBg(-266px,  -25px); }
         }
         spaces {
             position:relative;
@@ -173,31 +197,16 @@ grid {
         span.warning {color:@warningColor;}
         span.error   {color:@errorColor;  }
     }
-    .button {
-        .rounded-corners(4px);
-        padding:0 2px 0 1px;
-        //background: lighten(@borderColor,8%);
-        background: #aaa;
-        height:12px;
-        .delButton { .glyphBg(-458px,    2px); }
-        .expButton { .glyphBg(  -1px,  -70px); }
-        .subButton { .glyphBg(-410px, -118px); }
-        .savButton { .glyphBg(-290px,    2px); }
-    }
-    .button input {
-        float:right;
-        cursor:pointer;
-        color:transparent;
-        background:transparent;
-        border: 1px solid transparent;
-        padding:0;
-        width:13px;
-        margin-left:2px;
-        -webkit-border-radius:0;
-    }
 
     table {
-        .button {
+        box-shadow: 1px 1px 11px #aaa;
+        border-bottom-right-radius:4px;
+
+        div.buttons {
+            float:right;
+        }
+
+        td.button {
             width:62px;
         }
         width:100%;

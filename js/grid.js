@@ -184,7 +184,7 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace  : true,
             restrict : 'E',
-            scope    : false, 
+            scope    : true, 
             templateUrl : config.tplUrls.tdInput,
             link    : function($scope, $element) {
                 $element.bind('blur', $scope.blr);
@@ -260,7 +260,7 @@ angular.module('app.directives', ['app.gridConf'])
             link        : function($scope, $attrs) {
                 gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
                     if ( _.isEmpty(listData.data) ) {
-                        $scope.tableHide = 'showTable';
+                        $scope.tableHide = 'hidden';
                         if ( !_.isUndefined($scope.$attrs.child) ) 
                             $scope.add();
                         else
@@ -272,7 +272,7 @@ angular.module('app.directives', ['app.gridConf'])
             },
             controller  : function($scope, $element, $attrs ) {
                 $scope.peekTable = function() {
-                    $scope.tableHide = $scope.tableHide ? false : 'showTable';
+                    $scope.tableHide = $scope.tableHide ? false : 'hidden';
                 };
 
                 $scope.reload = function() { 
@@ -306,7 +306,7 @@ angular.module('app.directives', ['app.gridConf'])
             },
             controller  :  function($scope, $element, $attrs) {
                 $scope.set = function() {
-                    $scope.lth='showTable';
+                    $scope.lth='hidden';
                 };
 
                 $scope.$$_name = 'test';
@@ -330,8 +330,9 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.$$_name = 'grid';
                 $scope.$on('openSub', function(arg, listId) {
                     var SC       = arg.currentScope;
-                    SC.tableHide = SC.tableHide ? false : 'showTable';
+                    SC.tableHide = SC.tableHide ? false : 'hidden';
                     SC.workRow   = '{' + _(SC.list.data[listId]).map( function(v,k) { return v }).join(', ') + '}';
+                    arg.stopPropagation();
                 });
             },
             controller  :  function($scope, $element, $attrs) {
@@ -341,7 +342,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $element.find('grid').remove();
                     $scope.tableHide = false;
                     return $scope.workRow = '';
-                }
+                };
             }
         }
     })
