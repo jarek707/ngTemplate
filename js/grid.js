@@ -217,7 +217,6 @@ angular.module('app.directives', ['app.gridConf'])
             transclude : true, 
             templateUrl : config.tplUrls.tdRadio,
             link    : function($scope, $element) {
-                $element.bind('blur', $scope.blr);
             },
             controller: function($scope, $attrs, $element) {
                 $scope.clk = function(id,i,k) {
@@ -238,6 +237,10 @@ angular.module('app.directives', ['app.gridConf'])
                                 $scope.trClass = 'selected'; 
                                 $scope.showSub = false;
                             };
+                            setTimeout( function() {
+                                //LG( $($element.parent().find('td')).find('input').css({'background':'red'}), 'par td' );
+                                $($element.parent().find('td')).find('input').bind('blur', function() { $scope.blr(); } );
+                            }, 300);
             },
             controller  : function($scope, $element, $attrs) {
                 $scope.getType = function(id,i) {
