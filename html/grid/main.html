@@ -18,8 +18,11 @@
     </thead>
     <tbody>
         <tr ng-repeat="(id,row) in list.data" ng-class='trClass' sid="{{$id}}">
-            <td ng-repeat='(i,field) in row' sid="{{$id}}"> 
-               <td-input></td-input> 
+            <td ng-repeat='(i,field) in row' sid="{{$id}}" ng-class="standard">
+                <div ng-switch on="getType(id,i)"> 
+                   <td-radio ng-switch-when="R"></td-radio> 
+                   <td-input ng-switch-when='T'></td-input> 
+               </div>
             </td>
             <td class="button" row-buttons sid="{{$id}}" pid="{{$parent.$id}}"></td>
          </tr>

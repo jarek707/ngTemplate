@@ -46,11 +46,13 @@ function topMenu($scope) {
     $scope.lists = { a : 1, b : 2, c :3 }
 }
 
-function contentPane($scope, $routeParams, $http, gridDataSrv) {
+function contentPane($scope, $routeParams, $http, gridDataSrv, config) {
     $scope.clearLocalStorage = function() {
         if (confirm ('This will clear your entire local storage.\nPlease confirm.\n\nAftwrwards you need to reload the page to see changes.'))
             gridDataSrv.clear();
     }
+    if ( typeof localStorage['GRID:METADATA'] == 'undefined' ) localStorage['GRID:METADATA'] = JSON.stringify(config.meta);
+    LG( localStorage );
 }
 
 function leftPane() {}
@@ -58,4 +60,4 @@ function leftPane() {}
 function rightPane($scope) {
 }
 
-LG( localStorage );
+

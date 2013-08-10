@@ -12,24 +12,28 @@ angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
             'meta' : {
+                'management' : {
+                    'columns' : ['First Name', 'Last Name', 'Active:4:R:Yes,No', 'Description:3/:TA', 'Location:5/:S:static/location']
+
+                },
                 'continent'  : {
                     'url'      : 'data/cluster.php',
-                    'columns'  : ['Name:M', '# of Countries:M' , 'Population:M', 'Image:A'],
+                    'columns'  : ['Name', '# of Countries' , 'Population', 'Image:3/'],
                     'children' : {
                         'country' : {
-                            'columns' : ['Name:M:T', 'Area:M','Population:M', 'Active:M:R:Yes:No'],
+                            'columns' : ['Name', 'Area','Population', 'Active:3:R:Yes:No'],
                             'children' : {
                                 'region' : {
-                                    'columns' : ['Designation', 'Timezone', 'Size', 'Population'],
+                                    'columns' : ['Designation:M', 'Timezone:M', 'Size:M', 'Population:M'],
                                     'children' : {
                                         'town' : {
-                                            'columns' : ['Name', 'Size', 'Population'],
+                                            'columns' : ['Name:M', 'Size:M', 'Population:M'],
                                             'children' : {
                                                 'hood' : {
-                                                    'columns' : ['Name', 'Size', 'Population', 'Number of Units'],
+                                                    'columns' : ['Name:M', 'Size:M', 'Population:M', 'Number of Units:M'],
                                                     'children' : {
                                                         'address' : {
-                                                            'columns' : ['Street', 'Number', 'Apt. Number', 'Room Number']
+                                                            'columns' : ['Street:M', 'Number:M', 'Apt. Number:M', 'Room Number:M']
                                                         }
                                                     }
                                                 }
@@ -79,27 +83,41 @@ angular.module('app.gridConf', [])
                 'main'        : 'html/grid/main.html',
                 'rowButtons'  : 'html/grid/rowButtons.html',
                 'tdInput'     : 'html/grid/tdInput.html',
-                'headButtons' : 'html/grid/headButtons.html'
+                'tdRadio'     : 'html/grid/tdRadio.html',
+                'headButtons' : 'html/grid/headButtons.html',
+                'textInput'   : 'html/grid/TEXT.html'
             },
 
             getAllColumns:  function(key) { 
-                return this.findMeta(key);
+                return this.findMeta(key).columns;
             },
 
             getTabColumns:  function(key) { 
-                var colNames = [], colsA = [];
+                var colNames = [], colsA = [], tabPos='';
 
                 _(this.findMeta(key).columns).each( function(v,k) {
                     colsA = v.split(':');
-                    if ( (colsA[1] == 'M') || _.isUndefined(colsA[1]))
+                    if ( _.isUndefined(colsA[1]) || _.isUndefined(colsA[1].split('/')[1]) )
                         colNames.push(colsA[0]);
-                        
                 });
                 return colNames;
             },
 
             getChildren: function(key) {
                 return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
+            },
+
+            getInputMeta: function(key, idx) {
+                var meta = this.getMeta(key,true).columns[idx].split(':');
+                var $return = {};
+
+                switch (meta.length) {
+                    case 4: $return.labs = meta[3].split(',');
+                    case 3: $return.type = meta[2];
+                    case 2: $return.pos  = meta[1];
+                    case 1: $return.name = meta[0];
+                }
+                return $return;
             },
 
             findMeta : function(key) {
@@ -191,6 +209,25 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
+    .directive('tdRadio', function factory(config) {
+        return {
+            replace  : true,
+            restrict : 'E',
+            scope    : true, 
+            transclude : true, 
+            templateUrl : config.tplUrls.tdRadio,
+            link    : function($scope, $element) {
+                $element.bind('blur', $scope.blr);
+            },
+            controller: function($scope, $attrs, $element) {
+                $scope.clk = function(id,i,k) {
+                    $scope.listW.data[id][i] = k;
+                    $scope.$parent.clk();
+                }
+            }
+
+        }
+    })
     .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
         return {
             replace     : false,
@@ -203,6 +240,14 @@ angular.module('app.directives', ['app.gridConf'])
                             };
             },
             controller  : function($scope, $element, $attrs) {
+                $scope.getType = function(id,i) {
+                    $scope.radioBtns = {};
+                    var meta = config.getInputMeta( $scope.$attrs.key, i ); 
+                    $scope.radioBtns = meta.labs;
+                    $scope.standard = meta.type ? 'notext' : '';
+                    return _.isUndefined(meta.type) ? 'T' : meta.type;
+                };
+
                 $scope.showSub = config.getChildren($scope.$attrs.key);
 
                 function isDirty() { 
@@ -213,7 +258,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.trClass = isDirty() ? 'dirty' : '';
                 };
 
-                $scope.clk = function() {
+                $scope.clk = function(i) {
                     $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
                 };
 
@@ -244,12 +289,40 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.exp = function() {
-                    tableEl().after( "<input type='button' value='X' onclick='console.log(this)'/>" );
+                    var tpl = '';
+                    _(config.getMeta($scope.$attrs.key,true).columns).each( function(v,k) {
+                        var colDefs = v.split(':');
+                        switch (colDefs[2]) {
+                            case 'TA' :
+                                tpl += '<textarea-input></textarea-input>';
+                                break;
+                            case 'R' :
+                                tpl += '<radio-input></radio-input>';
+                                break;
+                            case 'C' :
+                                tpl += '<checkbox-input></select-input>';
+                                break;
+                            case 'S' :
+                                tpl += '<select-input></select-input>';
+                                break;
+                            default: 
+                                tpl += '<text-input></text-input>';
+                                break;
+                        }
+
+                    });
                     $scope.$emit('openSub', $scope.id);
                 };
 
                 function tableEl()  { return $element.parent().parent().parent(); }
             }
+        }
+    })
+    .directive('textInput', function factory(gridDataSrv, config) { // head scope
+        return {
+            replace : true,
+            restrict : 'C',
+            templateUrl : config.tplUrls.textInput
         }
     })
     .directive('headButtons', function factory(gridDataSrv, config) { // head scope
