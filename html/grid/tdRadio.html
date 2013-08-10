@@ -1,0 +1,9 @@
+<div>
+    <div class="radios" ng-repeat="(k,v) in radioBtns">
+        <input id="r{{id}}" type="radio" name='rad{{id}}' sid='{{$id}}' rid='{{id}}'
+                ng-model='field' value='{{k}}'
+                ng-click="$parent.clk(id,i,k)">
+        </input>
+        <label for="r{{id}}">{{v}}</Label>
+    </div>
+</div>
