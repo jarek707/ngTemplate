@@ -203,67 +203,82 @@ grid {
         box-shadow: 1px 1px 11px #aaa;
         border-bottom-right-radius:4px;
 
-        div.buttons {
-            float:right;
-        }
+        &.hidden, tr.hidden { display:none; }
 
-        td.button {
-            width:62px;
-        }
-        tr th {
-            font-family: Helvetica;
-            color: #777;
-            font-size:0.8em;
-            text-align:left;
-            font-style: italic;
-            text-decoration: underline;
-            padding-left:5px;
-        }
-        tr td { 
-            min-width:56px; 
-            input { 
-                text-overflow: ellipsis;
-                border:2px solid transparent;
-                border-bottom:1px dashed @borderColor;
-                background:transparent;
-                width:99%;
-                padding:2px 0 2px 2px;
-                height:20px;
+        div.buttons { float:right; }
+
+        tr {
+            th {
+                font-family: Helvetica;
+                color: #777;
+                font-size:0.8em;
+                text-align:left;
+                font-style: italic;
+                text-decoration: underline;
+                padding-left:5px;
             }
-            input[type="radio"] {
-                width:auto;
-            }
-            div div div.radios {
-                float:left;
-                width:auto;
-                label {
-                    font-size:0.8em;
+            td { 
+                min-width:56px; 
+                &.button { width:62px; }
+
+                input { 
+                    text-overflow: ellipsis;
+                    border:2px solid transparent;
+                    //border-bottom:1px dashed @borderColor;
+                    background:transparent;
+                    width:99%;
+                    padding:2px 0 2px 2px;
+                    height:20px;
+
+                    &[type="radio"],
+                    &[type="checkbox"] { width:auto; height:12px; margin-top:4px; }
+                }
+                div div div.radios {
+                    float:left;
                     font-family:Arial;
+                    font-size:0.8em;
+                    width:auto;
                     margin:0 4px 4px 0px;;
+                    height:12px;
+                    padding-top:6px;
+                    label {
+                        margin:0 4px 4px 0px;;
+                    }
+                }
+                &.notext {
+                    width:1px;
+                    white-space:nowrap;
+                    div.radios {
+                        padding-top:0;
+                        margin-top:4px;
+                        height:12px;
+                        font-style:italic;
+                    }
                 }
             }
-            &.notext {
-                width:1px;
-                white-space:nowrap;
-                div > div {
-                    margin-top:-2px;
-                    height:22px;
-                }
-            }
-        }
-        tr.selected td input[type='text'] {
-            border: 2px solid darken(@borderColor, 40%);
-            background: lighten(@mainPaneBg, 5%);
-        }
-        tr.dirty td.button {
-            background:#f55;
-        }
 
-        off tr.dirty td input[type='text'] {
-            border: 2px solid @borderDirtyColor;
-        }
-        &.hidden, tr.hidden {
-            display:none;
+            &.selected {
+                td {
+                    input[type='text'] {
+                        border: 2px solid darken(@borderColor, 40%);
+                        background: lighten(@mainPaneBg, 5%);
+                    }
+                    &.notext {
+                        div.radios {
+                            margin-top:-1px;
+                        }
+                        &> div {
+                            height:18px;
+                            border: 1px solid darken(@borderColor, 40%);
+                            .rounded-corners(4px);
+                            background: lighten(@mainPaneBg, 5%);
+                        }
+                    }
+                }
+            }
+            &.dirty td.button {
+                background:#f55;
+            }
         }
     }
 }

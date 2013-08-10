@@ -13,7 +13,12 @@ angular.module('app.gridConf', [])
         return {
             'meta' : {
                 'management' : {
-                    'columns' : ['First Name', 'Last Name', 'Active:4:R:Yes,No', 'Description:3/:TA', 'Location:5/:S:static/location']
+                    'columns' : [   'First Name', 
+                                    'Last Name', 
+                                    'Active:4:R:Yes,No', 
+                                    'Member:6:C:New,Old', 
+                                    'Description:3/:TA', 
+                                    'Location:5/:S:static/location']
 
                 },
                 'continent'  : {
@@ -84,6 +89,7 @@ angular.module('app.gridConf', [])
                 'rowButtons'  : 'html/grid/rowButtons.html',
                 'tdInput'     : 'html/grid/tdInput.html',
                 'tdRadio'     : 'html/grid/tdRadio.html',
+                'tdCheckbox'  : 'html/grid/tdCheckbox.html',
                 'headButtons' : 'html/grid/headButtons.html',
                 'textInput'   : 'html/grid/TEXT.html'
             },
@@ -205,6 +211,7 @@ angular.module('app.directives', ['app.gridConf'])
             scope    : true, 
             templateUrl : config.tplUrls.tdInput,
             link    : function($scope, $element) {
+                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
                 $element.bind('blur', $scope.blr);
             }
         }
@@ -217,14 +224,33 @@ angular.module('app.directives', ['app.gridConf'])
             transclude : true, 
             templateUrl : config.tplUrls.tdRadio,
             link    : function($scope, $element) {
+                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
             },
             controller: function($scope, $attrs, $element) {
                 $scope.clk = function(id,i,k) {
                     $scope.listW.data[id][i] = k;
                     $scope.$parent.clk();
-                }
+                };
             }
-
+        }
+    })
+    .directive('tdCheckbox', function factory(config) {
+        return {
+            replace  : true,
+            restrict : 'E',
+            scope    : true, 
+            transclude : true, 
+            templateUrl : config.tplUrls.tdCheckbox,
+            link    : function($scope, $element) {
+                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+            },
+            controller: function($scope, $attrs, $element) {
+                $scope.clk = function(id,i,k) {
+                    LG( $element, ' chec');
+                    $scope.listW.data[id][i] = k;
+                    $scope.$parent.clk();
+                };
+            }
         }
     })
     .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
@@ -303,7 +329,7 @@ angular.module('app.directives', ['app.gridConf'])
                                 tpl += '<radio-input></radio-input>';
                                 break;
                             case 'C' :
-                                tpl += '<checkbox-input></select-input>';
+                                tpl += '<checkbox-input></checkbox-input>';
                                 break;
                             case 'S' :
                                 tpl += '<select-input></select-input>';
@@ -412,7 +438,7 @@ angular.module('app.directives', ['app.gridConf'])
                 });
             },
             controller  :  function($scope, $element, $attrs) {
-                $scope.trClass = 'none';
+                $scope.trClass = '';
 
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();

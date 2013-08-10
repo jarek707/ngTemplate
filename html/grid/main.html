@@ -21,6 +21,7 @@
             <td ng-repeat='(i,field) in row' sid="{{$id}}" ng-class="standard">
                 <div ng-switch on="getType(id,i)"> 
                    <td-radio ng-switch-when="R"></td-radio> 
+                   <td-checkbox ng-switch-when='C'></td-checkbox> 
                    <td-input ng-switch-when='T'></td-input> 
                </div>
             </td>
