@@ -1,0 +1,10 @@
+<div>
+    <div class="radios" ng-repeat="(k,v) in radioBtns" ng-show='trClass'>
+        <select id="c{{id}}_{{k}}" ng-model='field' ng-click="clk(id,i,k)">
+            <option ng-repeat='(k,v) in options' value='{{k}}'>{{v}}</option>
+        </select>
+    </div>
+    <div class='radios text' ng-hide='trClass' ng-click='$parent.clk()'>
+        {{field}}
+    </div>
+</div>

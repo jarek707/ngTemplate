@@ -1,208 +1,3 @@
-// GLOBAL Utility START
-function SER(arg) { return JSON.stringify(arg); }
-function LG()     { console.log(arguments);     }
-function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
-                    setTimeout(function() {console.log(args);}, args.pop()); }
-// GLOBAL Utility END
-
-//
-// Service Modules START
-//
-angular.module('app.gridConf', [])
-    .factory('config', function() {
-        return {
-            'meta' : {
-                'management' : {
-                    'columns' : [   'First Name', 
-                                    'Last Name', 
-                                    'Active:4:R:Yes,No', 
-                                    'Member:6:C:New,Old', 
-                                    'Description:3/:TA', 
-                                    'Location:5/:S:static/location']
-
-                },
-                'continent'  : {
-                    'url'      : 'data/cluster.php',
-                    'columns'  : ['Name', '# of Countries' , 'Population', 'Image:3/'],
-                    'children' : {
-                        'country' : {
-                            'columns' : ['Name', 'Area','Population', 'Active:3:R:Yes:No'],
-                            'children' : {
-                                'region' : {
-                                    'columns' : ['Designation:M', 'Timezone:M', 'Size:M', 'Population:M'],
-                                    'children' : {
-                                        'town' : {
-                                            'columns' : ['Name:M', 'Size:M', 'Population:M'],
-                                            'children' : {
-                                                'hood' : {
-                                                    'columns' : ['Name:M', 'Size:M', 'Population:M', 'Number of Units:M'],
-                                                    'children' : {
-                                                        'address' : {
-                                                            'columns' : ['Street:M', 'Number:M', 'Apt. Number:M', 'Room Number:M']
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        'statistics' : {
-                            'columns' : ['Type','Range'], 
-                            'children' : {
-                                'population' : {
-                                    'columns' : ['Type', 'Percentage', 'Language'],
-                                    'children' : {
-                                        'minorities' : {
-                                            'columns' : ['Name', 'Percentage', 'Language']
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                'managers' : {
-                    'columns' : ['First', 'Last' , 'Email', 'Phone'],
-                    'children': {
-                        'division' : {
-                            'columns' : ['Address', 'Phone', 'Branch'],
-                            'children': {
-                                'office' : {
-                                    'columns' : ['Address', 'Phone', 'Contact Name']
-                                }
-                            }
-                        },
-                        'field' : {
-                            'columns' : ['Location', 'Cell', 'Region']
-                        }
-                    }
-                },
-                'localstuff' : {
-                    'columns' : ['First', 'Last' , 'Local']
-                }
-            },
-
-            'tplUrls' : {
-                'main'        : 'html/grid/main.html',
-                'rowButtons'  : 'html/grid/rowButtons.html',
-                'tdInput'     : 'html/grid/tdInput.html',
-                'tdRadio'     : 'html/grid/tdRadio.html',
-                'tdCheckbox'  : 'html/grid/tdCheckbox.html',
-                'headButtons' : 'html/grid/headButtons.html',
-                'textInput'   : 'html/grid/TEXT.html'
-            },
-
-            getAllColumns:  function(key) { 
-                return this.findMeta(key).columns;
-            },
-
-            getTabColumns:  function(key) { 
-                var colNames = [], colsA = [], tabPos='';
-
-                _(this.findMeta(key).columns).each( function(v,k) {
-                    colsA = v.split(':');
-                    if ( _.isUndefined(colsA[1]) || _.isUndefined(colsA[1].split('/')[1]) )
-                        colNames.push(colsA[0]);
-                });
-                return colNames;
-            },
-
-            getChildren: function(key) {
-                return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
-            },
-
-            getInputMeta: function(key, idx) {
-                var meta = this.getMeta(key,true).columns[idx].split(':');
-                var $return = {};
-
-                switch (meta.length) {
-                    case 4: $return.labs = meta[3].split(',');
-                    case 3: $return.type = meta[2];
-                    case 2: $return.pos  = meta[1];
-                    case 1: $return.name = meta[0];
-                }
-                return $return;
-            },
-
-            findMeta : function(key) {
-                var keys = _.gridKey(key).split('/');
-                var meta = _.deepCopy(this.meta[keys.shift()]);
-
-                for (var i=0 ; i<keys.length ; i++ )
-                    meta = meta.children[keys[i]];
-
-                return meta;
-            },
-
-            getMeta : function(key, allCols) {
-                var meta = this.findMeta(key);
-
-                if (_.isUndefined(meta))
-                    return false;
-                else {
-                    meta.columns = _.isUndefined(allCols)   ? this.getTabColumns(key) 
-                                                            : this.getAllColumns(key);
-                    return meta;
-                }
-            }
-        }
-    })
-;
-angular.module('app.services', ['app.gridConf'])
-    .factory('gridDataSrv', function($http,config) {
-        return  {
-            prefix: 'GRID:',
-
-            clear: function(key) { 
-                _.isUndefined(key) ? localStorage.clear() : delete localStorage[key]; 
-            },
-
-            setParams : function(attrs, scope) {
-                var $return = {key:attrs.key, columns:[], url:null};
-                
-                $return.columns = config.getTabColumns(attrs.key);
-                $return.url     = _.isUndefined(attrs.url) ? config.getMeta(attrs.key).url 
-                                                           : attrs.url;
-                return _.isEmpty($return.columns) ? false : $return;
-            },
-
-            get: function(attrs, scope, cb) {
-                function setLists(src){
-                    scope.listW    = _.deepCopy( scope.list = src );
-                    cb(scope.list);
-                };
-
-                var params = this.setParams(attrs, scope);
-
-                if ( params.url )
-                    $http.get(params.url).success( function(data) { 
-                        setLists({data:data, meta:config.getMeta(params.key)});
-                    });
-                 else 
-                    if ( _.isEmpty(localStorage[this.prefix + params.key]) )
-                        setLists({meta:params, data:{}});
-                    else {
-                        if ( _.isUndefined(localStorage[this.prefix + params.key]) )
-                            setLists({meta:params, data:{}});
-
-                        setLists(JSON.parse(localStorage[this.prefix + params.key]));
-                    }
-            },
-
-            sav: function(key, list, id) {
-                localStorage[this.prefix + key] = JSON.stringify( list );
-                return 'success';
-            }
-        }
-    })
-;
-// Service Modules END
-
-//
-//  Directives START
-//
 angular.module('app.directives', ['app.gridConf'])
     .directive('tdInput', function factory(config) {
         return {
@@ -234,6 +29,24 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
+    .directive('tdSelect', function factory(config) {
+        return {
+            replace  : true,
+            restrict : 'E',
+            scope    : true, 
+            transclude : false, 
+            templateUrl : config.tplUrls.tdSelect,
+            link    : function($scope, $element) {
+                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                $scope.options = { '1' : 'One', '2' : 'Two' };
+            },
+            controller: function($scope, $attrs, $element) {
+
+                $scope.clk = function(id,i,k) {
+                };
+            }
+        }
+    })
     .directive('tdCheckbox', function factory(config) {
         return {
             replace  : true,
@@ -241,13 +54,29 @@ angular.module('app.directives', ['app.gridConf'])
             scope    : true, 
             transclude : true, 
             templateUrl : config.tplUrls.tdCheckbox,
-            link    : function($scope, $element) {
-                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+            compile : function(el, attrs, trans) {
+                return function($scope, $element) { // link function
+                    $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                }
             },
             controller: function($scope, $attrs, $element) {
-                $scope.clk = function(id,i,k) {
-                    LG( $element, ' chec');
-                    $scope.listW.data[id][i] = k;
+                //_($scope.field.split(",")).each( function(k,v) { LG (k, v,' each' );} );
+                $scope.values = [];
+                $scope.labs   = '';
+                $scope.meta   = config.getInputMeta($scope.$attrs.key ,$scope.i);
+
+                _.each($scope.meta.labs, function(v,k) {
+                    if ($scope.field.toString().indexOf(k) > -1) { // LIMIT of 10
+                        $scope.values[k] = true;
+                        $scope.labs += ',' + v; 
+                    }
+                });
+                $scope.labs = $scope.labs.substr(1);
+
+                $scope.clk = function(id,i,j) {
+                    var checked = '';
+                    _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
+                    $scope.listW.data[id][i] = checked.substr(1);
                     $scope.$parent.clk();
                 };
             }
@@ -264,13 +93,13 @@ angular.module('app.directives', ['app.gridConf'])
                                 $scope.showSub = false;
                             };
                             setTimeout( function() {
-                                //LG( $($element.parent().find('td')).find('input').css({'background':'red'}), 'par td' );
-                                $($element.parent().find('td')).find('input').bind('blur', function() { $scope.blr(); } );
+                                $($element.parent().find('td')).find('input').bind('blur', 
+                                    function() { $scope.blr(); } 
+                                );
                             }, 300);
             },
             controller  : function($scope, $element, $attrs) {
                 $scope.getType = function(id,i) {
-                    $scope.radioBtns = {};
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
                     $scope.standard = meta.type ? 'notext' : '';
@@ -297,7 +126,7 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.sav = function() {
-                    $scope.list.data[$scope.id] = _.deepCopy($scope.listW.data[$scope.id]);
+                    $scope.list.data[$scope.id] = UT.doubleCopy($scope.listW.data[$scope.id]);
                     $scope.notify('sav', gridDataSrv.sav($scope.$attrs.key, $scope.list));
                     $scope.blr();
                 };
@@ -322,21 +151,11 @@ angular.module('app.directives', ['app.gridConf'])
                     _(config.getMeta($scope.$attrs.key,true).columns).each( function(v,k) {
                         var colDefs = v.split(':');
                         switch (colDefs[2]) {
-                            case 'TA' :
-                                tpl += '<textarea-input></textarea-input>';
-                                break;
-                            case 'R' :
-                                tpl += '<radio-input></radio-input>';
-                                break;
-                            case 'C' :
-                                tpl += '<checkbox-input></checkbox-input>';
-                                break;
-                            case 'S' :
-                                tpl += '<select-input></select-input>';
-                                break;
-                            default: 
-                                tpl += '<text-input></text-input>';
-                                break;
+                            case 'R'  : tpl += '<radio-input></radio-input>';       break;
+                            case 'C'  : tpl += '<checkbox-input></checkbox-input>'; break;
+                            case 'S'  : tpl += '<select-input></select-input>';     break;
+                            case 'TA' : tpl += '<textarea-input></textarea-input>'; break;
+                            default   : tpl += '<text-input></text-input>';         break;
                         }
 
                     });
@@ -370,7 +189,7 @@ angular.module('app.directives', ['app.gridConf'])
                     }
                 });
 
-                ($scope.spaces = _.gridKey($scope.$attrs.key).split('/')).pop();
+                ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  : function($scope, $element, $attrs ) {
                 $scope.peekTable = function() {
@@ -378,40 +197,21 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.reload = function() { 
-                    $scope.list  = _($scope.list).deepCopy($scope.listW);
+                    $scope.list  = UT.dobuleCopy($scope.list, $scope.listW);
                     $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
                     if ($scope.tableHide) $scope.toggleTable();
                 };
 
                 $scope.add = function() {
-                    var newIdx = _($scope.list.data).minIntKey(-1);
+                    var newIdx = UT.minIntKey($scope.list.data, -1);
 
-                    $scope.list.data[newIdx]  = _.mkEmpty($scope.list.meta.columns, '');
-                    $scope.listW.data[newIdx] = _.mkEmpty($scope.list.meta.columns, '');
+                    $scope.list.data[newIdx]  = UT.mkEmpty($scope.list.meta.columns, '');
+                    $scope.listW.data[newIdx] = UT.mkEmpty($scope.list.meta.columns, '');
                     if ($scope.tableHide) { 
                         $scope.showSub = true;
                         $scope.tableHide = false;
                     }
                 };
-            }
-        }
-    })
-    .directive('test', function factory(gridDataSrv, config) {
-        return {
-            replace     : false,
-            restrict    : 'E',
-            scope       : { lth : '=' },
-            template    : '<div sid="{{$id}}">TESTING{{lth}}<input type="button" value="X...X" ng-click="set()"</div>',
-            link        : function($scope, $element, $attrs) {
-                $scope.$watch('lth', function(a,b,scope) {
-                }, true);
-            },
-            controller  :  function($scope, $element, $attrs) {
-                $scope.set = function() {
-                    $scope.lth='hidden';
-                };
-
-                $scope.$$_name = 'test';
             }
         }
     })
@@ -471,7 +271,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                     if (_.isUndefined(howLong)) howLong = 1;
 
-                    $element.html('<b><i>' + _(type).camelize() + ':</i></b> ' + msg)
+                    $element.html('<b><i>' + UT.camelize(type, true) + ':</i></b> ' + msg)
                             .css( {display:"block", color:colors[type]} );
 
                     setTimeout(function() {$element.css({display:"none"})}, 2000*howLong);
