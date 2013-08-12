@@ -223,6 +223,7 @@ grid {
                 border-bottom:1px dotted @borderColor;
 
                 input { 
+                    cursor:pointer;
                     text-overflow: ellipsis;
                     border:2px solid transparent;
                     background:transparent;
@@ -233,7 +234,8 @@ grid {
                     &[type="radio"],
                     &[type="checkbox"] { width:auto; height:12px; margin-top:4px; }
                 }
-                div div div.radios {
+                div.radios {
+                    cursor:pointer;
                     float:left;
                     font-family:Arial;
                     font-size:0.8em;

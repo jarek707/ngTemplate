@@ -1,6 +1,6 @@
 <div>
     <div class="radios" ng-show='trClass'>
-        <select ng-model='field' ng-options="o.id as o.val for o in options" ng-change="chg(id,i)"></select>
+        <select ng-model='field' ng-options="o.id as o.val for o in options" ng-change="$parent.chg(id, i, field)"></select>
     </div>
     <div class='radios text' ng-hide='trClass' ng-click='$parent.clk()'>
         {{labs}}

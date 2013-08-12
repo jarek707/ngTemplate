@@ -9,7 +9,7 @@ angular.module('app.gridConf', [])
                     'columns' : [ 
                         'Name',
                         'Position',
-                        'Atts/Url',
+                        'SomeRadio:2:R:Chicken,Turkey',
                         'Type:3:S:static/types',
                         'Active:4:C:Yes,No,Maybe'
                     ],

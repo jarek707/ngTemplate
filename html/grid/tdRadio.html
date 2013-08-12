@@ -1,12 +1,12 @@
 <div>
     <div class="radios" ng-repeat="(k,v) in radioBtns" ng-show='trClass'>
-        <input id="r{{id}}_{{k}}" type="radio" name='rad{{id}}' sid='{{$id}}' rid='{{id}}'
+        <input id="r{{id}}_{{k}}" type="radio" name='rad{{id}}'
                 ng-model='field' value='{{k}}'
-                ng-click="$parent.clk(id,i,k)">
+                ng-click="$parent.chg(id,i,k)">
         </input>
         <label for="r{{id}}_{{k}}">{{v}}</Label>
     </div>
-    <div class='radios text' ng-hide='trClass'>
+    <div class='radios text' ng-hide='trClass' ng-click='$parent.clk()'>
         {{meta.labs[field]}}
     </div>
 </div>

@@ -1,11 +1,10 @@
-<div class='gridHead'  ng-class='trClass' sid='{{$id}}'>
+<div class='gridHead'  ng-class='trClass'>
     <spaces>
         <space ng-repeat='space in spaces'></space>
     </spaces>
     <div><div>{{$attrs.key|Last}}</div></div>
     <div>{{workRow}}</div>
     <div class='headButtons button'>
-        <div>here</div>
         <div ng-transclude></div>
     </div>
     <span class='notify'></span>
@@ -17,19 +16,16 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="(id,row) in list.data" ng-class='trClass' sid="{{$id}}">
-            <td ng-repeat='(i,field) in row' sid="{{$id}}" ng-class="standard">
-                <div ng-switch on="getType(id,i)"> 
+        <tr ng-repeat="(id,row) in list.data" ng-class='trClass'>
+            <td ng-repeat='(i,field) in row'>
+                <div ng-switch on="getType(id, i)"> 
                    <td-radio    ng-switch-when="R"></td-radio> 
                    <td-checkbox ng-switch-when='C'></td-checkbox> 
                    <td-select   ng-switch-when='S'></td-select> 
                    <td-input    ng-switch-when='T'></td-input> 
                </div>
             </td>
-            <td class="button" row-buttons sid="{{$id}}" pid="{{$parent.$id}}"></td>
+            <td class="button" row-buttons pid="{{$parent.$id}}"></td>
          </tr>
     </tbody>
 </table>
-<!--
-<test sid='{{$id}}' lth='tableHide'></test>
--->

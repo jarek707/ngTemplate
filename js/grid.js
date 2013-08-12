@@ -7,7 +7,6 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdInput,
             link    : function($scope, $element) {
                 $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
-                $element.bind('blur', $scope.blr);
             }
         }
     })
@@ -21,12 +20,6 @@ angular.module('app.directives', ['app.gridConf'])
             link    : function($scope, $element) {
                 $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
             },
-            controller: function($scope, $attrs, $element) {
-                $scope.clk = function(id,i,k) {
-                    $scope.listW.data[id][i] = k;
-                    $scope.$parent.clk();
-                };
-            }
         }
     })
     .directive('tdSelect', function factory(config) {
@@ -46,12 +39,6 @@ angular.module('app.directives', ['app.gridConf'])
                         $scope.labs = v.val; 
                 });
             },
-            controller: function($scope, $attrs, $element) {
-                $scope.chg = function(id, i) {
-                    $scope.listW.data[id][i] = $scope.field;
-                    $scope.$parent.clk();
-                };
-            }
         }
     })
     .directive('tdCheckbox', function factory(config) {
@@ -77,11 +64,10 @@ angular.module('app.directives', ['app.gridConf'])
                 }
             },
             controller: function($scope, $attrs, $element) {
-                $scope.clk = function(id,i,j) {
+                $scope.chg = function(id,i) {
                     var checked = '';
                     _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
-                    $scope.listW.data[id][i] = checked.substr(1);
-                    $scope.$parent.clk();
+                    $scope.$parent.chg(id, i, checked.substr(1));
                 };
             }
         }
@@ -92,21 +78,15 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             templateUrl : config.tplUrls.rowButtons,
             link        : function($scope, $element) {
-                            if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
-                                $scope.trClass = 'selected'; 
-                                $scope.showSub = false;
-                            };
-                            setTimeout( function() {
-                                $($element.parent().find('td')).find('input').bind('blur', 
-                                    function() { $scope.blr(); } 
-                                );
-                            }, 300);
+                if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
+                    $scope.trClass = 'selected'; 
+                    $scope.showSub = false;
+                };
             },
             controller  : function($scope, $element, $attrs) {
                 $scope.getType = function(id,i) {
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
-                    $scope.standard = meta.type ? 'notext' : '';
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
                 };
 
@@ -121,6 +101,8 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.clk = function(i) {
+                    $element.parent().parent().find('tr').removeClass('selected');
+                    $element.parent().addClass('selected');
                     $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
                 };
 
@@ -242,7 +224,7 @@ angular.module('app.directives', ['app.gridConf'])
                 });
             },
             controller  :  function($scope, $element, $attrs) {
-                $scope.trClass = '';
+                //$scope.trClass = '';
 
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
