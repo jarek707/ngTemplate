@@ -1,3 +1,6 @@
+.hidden {
+  display: none;
+}
 body {
   min-width: 790px;
   background: #eee;
@@ -67,7 +70,7 @@ contentPane {
 .box {
   clear: both;
   margin: 10px;
-  padding: 5px;
+  padding: 8px;
   border: 3px solid #afbfc7;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -75,6 +78,39 @@ contentPane {
   -o-border-radius: 10px;
   border-radius: 10px;
   overflow: auto;
+}
+grid .button {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  padding: 0 2px 0 1px;
+  background: #aaa;
+  height: 12px;
+}
+grid .button .delButton {
+  background: transparent url('../image/glyph.png') -458px 2px no-repeat;
+}
+grid .button .expButton {
+  background: transparent url('../image/glyph.png') -1px -70px no-repeat;
+}
+grid .button .subButton {
+  background: transparent url('../image/glyph.png') -410px -118px no-repeat;
+}
+grid .button .savButton {
+  background: transparent url('../image/glyph.png') -290px 2px no-repeat;
+}
+grid .button input {
+  float: left;
+  cursor: pointer;
+  color: transparent;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0;
+  width: 13px;
+  margin-left: 2px;
+  -webkit-border-radius: 0;
 }
 grid .gridHead {
   float: left;
@@ -122,7 +158,7 @@ grid .gridHead input.restoreTable {
 grid .gridHead input.peekTable {
   background: transparent url('../image/glyph-white.png') -266px -25px no-repeat;
 }
-grid .gridHead input.peekTable.showTable {
+grid .gridHead input.peekTable.hidden {
   background: transparent url('../image/glyph.png') -266px -25px no-repeat;
 }
 grid .gridHead spaces {
@@ -166,44 +202,17 @@ grid .gridHead span.warning {
 grid .gridHead span.error {
   color: #a03a5e;
 }
-grid .button {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
-  padding: 0 2px 0 1px;
-  background: #aaa;
-  height: 12px;
-}
-grid .button .delButton {
-  background: transparent url('../image/glyph.png') -458px 2px no-repeat;
-}
-grid .button .expButton {
-  background: transparent url('../image/glyph.png') -1px -70px no-repeat;
-}
-grid .button .subButton {
-  background: transparent url('../image/glyph.png') -410px -118px no-repeat;
-}
-grid .button .savButton {
-  background: transparent url('../image/glyph.png') -290px 2px no-repeat;
-}
-grid .button input {
-  float: right;
-  cursor: pointer;
-  color: transparent;
-  background: transparent;
-  border: 1px solid transparent;
-  padding: 0;
-  width: 13px;
-  margin-left: 2px;
-  -webkit-border-radius: 0;
-}
 grid table {
   width: 100%;
+  box-shadow: 1px 1px 11px #aaa;
+  border-bottom-right-radius: 4px;
 }
-grid table .button {
-  width: 62px;
+grid table.hidden,
+grid table tr.hidden {
+  display: none;
+}
+grid table div.buttons {
+  float: right;
 }
 grid table tr th {
   font-family: Helvetica;
@@ -216,24 +225,66 @@ grid table tr th {
 }
 grid table tr td {
   min-width: 56px;
+  border-bottom: 1px dotted #afbfc7;
+}
+grid table tr td.button {
+  width: 62px;
 }
 grid table tr td input {
+  cursor: pointer;
   text-overflow: ellipsis;
   border: 2px solid transparent;
-  border-bottom: 1px dashed #afbfc7;
   background: transparent;
   width: 99%;
   padding: 2px 0 2px 2px;
   height: 20px;
 }
+grid table tr td input[type="radio"],
+grid table tr td input[type="checkbox"] {
+  width: auto;
+  height: 12px;
+  margin-top: 4px;
+}
+grid table tr td div.radios {
+  cursor: pointer;
+  float: left;
+  font-family: Arial;
+  font-size: 0.8em;
+  width: auto;
+  margin: 0 4px 4px 0px;
+  height: 12px;
+  padding-top: 6px;
+}
+grid table tr td div.radios label {
+  margin: 0 4px 4px 0px;
+}
+grid table tr td.notext {
+  width: 1px;
+  white-space: nowrap;
+}
+grid table tr td.notext div.radios {
+  padding-top: 0;
+  margin-top: 4px;
+  height: 12px;
+  font-style: italic;
+}
 grid table tr.selected td input[type='text'] {
   border: 2px solid #465b64;
   background: #e4f0f8;
 }
-grid table tr.dirty td input[type='text'] {
-  border: 2px solid #a03a5e;
+grid table tr.selected td.notext div.radios {
+  margin-top: -1px;
 }
-grid table.hidden,
-grid table tr.hidden {
-  display: none;
+grid table tr.selected td.notext > div {
+  height: 18px;
+  border: 1px solid #465b64;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  background: #e4f0f8;
+}
+grid table tr.dirty td.button {
+  background: #f55;
 }

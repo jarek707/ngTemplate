@@ -132,10 +132,11 @@ angular.module('app.gridConf', [])
                 var $return = {};
 
                 switch (meta.length) {
-                    case 4: $return.labs = meta[3].split(',');
-                    case 3: $return.type = meta[2];
-                    case 2: $return.pos  = meta[1];
-                    case 1: $return.name = meta[0];
+                    case 4  : $return.labs = meta[3].split(',');
+                    case 3  : $return.type = meta[2];
+                    case 2  : $return.pos  = meta[1];
+                    case 1  : $return.name = meta[0]; break;
+                    default : $return = false;
                 }
                 return $return;
             },

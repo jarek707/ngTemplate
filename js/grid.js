@@ -84,10 +84,14 @@ angular.module('app.directives', ['app.gridConf'])
                 };
             },
             controller  : function($scope, $element, $attrs) {
-                $scope.getType = function(id,i) {
+                $scope.getType = function(i) {
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
+                };
+
+                $scope.getTdClass = function(i) {
+                    return $scope.getType(i) == 'T' ? '' : 'notext';
                 };
 
                 $scope.showSub = config.getChildren($scope.$attrs.key);

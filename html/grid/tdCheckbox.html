@@ -1,9 +1,9 @@
 <div>
-    <div class="radios" ng-repeat="(k,v) in radioBtns" ng-show='trClass'>
+    <div class="active" ng-repeat="(k,v) in radioBtns">
         <input id="c{{id}}_{{k}}" type="checkbox" ng-model='values[k]' ng-click="chg(id,i)"></input>
         <label for="c{{id}}_{{k}}">{{v}}</Label>
     </div>
-    <div class='radios text' ng-hide='trClass' ng-click='$parent.clk()'>
+    <div class="text" ng-click='$parent.clk()'>
         {{labs}}
     </div>
 </div>

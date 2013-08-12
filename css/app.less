@@ -234,7 +234,7 @@ grid {
                     &[type="radio"],
                     &[type="checkbox"] { width:auto; height:12px; margin-top:4px; }
                 }
-                div.radios {
+                div.active {
                     cursor:pointer;
                     float:left;
                     font-family:Arial;
@@ -250,11 +250,17 @@ grid {
                 &.notext {
                     width:1px;
                     white-space:nowrap;
-                    div.radios {
+                    div.active {
+                        display:none;
                         padding-top:0;
                         margin-top:4px;
                         height:12px;
                         font-style:italic;
+                    }
+                    div.text {
+                        font-family:Arial;
+                        font-size:0.8em;
+                        display:block;
                     }
                 }
             }
@@ -266,14 +272,20 @@ grid {
                         background: lighten(@mainPaneBg, 5%);
                     }
                     &.notext {
-                        div.radios {
+                        div.active{
+                            display:block;
                             margin-top:-1px;
+                        }
+                        div.text {
+                            display:none;
                         }
                         &> div {
                             height:18px;
-                            border: 1px solid darken(@borderColor, 40%);
+                            //border: 1px solid darken(@borderColor, 40%);
+                            border: 1px solid transparent;
                             .rounded-corners(4px);
                             background: lighten(@mainPaneBg, 5%);
+                            float:left;
                         }
                     }
                 }

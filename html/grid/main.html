@@ -17,8 +17,8 @@
     </thead>
     <tbody>
         <tr ng-repeat="(id,row) in list.data" ng-class='trClass'>
-            <td ng-repeat='(i,field) in row'>
-                <div ng-switch on="getType(id, i)"> 
+            <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)'>
+                <div ng-switch on="getType(i)"> 
                    <td-radio    ng-switch-when="R"></td-radio> 
                    <td-checkbox ng-switch-when='C'></td-checkbox> 
                    <td-select   ng-switch-when='S'></td-select> 
