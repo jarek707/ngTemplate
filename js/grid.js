@@ -12,14 +12,21 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .directive('tdRadio', function factory(config) {
         return {
-            replace  : true,
-            restrict : 'E',
-            scope    : true, 
+            restrict   : 'E',
+            replace    : true,
+            scope      : true,
             transclude : true, 
             templateUrl : config.tplUrls.tdRadio,
             link    : function($scope, $element) {
                 $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                $scope.labs = $scope.meta.labs[$scope.field];
             },
+            controller: function($scope) {
+                $scope.clk = function(i, k) {
+                    $scope.labs  = $scope.meta.labs[k];
+                    $scope.$parent.chg(i, k);
+                }
+            }
         }
     })
     .directive('tdSelect', function factory(config) {
@@ -34,11 +41,21 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.options = [{ 'id' : 3, 'val' : 'One' },
                                   { 'id' : 4, 'val' : 'Two' }];
 
-                _.each($scope.options, function(v,k) {
-                    if ($scope.field.toString().indexOf(v.id) > -1) 
-                        $scope.labs = v.val; 
-                });
+                $scope.mkLabs();
             },
+            controller: function($scope) {
+                $scope.mkLabs = function(v,k) {
+                    _.each($scope.options, function(v,k) {
+                        if ($scope.field.toString().indexOf(v.id) > -1) 
+                            $scope.labs = v.val; 
+                    });
+                };
+
+                $scope.chg = function(i) {
+                    $scope.mkLabs();
+                    $scope.$parent.chg(i, $scope.field);
+                };
+            }
         }
     })
     .directive('tdCheckbox', function factory(config) {
@@ -51,23 +68,33 @@ angular.module('app.directives', ['app.gridConf'])
             compile : function(el, attrs, trans) {
                 return function($scope, $element) { // link function
                     $scope.values = [];
-                    $scope.labs   = '';
                     $scope.meta   = config.getInputMeta($scope.$attrs.key ,$scope.i);
 
-                    _.each($scope.meta.labs, function(v,k) {
-                        if ($scope.field.toString().indexOf(k) > -1) { // LIMIT of 10
-                            $scope.values[k] = true;
-                            $scope.labs += ',' + v; 
-                        }
-                    });
-                    $scope.labs = $scope.labs.substr(1);
+                    $scope.mkLabGetVals($scope.field);
                 }
             },
             controller: function($scope, $attrs, $element) {
-                $scope.chg = function(id,i) {
+
+                $scope.mkLabGetVals = function (src) {
+                    var keys = '', labs = '';
+
+                    _.each($scope.meta.labs, function(v,k) {
+                        if (src.toString().indexOf(k) > -1) { // LIMIT of 10
+                            $scope.values[k] = true;
+                            labs += ',' + v; 
+                            keys += ',' + k;
+                        }
+                    });
+                    $scope.labs = labs.substr(1);
+                    return keys.substr(1);
+                }
+
+                $scope.chg = function(i) {
                     var checked = '';
                     _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
-                    $scope.$parent.chg(id, i, checked.substr(1));
+                    $scope.field = $scope.mkLabGetVals(checked);
+                    LG (i, 'in checkbox');
+                    $scope.$parent.chg(i, checked);
                 };
             }
         }
@@ -105,13 +132,13 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.clk = function(i) {
-                    $element.parent().parent().find('tr').removeClass('selected');
-                    $element.parent().addClass('selected');
+                    $scope.closeLastRow($scope);
                     $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
                 };
-
-                $scope.chg = function(id, i, field) {
-                    $scope.listW.data[id][i] = field;
+                
+                $scope.chg = function(i, field) {
+                    LG( $scope.id, field, i, $scope.field, ' chg ' );
+                    $scope.listW.data[$scope.id][i] = field;
                     $scope.clk();
                 };
 
@@ -201,6 +228,7 @@ angular.module('app.directives', ['app.gridConf'])
                         $scope.showSub = true;
                         $scope.tableHide = false;
                     }
+                    $scope.closeLastRow(null);
                 };
             }
         }
@@ -214,6 +242,7 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             link        : function($scope, $element, $attrs) {
                 // Attributes inherited and shared by row Scope and head Scope
+                $scope.lastRowScope = null;
                 $scope.$attrs    = $attrs;
                 $scope.tableHide = false;
                 $scope.workRow   = '';
@@ -235,6 +264,13 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.tableHide = false;
                     return $scope.workRow = '';
                 };
+
+                $scope.closeLastRow = function(rowScope) {
+                   if ( $scope.lastRowScope )
+                       $scope.lastRowScope.blr();
+
+                   $scope.lastRowScope = rowScope;
+                }
             }
         }
     })

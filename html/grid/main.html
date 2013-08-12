@@ -18,11 +18,11 @@
     <tbody>
         <tr ng-repeat="(id,row) in list.data" ng-class='trClass'>
             <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)'>
-                <div ng-switch on="getType(i)"> 
-                   <td-radio    ng-switch-when="R"></td-radio> 
-                   <td-checkbox ng-switch-when='C'></td-checkbox> 
-                   <td-select   ng-switch-when='S'></td-select> 
-                   <td-input    ng-switch-when='T'></td-input> 
+                <div ng-switch on="getType(i)">
+                   <td-radio    field='field' $attrs="$attrs" ng-switch-when="R"></td-radio> 
+                   <td-checkbox field='field' ng-switch-when='C'></td-checkbox> 
+                   <td-select   field='field' ng-switch-when='S'></td-select> 
+                   <td-input    field='field' ng-switch-when='T'></td-input> 
                </div>
             </td>
             <td class="button" row-buttons pid="{{$parent.$id}}"></td>

@@ -240,11 +240,15 @@ grid {
                     font-family:Arial;
                     font-size:0.8em;
                     width:auto;
-                    margin:0 4px 4px 0px;;
+                    margin:0 0px 4px 0px;;
                     height:12px;
                     padding-top:6px;
                     label {
                         margin:0 4px 4px 0px;;
+                    }
+                    select { 
+                        margin-top:1px; 
+                        width:100%;
                     }
                 }
                 &.notext {
@@ -284,7 +288,7 @@ grid {
                             //border: 1px solid darken(@borderColor, 40%);
                             border: 1px solid transparent;
                             .rounded-corners(4px);
-                            background: lighten(@mainPaneBg, 5%);
+                            background: lighten(@mainPaneBg, 10%);
                             float:left;
                         }
                     }

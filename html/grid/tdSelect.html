@@ -1,8 +1,8 @@
 <div>
     <div class="active">
-        <select ng-model='field' ng-options="o.id as o.val for o in options" ng-change="$parent.chg(id, i, field)"></select>
+        <select ng-model='field' ng-options="o.id as o.val for o in options" ng-change="chg(i)"></select>
     </div>
-    <div class='text' ng-click='$parent.clk()'>
+    <div class='text' ng-click='clk()'>
         {{labs}}
     </div>
 </div>
