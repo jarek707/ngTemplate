@@ -9,9 +9,9 @@ angular.module('app.gridConf', [])
                     'columns' : [ 
                         'Name',
                         'Position',
-                        'Active:4:C:Yes,No,Maybe', 
+                        'Atts/Url',
                         'Type:3:S:static/types',
-                        'Atts/Url'
+                        'Active:4:C:Yes,No,Maybe'
                     ],
                     'data'    : this
                 },

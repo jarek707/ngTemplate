@@ -37,12 +37,19 @@ angular.module('app.directives', ['app.gridConf'])
             transclude : false, 
             templateUrl : config.tplUrls.tdSelect,
             link    : function($scope, $element) {
-                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
-                $scope.options = { '1' : 'One', '2' : 'Two' };
+                $scope.labs    = '';
+                $scope.options = [{ 'id' : 3, 'val' : 'One' },
+                                  { 'id' : 4, 'val' : 'Two' }];
+
+                _.each($scope.options, function(v,k) {
+                    if ($scope.field.toString().indexOf(v.id) > -1) 
+                        $scope.labs = v.val; 
+                });
             },
             controller: function($scope, $attrs, $element) {
-
-                $scope.clk = function(id,i,k) {
+                $scope.chg = function(id, i) {
+                    $scope.listW.data[id][i] = $scope.field;
+                    $scope.$parent.clk();
                 };
             }
         }
@@ -56,23 +63,20 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdCheckbox,
             compile : function(el, attrs, trans) {
                 return function($scope, $element) { // link function
-                    $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                    $scope.values = [];
+                    $scope.labs   = '';
+                    $scope.meta   = config.getInputMeta($scope.$attrs.key ,$scope.i);
+
+                    _.each($scope.meta.labs, function(v,k) {
+                        if ($scope.field.toString().indexOf(k) > -1) { // LIMIT of 10
+                            $scope.values[k] = true;
+                            $scope.labs += ',' + v; 
+                        }
+                    });
+                    $scope.labs = $scope.labs.substr(1);
                 }
             },
             controller: function($scope, $attrs, $element) {
-                //_($scope.field.split(",")).each( function(k,v) { LG (k, v,' each' );} );
-                $scope.values = [];
-                $scope.labs   = '';
-                $scope.meta   = config.getInputMeta($scope.$attrs.key ,$scope.i);
-
-                _.each($scope.meta.labs, function(v,k) {
-                    if ($scope.field.toString().indexOf(k) > -1) { // LIMIT of 10
-                        $scope.values[k] = true;
-                        $scope.labs += ',' + v; 
-                    }
-                });
-                $scope.labs = $scope.labs.substr(1);
-
                 $scope.clk = function(id,i,j) {
                     var checked = '';
                     _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
