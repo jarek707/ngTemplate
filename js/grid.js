@@ -3,10 +3,19 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace  : true,
             restrict : 'E',
-            scope    : true, 
+            scope    : { "chg" : "&", "field" : "=" }, 
             templateUrl : config.tplUrls.tdInput,
             link    : function($scope, $element) {
-                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                $scope.$watch('field', function() { 
+                    LG(' watch field', arguments ); 
+                    LG( $scope, $scope.chg);
+                    $scope.chg({fld: $scope.field});
+                    LG( 'send ');
+                //    $scope.chg({dirty: $scope.field});
+                });
+                getParentIds( $scope, $element,  '' );
+            },
+            controller: function( $scope ) {
             }
         }
     })
@@ -104,11 +113,24 @@ angular.module('app.directives', ['app.gridConf'])
             replace    : false,
             restrict   : 'A',
             transclude : true,
-            scope      : true, 
+            scope      : { "row" : "=", "lastRowScope" : "=", "lastRow" : "&"},
             template   : false,
             link       : function($scope, $element) {
                 // Nasty hack to work around an even nastier bug in Angular
                 $($element).find('span:first-child').remove();
+
+                $element.bind('click', $scope.clk); 
+            }, 
+            controller: function( $scope ) {
+                $scope.clk = function() {
+                    $scope.trClass += ' selected';
+                    $scope.lastRow({scope: $scope});
+                };
+
+                $scope.adjust = function() {
+                    LG ( 'adjust ' );
+                }
+
             }
         }
     })
@@ -118,15 +140,24 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             transclude : true,
             template   : '',
+            scope      : { "row" : "=", "field" : "=" },
             //templateUrl : config.tplUrls.cell,
+            templateUrl : 'html/grid/fields.html',
             link: function($scope) {
             },
 
             controller  : function( $scope, $element ) {
+                $scope.getType = function() { return 'T'; };
+
                 if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
                     $scope.trClass = 'selected'; 
                     $scope.showSub = false;
                 };
+
+                $scope.chg = function(i,j) {
+                    LG('changed',  i, j );
+                };
+
                 $scope.notify = function() {
                     LG( 'notif fake');
                 };
@@ -138,11 +169,6 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.clk = function(i) {
                     $scope.closeLastRow($scope);
                     $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
-                };
-                
-                $scope.chg = function(i, field) {
-                    $scope.listW.data[$scope.id][i] = field;
-                    $scope.clk();
                 };
 
                 function isDirty() { 
@@ -272,7 +298,7 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             link        : function($scope, $element, $attrs) {
                 // Attributes inherited and shared by row Scope and head Scope
-                $scope.lastRowScope = null;
+                $scope.lastRowScope = {trClass : ''};
                 $scope.$attrs    = $attrs;
                 $scope.tableHide = false;
                 $scope.workRow   = '';
@@ -297,6 +323,11 @@ angular.module('app.directives', ['app.gridConf'])
                 ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  :  function($scope, $element, $attrs) {
+                $scope.lastRow = function(rowScope) {
+                    $scope.lastRowScope.trClass = 
+                        $scope.lastRowScope.trClass.replace('selected','');
+                    $scope.lastRowScope = rowScope;
+                }
 
                 $scope.getType = function(i) {
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 

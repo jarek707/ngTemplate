@@ -1,0 +1,12 @@
+<tr ng-repeat="(id,row) in list.data" ng-class='trClass' ng-click='rowClick()'>
+    <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)'>
+        <cell />
+    </td>
+    <td>
+        <row-buttons class='button'
+            $attrs = "$attrs"
+            list   = "list"
+            listW  = "listW"
+        />
+    </td>
+</tr>

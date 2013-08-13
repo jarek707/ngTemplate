@@ -1,0 +1,6 @@
+<div  ng-switch on="getType(i)" ng-model='field' sid='{{$id}}'>
+    <td-radio    field='field' ng-switch-when="R"></td-radio> 
+    <td-checkbox field='field' ng-switch-when='C'></td-checkbox> 
+    <td-select   field='field' ng-switch-when='S'></td-select> 
+    <td-text field='field' ng-switch-when='T'></td-text> 
+</div>

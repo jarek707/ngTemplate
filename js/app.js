@@ -3,6 +3,15 @@ function SER(arg) { return JSON.stringify(arg); }
 function LG()     { console.log(arguments);     }
 function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
                     setTimeout(function() {console.log(args);}, args.pop()); }
+
+function getParentIds(sc, el, ids) {
+    if ( sc.$parent ) {
+        getParentIds(sc.$parent, el, ids + sc.$id + ', ');
+    } else { 
+        LG(ids + sc.$id, el);
+        return false;
+    }
+};
 // GLOBAL Utility END
 
 UT = {
