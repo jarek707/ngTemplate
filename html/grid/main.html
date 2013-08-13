@@ -4,9 +4,14 @@
     </spaces>
     <div><div>{{$attrs.key|Last}}</div></div>
     <div>{{workRow}}</div>
-    <div class='headButtons button'>
+    <head-buttons class='button'    $attrs="$attrs" 
+                                    add="add()" 
+                                    peek-table="peekTable()" 
+                                    restore="restore()" 
+                                    table-hide="tableHide" 
+                                    >
         <div ng-transclude></div>
-    </div>
+    </head-buttons>
     <span class='notify'></span>
 </div>
 <table ng-hide='tableHide'>
@@ -19,13 +24,17 @@
         <tr ng-repeat="(id,row) in list.data" ng-class='trClass'>
             <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)'>
                 <div ng-switch on="getType(i)">
-                   <td-radio    field='field' $attrs="$attrs" ng-switch-when="R"></td-radio> 
+                   <td-radio    field='field' ng-switch-when="R"></td-radio> 
                    <td-checkbox field='field' ng-switch-when='C'></td-checkbox> 
                    <td-select   field='field' ng-switch-when='S'></td-select> 
                    <td-input    field='field' ng-switch-when='T'></td-input> 
                </div>
             </td>
-            <td class="button" row-buttons pid="{{$parent.$id}}"></td>
+            <td class="button" row-buttons 
+                $attrs="$attrs"
+                list="list"
+                listW="listW"
+            ></td>
          </tr>
     </tbody>
 </table>

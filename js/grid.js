@@ -104,14 +104,21 @@ angular.module('app.directives', ['app.gridConf'])
             replace     : false,
             restrict    : 'A',
             templateUrl : config.tplUrls.rowButtons,
+            scope       : { "$attrs" : "=" ,
+                            "list"   : "=" ,
+                            "listW"  : "=" 
+                          },
+                          //scope : false,
             link        : function($scope, $element) {
                 if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
                     $scope.trClass = 'selected'; 
                     $scope.showSub = false;
                 };
+                $scope.showSub = config.getChildren($scope.$attrs.key);
             },
             controller  : function($scope, $element, $attrs) {
                 $scope.getType = function(i) {
+                    LG( $scope.trClass , ' clk; get type' );
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
@@ -121,7 +128,6 @@ angular.module('app.directives', ['app.gridConf'])
                     return $scope.getType(i) == 'T' ? '' : 'notext';
                 };
 
-                $scope.showSub = config.getChildren($scope.$attrs.key);
 
                 function isDirty() { 
                     return $scope.dirty = !_($scope.row).isEqual($scope.listW.data[$scope.id]);
@@ -137,7 +143,6 @@ angular.module('app.directives', ['app.gridConf'])
                 };
                 
                 $scope.chg = function(i, field) {
-                    LG( $scope.id, field, i, $scope.field, ' chg ' );
                     $scope.listW.data[$scope.id][i] = field;
                     $scope.clk();
                 };
@@ -193,44 +198,14 @@ angular.module('app.directives', ['app.gridConf'])
     .directive('headButtons', function factory(gridDataSrv, config) { // head scope
         return {
             replace  : false,
-            restrict : 'C',
+            restrict : 'E',
+            scope    : {    "$attrs"    : "=", 
+                            "tableHide" : "=", 
+                            "add"       : "&", 
+                            "peekTable" : "&", 
+                            "restore"   : "&"
+                       },
             templateUrl : config.tplUrls.headButtons,
-            link        : function($scope, $attrs) {
-                gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
-                    if ( _.isEmpty(listData.data) ) {
-                        $scope.tableHide = 'hidden';
-                        if ( !_.isUndefined($scope.$attrs.child) ) 
-                            $scope.add();
-                        else
-                            $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
-                    }
-                });
-
-                ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
-            },
-            controller  : function($scope, $element, $attrs ) {
-                $scope.peekTable = function() {
-                    $scope.tableHide = $scope.tableHide ? false : 'hidden';
-                };
-
-                $scope.reload = function() { 
-                    $scope.list  = UT.dobuleCopy($scope.list, $scope.listW);
-                    $scope.notify('rel', 'success', _.isEmpty($scope.list.data) ? ' (empty)' : '');
-                    if ($scope.tableHide) $scope.toggleTable();
-                };
-
-                $scope.add = function() {
-                    var newIdx = UT.minIntKey($scope.list.data, -1);
-
-                    $scope.list.data[newIdx]  = UT.mkEmpty($scope.list.meta.columns, '');
-                    $scope.listW.data[newIdx] = UT.mkEmpty($scope.list.meta.columns, '');
-                    if ($scope.tableHide) { 
-                        $scope.showSub = true;
-                        $scope.tableHide = false;
-                    }
-                    $scope.closeLastRow(null);
-                };
-            }
         }
     })
     .directive('grid', function factory(gridDataSrv, config) {
@@ -248,16 +223,31 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.workRow   = '';
                 $scope.list,
                 $scope.listW     = {};
-                $scope.$$_name = 'grid';
                 $scope.$on('openSub', function(arg, listId) {
                     var SC       = arg.currentScope;
                     SC.tableHide = SC.tableHide ? false : 'hidden';
                     SC.workRow   = '{' + _(SC.list.data[listId]).map( function(v,k) { return v }).join(', ') + '}';
                     arg.stopPropagation();
                 });
+
+                gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
+                    if ( _.isEmpty(listData.data) ) {
+                        $scope.tableHide = 'hidden';
+                        if ( !_.isUndefined($scope.$attrs.child) ) 
+                            $scope.add();
+                        else
+                            $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
+                    }
+                });
+                ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  :  function($scope, $element, $attrs) {
-                //$scope.trClass = '';
+                $scope.getType = function(i) {
+                    LG( $scope.trClass , ' clk; get type' );
+                    var meta = config.getInputMeta( $scope.$attrs.key, i ); 
+                    $scope.radioBtns = meta.labs;
+                    return _.isUndefined(meta.type) ? 'T' : meta.type;
+                };
 
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
@@ -270,7 +260,23 @@ angular.module('app.directives', ['app.gridConf'])
                        $scope.lastRowScope.blr();
 
                    $scope.lastRowScope = rowScope;
-                }
+                };
+
+                $scope.peekTable = function() {
+                    $scope.tableHide = $scope.tableHide ? false : 'hidden';
+                };
+
+                $scope.add = function() {
+                    var newIdx = UT.minIntKey($scope.list.data, -1);
+
+                    $scope.list.data[newIdx]  = UT.mkEmpty($scope.list.meta.columns, '');
+                    $scope.listW.data[newIdx] = UT.mkEmpty($scope.list.meta.columns, '');
+                    if ($scope.tableHide) { 
+                        $scope.showSub = true;
+                        $scope.tableHide = false;
+                    }
+                    $scope.closeLastRow(null);
+                };
             }
         }
     })
