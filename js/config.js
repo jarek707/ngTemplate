@@ -105,7 +105,9 @@ angular.module('app.gridConf', [])
                 'tdCheckbox'  : 'html/grid/tdCheckbox.html',
                 'tdSelect'    : 'html/grid/tdSelect.html',
                 'headButtons' : 'html/grid/headButtons.html',
-                'textInput'   : 'html/grid/TEXT.html'
+                'textInput'   : 'html/grid/TEXT.html',
+                'tabRow'      : 'html/grid/tabRow.html',
+                'cell'        : 'html/grid/cell.html'
             },
 
             getAllColumns:  function(key) { 

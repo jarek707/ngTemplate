@@ -1,5 +1,5 @@
 angular.module('app.directives', ['app.gridConf'])
-    .directive('tdInput', function factory(config) {
+    .directive('tdText', function factory(config) {
         return {
             replace  : true,
             restrict : 'E',
@@ -99,16 +99,67 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
-    .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
+    .directive('tabRow', function factory(config) {
+        return {
+            replace    : false,
+            restrict   : 'A',
+            transclude : true,
+            scope      : true, 
+            template   : false,
+            link       : function($scope, $element) {
+                // Nasty hack to work around an even nastier bug in Angular
+                $($element).find('span:first-child').remove();
+            }
+        }
+    })
+    .directive('tabCell', function factory($compile, config, gridDataSrv) { // row scope
         return {
             replace     : false,
             restrict    : 'A',
+            transclude : true,
+            template   : '',
+            //templateUrl : config.tplUrls.cell,
+            link: function($scope) {
+            },
+
+            controller  : function( $scope, $element ) {
+                if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
+                    $scope.trClass = 'selected'; 
+                    $scope.showSub = false;
+                };
+                $scope.notify = function() {
+                    LG( 'notif fake');
+                };
+
+                $scope.blr = function() { 
+                    $scope.trClass = isDirty() ? 'dirty' : '';
+                };
+
+                $scope.clk = function(i) {
+                    $scope.closeLastRow($scope);
+                    $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
+                };
+                
+                $scope.chg = function(i, field) {
+                    $scope.listW.data[$scope.id][i] = field;
+                    $scope.clk();
+                };
+
+                function isDirty() { 
+                    return $scope.dirty = !_($scope.row).isEqual($scope.listW.data[$scope.id]);
+                };
+            }
+        }
+    })
+    .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
+        return {
+            replace     : false,
+            restrict    : 'E',
             templateUrl : config.tplUrls.rowButtons,
             scope       : { "$attrs" : "=" ,
                             "list"   : "=" ,
                             "listW"  : "=" 
                           },
-                          //scope : false,
             link        : function($scope, $element) {
                 if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
                     $scope.trClass = 'selected'; 
@@ -117,8 +168,12 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.showSub = config.getChildren($scope.$attrs.key);
             },
             controller  : function($scope, $element, $attrs) {
+                $scope.notify = function() {
+                    LG( 'notif fake');
+                    $scope.$parent.notify('cool','cool','cool');
+                };
+
                 $scope.getType = function(i) {
-                    LG( $scope.trClass , ' clk; get type' );
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
@@ -242,18 +297,29 @@ angular.module('app.directives', ['app.gridConf'])
                 ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  :  function($scope, $element, $attrs) {
+
                 $scope.getType = function(i) {
-                    LG( $scope.trClass , ' clk; get type' );
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
                     $scope.radioBtns = meta.labs;
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
                 };
+
+
+
+                $scope.getTdClass = function(i) {
+                    return $scope.getType(i) == 'T' ? '' : 'notext';
+                };
+
 
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
                     $scope.tableHide = false;
                     return $scope.workRow = '';
                 };
+
+                $scope.rowClick = function() {
+                    $scope.trClass = 'selected';
+                }
 
                 $scope.closeLastRow = function(rowScope) {
                    if ( $scope.lastRowScope )
