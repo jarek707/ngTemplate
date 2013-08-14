@@ -1,12 +1,12 @@
 angular.module('app.directives', ['app.gridConf'])
-    .directive('tdInput', function factory(config) {
+    .directive('tdText', function factory(config) {
         return {
             replace  : true,
             restrict : 'E',
             scope    : true, 
-            templateUrl : config.tplUrls.tdInput,
+            templateUrl : config.tplUrls.tdText,
             link    : function($scope, $element) {
-                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
+            $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
             }
         }
     })
@@ -93,7 +93,6 @@ angular.module('app.directives', ['app.gridConf'])
                     var checked = '';
                     _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
                     $scope.field = $scope.mkLabGetVals(checked);
-                    LG (i, 'in checkbox');
                     $scope.$parent.chg(i, checked);
                 };
             }
@@ -137,7 +136,6 @@ angular.module('app.directives', ['app.gridConf'])
                 };
                 
                 $scope.chg = function(i, field) {
-                    LG( $scope.id, field, i, $scope.field, ' chg ' );
                     $scope.listW.data[$scope.id][i] = field;
                     $scope.clk();
                 };

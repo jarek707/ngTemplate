@@ -99,13 +99,12 @@ angular.module('app.gridConf', [])
 
             'tplUrls' : {
                 'main'        : 'html/grid/main.html',
-                'rowButtons'  : 'html/grid/rowButtons.html',
-                'tdInput'     : 'html/grid/tdInput.html',
-                'tdRadio'     : 'html/grid/tdRadio.html',
-                'tdCheckbox'  : 'html/grid/tdCheckbox.html',
-                'tdSelect'    : 'html/grid/tdSelect.html',
                 'headButtons' : 'html/grid/headButtons.html',
-                'textInput'   : 'html/grid/TEXT.html'
+                'rowButtons'  : 'html/grid/rowButtons.html',
+                'tdSelect'    : 'html/grid/tdSelect.html',
+                'tdText'      : 'html/grid/tdText.html',
+                'tdRadio'     : 'html/grid/tdRadio.html',
+                'tdCheckbox'  : 'html/grid/tdCheckbox.html'
             },
 
             getAllColumns:  function(key) { 
@@ -113,7 +112,7 @@ angular.module('app.gridConf', [])
             },
 
             getTabColumns:  function(key) { 
-                var colNames = [], colsA = [], tabPos='';
+                var colNames = [], colsA = [], tabPos = '';
 
                 _(this.findMeta(key).columns).each( function(v,k) {
                     colsA = v.split(':');
