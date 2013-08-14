@@ -113,11 +113,11 @@ grid {
         padding:0 2px 0 1px;
         //background: lighten(@borderColor,8%);
         background: #aaa;
-        height:12px;
+        height:20px;
         .delButton { .glyphBg(-458px,    2px); }
         .expButton { .glyphBg(  -1px,  -70px); }
         .subButton { .glyphBg(-410px, -118px); }
-        .savButton { .glyphBg(-290px,    2px); }
+        .savButton { .glyphBg(-290px,    2px); display:none; }
     }
     .button input {
         float:left;
@@ -269,6 +269,13 @@ grid {
                 }
             }
 
+            &.dirty .button {
+                background:#f55;
+                .savButton {
+                    display:block;
+                }
+            }
+
             &.selected {
                 td {
                     input[type='text'] {
@@ -293,9 +300,6 @@ grid {
                         }
                     }
                 }
-            }
-            &.dirty td.button {
-                background:#f55;
             }
         }
     }

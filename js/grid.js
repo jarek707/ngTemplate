@@ -2,13 +2,17 @@ angular.module('app.directives', ['app.gridConf'])
     .directive('tdText', function factory(config) {
         return {
             replace  : true,
-            restrict : 'E',
+            restrict : 'AE',
             scope    : { "chg" : "&", "field" : "=" }, 
             templateUrl : config.tplUrls.tdText,
             link    : function($scope, $element) {
+
             },
             controller: function( $scope ) {
-
+                $scope.chg = function() {
+                    LG( 'chg in text', $scope.$parent );
+                    $scope.$parent.chg($scope.field);
+                }
             }
         }
     })
@@ -109,21 +113,39 @@ angular.module('app.directives', ['app.gridConf'])
             //scope      : { "row" : "=", "lastRowScope" : "=", "lastRow" : "&"},
             template   : false,
             link       : function($scope, $element) {
+                $scope.meta = config.getMeta($scope.$attrs.key,true);
+                LG ($scope.$attrs.key, 'key', $scope.meta );
+                $scope.trClass = '';
                 // Nasty hack to work around an even nastier bug in Angular
                 $($element).find('span:first-child').remove();
 
                 $element.bind('click', $scope.clk); 
             }, 
             controller: function( $scope ) {
+                $scope.dirty = {};
+
                 $scope.clk = function() {
-                    $scope.trClass += ' selected';
-                    $scope.lastRow({scope: $scope});
+                    if ( $scope.trClass.indexOf('selected') == -1 )
+                        $scope.trClass += ' selected';
+
+                    $scope.closeLastRow($scope);
                 };
 
-                $scope.fldChange = function(arg) {
-                    LG ( 'adjust ' , arg);
-                }
+                $scope.checkDirty = function(scopeId, isDirty) {
+                    isDirty ? $scope.dirty[scopeId] = true
+                            : delete $scope.dirty[scopeId];
 
+                    if ( $scope.trClass.indexOf('dirty') == -1 ) {
+                        $scope.trClass += _.size($scope.dirty) ? ' dirty' : '';
+                    } else {
+                        if (!_.size($scope.dirty)) 
+                            $scope.trClass = $scope.trClass.replace(' dirty','');
+                    }
+                };
+
+                $scope.blr = function() { 
+                    $scope.trClass = $scope.trClass.replace('selected','');
+                };
             }
         }
     })
@@ -133,12 +155,10 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             transclude : true,
             template   : '',
-            scope      : { "row" : "=", "field" : "=", "fldChange" : "&"},
+            //scope      : { "row" : "=", "field" : "=", "fldChange" : "&"},
             //templateUrl : config.tplUrls.cell,
             templateUrl : 'html/grid/fields.html',
             link: function($scope) {
-                LG( $scope.$attrs, $scope.fldChange );
-                $scope.fldChange({field : 'field values'});
             },
 
             controller  : function( $scope, $element ) {
@@ -153,8 +173,10 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.showSub = false;
                 };
 
-                $scope.chg = function(i,j) {
-                    LG('changed',  i, j );
+                $scope.chg = function(field ) {
+                    LG('changed',  field, $scope.field);
+                    
+                    $scope.checkDirty($scope.$id, field != $scope.field )
                 };
 
                 $scope.notify = function() {
@@ -179,12 +201,12 @@ angular.module('app.directives', ['app.gridConf'])
     .directive('rowButtons', function factory($compile, config, gridDataSrv) { // row scope
         return {
             replace     : false,
-            restrict    : 'E',
+            restrict    : 'A',
             templateUrl : config.tplUrls.rowButtons,
-            scope       : { "$attrs" : "=" ,
-                            "list"   : "=" ,
-                            "listW"  : "=" 
-                          },
+            //scope       : { "$attrs" : "=" ,
+                            //"list"   : "=" ,
+                            //"listW"  : "=" 
+                          //},
             link        : function($scope, $element) {
                 if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
                     $scope.trClass = 'selected'; 
@@ -234,18 +256,21 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.del = function()  { 
+                    LG( $scope.idx );
                     delete $scope.list.data[$scope.id];
                     $scope.notify('', gridDataSrv.sav($scope.$attrs.key, $scope.list), 'Deleting row with id <b>' + $scope.id + '</b>');
                 };
 
                 $scope.sub = function() {
+                LG( $scope.meta ,'asdf');
                     _(config.getMeta($scope.$attrs.key).children, true).each( function(v,k) { 
-                        this.key = $scope.$attrs.key + '/' + $scope.id + '/' + k;
+                        this.key = $scope.$attrs.key + '/' + $scope.idx + '/' + k;
+                        LG( this.key );
 
                         tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
                     });
 
-                    if (!_.isUndefined(key)) $scope.$emit('openSub', $scope.id);
+                    if (!_.isUndefined(this.key)) $scope.$emit('openSub', $scope.id);
                 };
 
                 $scope.exp = function() {
@@ -261,6 +286,7 @@ angular.module('app.directives', ['app.gridConf'])
                         }
 
                     });
+                    LG( $scope.id );
                     $scope.$emit('openSub', $scope.id);
                 };
 
@@ -297,7 +323,7 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             link        : function($scope, $element, $attrs) {
                 // Attributes inherited and shared by row Scope and head Scope
-                $scope.lastRowScope = {trClass : ''};
+                $scope.lastRowScope = null;
                 $scope.$attrs    = $attrs;
                 $scope.tableHide = false;
                 $scope.workRow   = '';
@@ -322,24 +348,14 @@ angular.module('app.directives', ['app.gridConf'])
                 ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
             controller  :  function($scope, $element, $attrs) {
-                $scope.lastRow = function(rowScope) {
-                    $scope.lastRowScope.trClass = 
-                        $scope.lastRowScope.trClass.replace('selected','');
-                    $scope.lastRowScope = rowScope;
-                }
-
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
                     $scope.tableHide = false;
                     return $scope.workRow = '';
                 };
 
-                $scope.rowClick = function() {
-                    $scope.trClass = 'selected';
-                }
-
                 $scope.closeLastRow = function(rowScope) {
-                   if ( $scope.lastRowScope )
+                   if ( $scope.lastRowScope && $scope.lastRowScope.$id != rowScope.$id )
                        $scope.lastRowScope.blr();
 
                    $scope.lastRowScope = rowScope;
