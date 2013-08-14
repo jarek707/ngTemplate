@@ -100,7 +100,7 @@ angular.module('app.gridConf', [])
             'tplUrls' : {
                 'main'        : 'html/grid/main.html',
                 'rowButtons'  : 'html/grid/rowButtons.html',
-                'tdInput'     : 'html/grid/tdInput.html',
+                'tdText'      : 'html/grid/tdText.html',
                 'tdRadio'     : 'html/grid/tdRadio.html',
                 'tdCheckbox'  : 'html/grid/tdCheckbox.html',
                 'tdSelect'    : 'html/grid/tdSelect.html',

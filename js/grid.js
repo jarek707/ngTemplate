@@ -4,18 +4,11 @@ angular.module('app.directives', ['app.gridConf'])
             replace  : true,
             restrict : 'E',
             scope    : { "chg" : "&", "field" : "=" }, 
-            templateUrl : config.tplUrls.tdInput,
+            templateUrl : config.tplUrls.tdText,
             link    : function($scope, $element) {
-                $scope.$watch('field', function() { 
-                    LG(' watch field', arguments ); 
-                    LG( $scope, $scope.chg);
-                    $scope.chg({fld: $scope.field});
-                    LG( 'send ');
-                //    $scope.chg({dirty: $scope.field});
-                });
-                getParentIds( $scope, $element,  '' );
             },
             controller: function( $scope ) {
+
             }
         }
     })
@@ -113,7 +106,7 @@ angular.module('app.directives', ['app.gridConf'])
             replace    : false,
             restrict   : 'A',
             transclude : true,
-            scope      : { "row" : "=", "lastRowScope" : "=", "lastRow" : "&"},
+            //scope      : { "row" : "=", "lastRowScope" : "=", "lastRow" : "&"},
             template   : false,
             link       : function($scope, $element) {
                 // Nasty hack to work around an even nastier bug in Angular
@@ -127,8 +120,8 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.lastRow({scope: $scope});
                 };
 
-                $scope.adjust = function() {
-                    LG ( 'adjust ' );
+                $scope.fldChange = function(arg) {
+                    LG ( 'adjust ' , arg);
                 }
 
             }
@@ -140,14 +133,20 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             transclude : true,
             template   : '',
-            scope      : { "row" : "=", "field" : "=" },
+            scope      : { "row" : "=", "field" : "=", "fldChange" : "&"},
             //templateUrl : config.tplUrls.cell,
             templateUrl : 'html/grid/fields.html',
             link: function($scope) {
+                LG( $scope.$attrs, $scope.fldChange );
+                $scope.fldChange({field : 'field values'});
             },
 
             controller  : function( $scope, $element ) {
-                $scope.getType = function() { return 'T'; };
+                $scope.getType = function(i) { 
+                    //var meta = config.getInputMeta( $scope.$attrs.key, i ); 
+                    //LG( meta , i);
+                    return 'T'; 
+                };
 
                 if (_.isEmpty(_.filter($scope.row, function(v,k) {return v !== '';}))) {
                     $scope.trClass = 'selected'; 
@@ -292,7 +291,7 @@ angular.module('app.directives', ['app.gridConf'])
     .directive('grid', function factory(gridDataSrv, config) {
         return {
             replace     : false,
-            restrict    : 'E',
+            restrict    : 'AE',
             scope       : {},
             templateUrl : config.tplUrls.main,
             transclude  : true,
@@ -328,19 +327,6 @@ angular.module('app.directives', ['app.gridConf'])
                         $scope.lastRowScope.trClass.replace('selected','');
                     $scope.lastRowScope = rowScope;
                 }
-
-                $scope.getType = function(i) {
-                    var meta = config.getInputMeta( $scope.$attrs.key, i ); 
-                    $scope.radioBtns = meta.labs;
-                    return _.isUndefined(meta.type) ? 'T' : meta.type;
-                };
-
-
-
-                $scope.getTdClass = function(i) {
-                    return $scope.getType(i) == 'T' ? '' : 'notext';
-                };
-
 
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();

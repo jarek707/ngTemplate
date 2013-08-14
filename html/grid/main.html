@@ -30,6 +30,7 @@
             <td tab-cell ng-repeat='(i,field) in row'  ng-class='getTdClass(i)' ng-transclude
                 row="row" 
                 field="field" 
+                fld-change = "fldChange(field)"
                 sid="{{$id}}"
             >
             </td>
