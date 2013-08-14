@@ -13,6 +13,16 @@ angular.module('app.gridConf', [])
                         'Type:3:S:static/types',
                         'Active:4:C:Yes,No,Maybe'
                     ],
+                    'children' : {
+                        'editable' : {
+                            'columns' : ['Name', 'Dom Id', ''],
+                            'children' : {
+                                'static' : {
+                                    'columns' : ['Name', 'Offset', 'Active:1:R:Y,N']
+                                }
+                            },
+                        },
+                    },
                     'data'    : this
                 },
                 'management' : {
