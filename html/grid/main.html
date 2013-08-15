@@ -1,6 +1,6 @@
 <div class='gridHead'  ng-class='trClass'>
     <div class='spaces'>
-        <div class='space' ng-repeat='space in spaces'></div>
+        <div ng-repeat='space in spaces' class='space'></div>
     </div>
     <div><div>{{$attrs.key|Last}}</div></div>
     <div>{{workRow}}</div>
@@ -16,16 +16,17 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="(id,row) in list.data" ng-class='trClass'>
-            <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)'>
-                <div ng-switch on="getType(i)">
-                   <td-radio    field='field' $attrs="$attrs" ng-switch-when="R"></td-radio> 
-                   <td-checkbox field='field' ng-switch-when='C'></td-checkbox> 
-                   <td-select   field='field' ng-switch-when='S'></td-select> 
-                   <td-text     field='field' ng-switch-when='T'></td-text> 
+        <tr ng-repeat="(id,row) in list.data" ng-class='trClass' sid="{{$id}}">
+            <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)' sid="{{$id}}">
+                <div ng-switch on="getType(i)" tr-Class="trClass" sid="{{$id}}">
+                   <input td-text      ng-switch-when='T' />
+                   <input td-radio     ng-switch-when="R" />
+                   <input td-checkbox  ng-switch-when='C' />
+                   <select td-select   ng-switch-when='S' />
                </div>
             </td>
-            <td class="button" row-buttons pid="{{$parent.$id}}"></td>
+            <td row-buttons class="button" pid="{{$parent.$id}}"
+            ></td>
          </tr>
     </tbody>
 </table>

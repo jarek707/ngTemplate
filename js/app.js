@@ -1,8 +1,11 @@
 // GLOBAL Utility START
 function SER(arg) { return JSON.stringify(arg); }
 function LG()     { console.log(arguments);     }
-function LGT()    { var args  = _.map(arguments, function(v,k) {return v});
-                    setTimeout(function() {console.log(args);}, args.pop()); }
+function LGS()    { console.log(JSON.stringify(arguments));     }
+function LGT()    { 
+    var args  = _.map(arguments, function(v,k) {return v});
+    setTimeout(function() {console.log(args);}, args.pop()); 
+}
 // GLOBAL Utility END
 
 UT = {
