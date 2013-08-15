@@ -1,74 +1,30 @@
 angular.module('app.directives', ['app.gridConf'])
     .directive('tdText', function factory(config) {
         return {
-            replace  : true,
-            restrict : 'EA',
-            scope    : true, 
+            restrict    : 'A',
+            replace     : true,
             templateUrl : config.tplUrls.tdText,
-            link    : function($scope, $element) {
-            $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
-            }
         }
     })
     .directive('tdRadio', function factory(config) {
         return {
-            restrict   : 'EA',
-            replace    : true,
-            scope      : true,
-            transclude : true, 
+            restrict    : 'EA',
+            replace     : true,
             templateUrl : config.tplUrls.tdRadio,
-            link    : function($scope, $element) {
-                $scope.meta = config.getInputMeta($scope.$attrs.key ,$scope.i);
-                $scope.labs = $scope.meta.labs[$scope.field];
-            },
-            controller: function($scope) {
-                $scope.clk = function(i, k) {
-                    $scope.labs  = $scope.meta.labs[k];
-                    $scope.chg(i, k);
-                }
-            }
-        }
-    })
-    .directive('tdSelect', function factory(config) {
-        return {
-            replace  : true,
-            restrict : 'EA',
-            scope    : true, 
-            transclude : false, 
-            templateUrl : config.tplUrls.tdSelect,
-            link    : function($scope, $element) {
-                $scope.labs    = '';
-                $scope.options = [{ 'id' : 3, 'val' : 'One' },
-                                  { 'id' : 4, 'val' : 'Two' }];
-
-                $scope.mkLabs();
-            },
-            controller: function($scope) {
-                $scope.mkLabs = function(v,k) {
-                    _.each($scope.options, function(v,k) {
-                        if ($scope.field.toString().indexOf(v.id) > -1) 
-                            $scope.labs = v.val; 
-                    });
-                };
-
-                $scope.chg = function(i) {
-                    $scope.mkLabs();
-                    $scope.$parent.chg(i, $scope.field);
-                };
-            }
+            link        : function($scope) { $scope.meta = $scope.meta[$scope.i]; }
         }
     })
     .directive('tdCheckbox', function factory(config) {
         return {
-            replace  : true,
-            restrict : 'EA',
-            scope    : true, 
-            transclude : true, 
+            replace     : true,
+            restrict    : 'EA',
+            scope       : true, 
+            transclude  : true, 
             templateUrl : config.tplUrls.tdCheckbox,
-            compile : function(el, attrs, trans) {
+            compile     : function(el, attrs, trans) {
                 return function($scope, $element) { // link function
                     $scope.values = [];
-                    $scope.meta   = config.getInputMeta($scope.$attrs.key ,$scope.i);
+                    $scope.meta   = $scope.meta[$scope.i];
 
                     $scope.mkLabGetVals($scope.field);
                 }
@@ -86,6 +42,7 @@ angular.module('app.directives', ['app.gridConf'])
                         }
                     });
                     $scope.labs = labs.substr(1);
+                    if ( $scope.labs == '') $scope.labs = '-- none --';
                     return keys.substr(1);
                 }
 
@@ -93,7 +50,36 @@ angular.module('app.directives', ['app.gridConf'])
                     var checked = '';
                     _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
                     $scope.field = $scope.mkLabGetVals(checked);
-                    $scope.$parent.chg(i, checked);
+                    $scope.$parent.chg(i, $scope.field);
+                };
+            }
+        }
+    })
+    .directive('tdSelect', function factory(config) {
+        return {
+            replace  : true,
+            restrict : 'EA',
+            scope    : true, 
+            transclude : false, 
+            templateUrl : config.tplUrls.tdSelect,
+            link    : function($scope, $element) {
+                $scope.labs    = '';
+                $scope.options = [{ 'id' : 3, 'val' : 'One' },
+                                  { 'id' : 4, 'val' : 'Two' }];
+                $scope.mkLabs();
+            },
+            controller: function($scope) {
+                $scope.mkLabs = function(v,k) {
+                    _.each($scope.options, function(v,k) {
+                        if ($scope.field.toString().indexOf(v.id) > -1) 
+                            $scope.labs = v.val; 
+                    });
+                    if ( $scope.labs == '') $scope.labs = '-- none --';
+                };
+
+                $scope.chg = function(i) {
+                    $scope.mkLabs();
+                    $scope.$parent.chg(i, $scope.field);
                 };
             }
         }
@@ -111,6 +97,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.showSub = config.getChildren($scope.$attrs.key);
                 }
                 $scope.workRow = _.clone($scope.row);
+                $scope.meta = [];
             },
             controller  : function($scope, $element, $attrs) {
                 function isDirty() { 
@@ -119,6 +106,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.getType = function(i) {
                     var meta = config.getInputMeta( $scope.$attrs.key, i ); 
+                    $scope.meta[i] = meta;
                     $scope.radioBtns = meta.labs;
                     return _.isUndefined(meta.type) ? 'T' : meta.type;
                 };
@@ -159,7 +147,7 @@ angular.module('app.directives', ['app.gridConf'])
                         tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
                     });
 
-                    if (!_.isUndefined(key)) $scope.$emit('openSub', $scope.id);
+                    if (!_.isUndefined(key)) $scope.$emit('openSub', $scope.workRow);
                 };
 
                 $scope.exp = function() {
@@ -175,7 +163,7 @@ angular.module('app.directives', ['app.gridConf'])
                         }
 
                     });
-                    $scope.$emit('openSub', $scope.id);
+                    $scope.$emit('openSub', $scope.workRow);
                 };
 
                 function tableEl()  { return $element.parent().parent().parent(); }
@@ -219,10 +207,10 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             link        : function($scope, $element, $attrs) {
                 // Attributes inherited and shared by row Scope and head Scope
+                $scope.row = [];
                 $scope.lastRowScope = null;
                 $scope.$attrs    = $attrs;
                 $scope.tableHide = false;
-                $scope.workRow   = '';
                 $scope.list,
                 $scope.listW     = {};
 
@@ -234,11 +222,12 @@ angular.module('app.directives', ['app.gridConf'])
                         else
                             $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
                     }
+                    LG( SER($scope.list.meta, ' meta' ));
                 });
 
-                $scope.$on('openSub', function(arg, rowId) {
+                $scope.$on('openSub', function(arg, rowData) {
                     $scope.tableHide = $scope.tableHide ? false : 'hidden';
-                    $scope.workRow   = '{' + _($scope.list.data[rowId]).map( function(v,k) { return v }).join(', ') + '}';
+                    $scope.workRow   = '{' + _(rowData).map( function(v,k) { return v }).join(', ') + '}';
                     arg.stopPropagation();
                 });
             },
