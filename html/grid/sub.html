@@ -1,0 +1,10 @@
+<ul>
+    <li ng-repeat="(i, field) in row" >
+          <div ng-switch on="getType(i)" sid="{{$id}}">
+             <input sub-text     field="field" meta="meta[i]" ng-switch-when='T' />
+             <input td-radio    field="field" meta="meta[i]" ng-switch-when="R" />
+             <input td-checkbox field="field" meta="meta[i]" ng-switch-when='C' />
+             <select td-select  field="field" meta="meta[i]" ng-switch-when='S' />
+         </div>
+    </li>
+</ul>

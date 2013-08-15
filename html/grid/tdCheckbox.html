@@ -1,5 +1,5 @@
 <div sid="{{$id}}">
-    <div class="active" ng-repeat="(k,v) in radioBtns">
+    <div class="active" ng-repeat="(k,v) in meta.labs">
         <input id="c{{id}}_{{k}}" type="checkbox" ng-model='values[k]' ng-click="chg(i)"></input>
         <label for="c{{id}}_{{k}}">{{v}}</Label>
     </div>

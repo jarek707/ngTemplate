@@ -18,16 +18,12 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace     : true,
             restrict    : 'EA',
-            scope       : true, 
-            transclude  : true, 
             templateUrl : config.tplUrls.tdCheckbox,
-            compile     : function(el, attrs, trans) {
-                return function($scope, $element) { // link function
-                    $scope.values = [];
-                    $scope.meta   = $scope.meta[$scope.i];
+            link        : function($scope, $element) { // link function
+                $scope.values = [];
+                $scope.meta   = $scope.meta[$scope.i];
 
-                    $scope.mkLabGetVals($scope.field);
-                }
+                $scope.mkLabGetVals($scope.field);
             },
             controller: function($scope, $attrs, $element) {
 
@@ -96,20 +92,24 @@ angular.module('app.directives', ['app.gridConf'])
                 } else {
                     $scope.showSub = config.getChildren($scope.$attrs.key);
                 }
+
+                $scope.meta    = [];
                 $scope.workRow = _.clone($scope.row);
-                $scope.meta = [];
+
+                // Load meta object and return cell type
+                $scope.getType = function(i) {
+                    $scope.meta[i] = config.getInputMeta($scope.$attrs.key, i); 
+                    return $scope.meta[i].type;
+                };
             },
             controller  : function($scope, $element, $attrs) {
                 function isDirty() { 
                     return $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                 };
 
-                $scope.getType = function(i) {
-                    var meta = config.getInputMeta( $scope.$attrs.key, i ); 
-                    $scope.meta[i] = meta;
-                    $scope.radioBtns = meta.labs;
-                    return _.isUndefined(meta.type) ? 'T' : meta.type;
-                };
+                function rowDataExtract() { 
+                    return _($scope.workRow).map( function(v,k) {return v}).join(', ');
+                }
 
                 $scope.getTdClass = function(i) {
                     return $scope.getType(i) == 'T' ? '' : 'notext';
@@ -130,51 +130,22 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 $scope.sav = function() {
-                    $scope.list.data[$scope.id] = UT.doubleCopy($scope.workRow);
-                    $scope.notify('sav', gridDataSrv.sav($scope.$attrs.key, $scope.list));
+                    $scope.$parent.sav($scope.workRow, $scope.id);
                     $scope.blr();
                 };
 
-                $scope.del = function()  { 
-                    delete $scope.list.data[$scope.id];
-                    $scope.notify('', gridDataSrv.sav($scope.$attrs.key, $scope.list), 'Deleting row with id <b>' + $scope.id + '</b>');
-                };
+                $scope.del = function() {
+                    $scope.$parent.del($scope.id);
+                }
 
                 $scope.sub = function() {
-                    _(config.getMeta($scope.$attrs.key).children, true).each( function(v,k) { 
-                        this.key = $scope.$attrs.key + '/' + $scope.id + '/' + k;
-
-                        tableEl().after($compile('<grid key="' + this.key + '" child>')($scope));
-                    });
-
-                    if (!_.isUndefined(key)) $scope.$emit('openSub', $scope.workRow);
+                    $scope.$parent.sub($scope.id, rowDataExtract());
                 };
 
-                $scope.exp = function() {
-                    var tpl = '';
-                    _(config.getMeta($scope.$attrs.key,true).columns).each( function(v,k) {
-                        var colDefs = v.split(':');
-                        switch (colDefs[2]) {
-                            case 'R'  : tpl += '<radio-input></radio-input>';       break;
-                            case 'C'  : tpl += '<checkbox-input></checkbox-input>'; break;
-                            case 'S'  : tpl += '<select-input></select-input>';     break;
-                            case 'TA' : tpl += '<textarea-input></textarea-input>'; break;
-                            default   : tpl += '<text-input></text-input>';         break;
-                        }
-
-                    });
-                    $scope.$emit('openSub', $scope.workRow);
+                $scope.exp= function() {
+                    $scope.$parent.exp($scope.id, rowDataExtract(), $scope.workRow);
                 };
-
-                function tableEl()  { return $element.parent().parent().parent(); }
             }
-        }
-    })
-    .directive('textInput', function factory(gridDataSrv, config) { // head scope
-        return {
-            replace : true,
-            restrict : 'C',
-            templateUrl : config.tplUrls.textInput
         }
     })
     .directive('headButtons', function factory(gridDataSrv, config) { // head scope
@@ -198,7 +169,7 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
-    .directive('grid', function factory(gridDataSrv, config) {
+    .directive('grid', function factory($compile, gridDataSrv, config) {
         return {
             replace     : false,
             restrict    : 'E',
@@ -222,13 +193,6 @@ angular.module('app.directives', ['app.gridConf'])
                         else
                             $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
                     }
-                    LG( SER($scope.list.meta, ' meta' ));
-                });
-
-                $scope.$on('openSub', function(arg, rowData) {
-                    $scope.tableHide = $scope.tableHide ? false : 'hidden';
-                    $scope.workRow   = '{' + _(rowData).map( function(v,k) { return v }).join(', ') + '}';
-                    arg.stopPropagation();
                 });
             },
             controller  :  function($scope, $element, $attrs) {
@@ -236,7 +200,7 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
                     $scope.tableHide = false;
-                    return $scope.workRow = '';
+                    return $scope.rowContent = '';
                 };
 
                 $scope.closeLastRow = function(rowScope) {
@@ -244,8 +208,33 @@ angular.module('app.directives', ['app.gridConf'])
                        $scope.lastRowScope.blr();
 
                    $scope.lastRowScope = rowScope;
-                }
+                };
 
+                // Sub panes BEGIN
+                $scope.openSub = function(rowData) {
+                    $scope.tableHide  = $scope.tableHide ? false : 'hidden';
+                    $scope.rowContent = '{' + rowData + '}';
+                };
+
+                $scope.sub = function(rowId, workRow) {
+                    _(config.getChildren($scope.$attrs.key)).each( function(v, childKey) { 
+                        $element.find('table').after($compile(
+                            '<grid key="' + $scope.$attrs.key + '/' + rowId + '/' + childKey + '" child>'
+                        )($scope));
+                    });
+                    $scope.openSub(workRow);
+                };
+
+                $scope.exp = function(rowId, workRow, row) {
+                    $scope.row = row;
+                    $element.find('table').after($compile(
+                        '<div sub key="' + $scope.$attrs.key + '/' + rowId + '">'
+                    )($scope));
+                    $scope.openSub(workRow);
+                };
+                // Sub panes END
+
+                // Row data methods BEGIN
                 $scope.add = function() {
                     var newIdx = UT.minIntKey($scope.list.data, -1);
 
@@ -253,7 +242,24 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.listW.data[newIdx] = UT.mkEmpty($scope.list.meta.columns, '');
 
                     $scope.closeLastRow(null);
+                    $scope.tableHide = false;
                 };
+
+                $scope.sav = function(row, id) {
+                    $scope.list.data[id] = _.clone(row);
+                    $scope.notify(  'sav', 
+                                    gridDataSrv.sav($scope.$attrs.key, $scope.list)
+                    );
+                };
+
+                $scope.del = function(id)  { 
+                    delete $scope.list.data[id];
+                    $scope.notify(  '', 
+                                    gridDataSrv.sav($scope.$attrs.key, $scope.list), 
+                                    'Deleting row with id <b>' + id + '</b>'
+                    );
+                };
+                // Row data methods END
             }
         }
     })
@@ -318,4 +324,4 @@ angular.module('app.directives', ['app.gridConf'])
 ;
 //  Directives END
 
-angular.module('app', ['app.services', 'app.directives']);
+angular.module('app', ['app.services', 'app.directives', 'app.customDirectives']);

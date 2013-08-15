@@ -4,6 +4,19 @@
 angular.module('app.gridConf', [])
     .factory('config', function() {
         return {
+            'tplUrls' : {
+                'main'        : 'html/grid/main.html',
+                'headButtons' : 'html/grid/headButtons.html',
+                'rowButtons'  : 'html/grid/rowButtons.html',
+                'tdSelect'    : 'html/grid/tdSelect.html',
+                'tdText'      : 'html/grid/tdText.html',
+                'tdRadio'     : 'html/grid/tdRadio.html',
+                'tdCheckbox'  : 'html/grid/tdCheckbox.html',
+
+                'sub'         : 'html/grid/sub.html',
+                'subText'     : 'html/grid/subText.html'
+            },
+
             'meta' : {
                 'layout' : {
                     'columns' : [ 
@@ -107,14 +120,14 @@ angular.module('app.gridConf', [])
                 }
             },
 
-            'tplUrls' : {
-                'main'        : 'html/grid/main.html',
-                'headButtons' : 'html/grid/headButtons.html',
-                'rowButtons'  : 'html/grid/rowButtons.html',
-                'tdSelect'    : 'html/grid/tdSelect.html',
-                'tdText'      : 'html/grid/tdText.html',
-                'tdRadio'     : 'html/grid/tdRadio.html',
-                'tdCheckbox'  : 'html/grid/tdCheckbox.html'
+            findMeta : function(key) {
+                var keys = UT.gridKey(key).split('/');
+                var meta = UT.doubleCopy(this.meta[keys.shift()]);
+
+                for (var i=0 ; i<keys.length ; i++ )
+                    meta = meta.children[keys[i]];
+
+                return meta;
             },
 
             getAllColumns:  function(key) { 
@@ -132,8 +145,16 @@ angular.module('app.gridConf', [])
                 return colNames;
             },
 
-            getChildren: function(key) {
-                return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
+            getMeta : function(key, allCols) {
+                var meta = this.findMeta(key);
+
+                if (_.isUndefined(meta))
+                    return false;
+                else {
+                    meta.columns = _.isUndefined(allCols) ? this.getTabColumns(key) 
+                                                          : this.getAllColumns(key);
+                    return meta;
+                }
             },
 
             getInputMeta: function(key, idx) {
@@ -142,34 +163,17 @@ angular.module('app.gridConf', [])
 
                 switch (meta.length) {
                     case 4  : $return.labs = meta[3].split(',');
-                    case 3  : $return.type = meta[2];
+                    case 3  : $return.type = meta[2] ;
                     case 2  : $return.pos  = meta[1];
                     case 1  : $return.name = meta[0]; break;
                     default : $return = false;
                 }
+                if (_.isUndefined($return.type)) $return.type = 'T';
                 return $return;
             },
 
-            findMeta : function(key) {
-                var keys = UT.gridKey(key).split('/');
-                var meta = UT.doubleCopy(this.meta[keys.shift()]);
-
-                for (var i=0 ; i<keys.length ; i++ )
-                    meta = meta.children[keys[i]];
-
-                return meta;
-            },
-
-            getMeta : function(key, allCols) {
-                var meta = this.findMeta(key);
-
-                if (_.isUndefined(meta))
-                    return false;
-                else {
-                    meta.columns = _.isUndefined(allCols)   ? this.getTabColumns(key) 
-                                                            : this.getAllColumns(key);
-                    return meta;
-                }
+            getChildren: function(key) {
+                return _.isUndefined(m = this.findMeta(key)) ? false : m.children; 
             }
         }
     })
