@@ -1,4 +1,4 @@
-<div class='gridHead'  ng-class='trClass'>
+<div class='gridHead'  ng-class='trClass' ng-hide='headHide'>
     <div class='spaces'>
         <div ng-repeat='space in spaces' class='space'></div>
     </div>
@@ -12,11 +12,11 @@
 <table ng-hide='tableHide'>
     <thead>
         <tr>
-            <th ng-repeat="colName in list.meta.columns">{{colName}}</th>
+            <th ng-repeat="colName in meta.columns">{{colName}}</th>
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="(id,row) in list.data" ng-class='trClass' sid="{{$id}}">
+        <tr ng-repeat="(id,row) in list" ng-class='trClass' sid="{{$id}}">
             <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)' sid="{{$id}}">
                 <div ng-switch on="getType(i)" sid="{{$id}}">
                    <input td-text     field="field" meta="meta[i]" ng-switch-when='T' />

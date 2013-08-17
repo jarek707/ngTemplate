@@ -1,23 +1,16 @@
 <html id="ng-app" ng-app="app">
     <!-- Plceholder for global scope params -->
-    <rootScope ng-init="
-        root        = 'http://ang';
-        tpl         =   {   'lists' : 'html/lists.html', 
-                            'lorem' : 'html/lorem.html',
-                            'table' : 'html/table.html'
-                        };
-        jsIncludes  = ['lib/underscore','lib/angular', 'modules', 'app'];
-    "></rootScope>
 
-    <head ng-controller='htmlHead'>
+    <head>
         <title>Angular Grid (DEV)</title>
 
-        <!--
         <link href="http://ang/css/app.css" rel="stylesheet" type="text/css" />
-        -->
+        <!--
         <link href="http://ang//css/app.less" rel="stylesheet/less" type="text/css" />
         <script src="http://ang/js/lib/less.js"></script>
+        -->
 
+        <script src='http://ang/js/lib/json3.js'></script>
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/angular.js"></script>
         <script src="http://ang/js/lib/jquery.js"></script>
@@ -31,16 +24,13 @@
 
     <body>
         <div id='page'>
-            <topMenu ng-controller="topMenu">
-                <div ng-include src='tpl.lists'></div>
-            </topMenu>
+            <div class='topMenu' ng-controller="topMenu">
+            </div>
             <div class='contentWrap'>
-                <contentPane ng-controller="contentPane">
-                    <box ng-transclude>
-                        <grid key='layout' sid='{{$id}}'></grid>
-                    </box>
+                <div class='contentPane' ng-controller="contentPane">
+                    <div grid key='layout'></div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
-                </contentPane>
+                </div>
                 <div class='left'>
                     data here left
                 </div>
@@ -48,9 +38,6 @@
                     <div style='position:relative; float:left'>data right</div>
                 </div>
             </div> <!-- contentWrap -->
-            <footer>
-                here
-            </footer>
         </div> <!-- page -->
     </body>
 </html>

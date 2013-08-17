@@ -1,6 +1,6 @@
 @menuHeight: 75px;
 @rightWidth: 80px;
-@leftWidth:  20px;
+@leftWidth:  80px;
 
 @menuBg: lighten(#377095, 20%);
 @menuColor: #eee;
@@ -61,7 +61,7 @@ input {
 
 li { list-style: none; }
 
-topmenu {
+div.topMenu{
     position: relative;
     float: left;
     margin: 0;
@@ -79,26 +79,26 @@ div.contentWrap {
     height:100%;
 }
 
-contentPane, .left, .right  { float:left; }
+div.contentPane, .left, .right  { float:left; }
 .right, .left               { position:relative; }
 
-contentPane {
+div.contentPane {
     width:100%;
     background:@mainPaneBg;
 }
 
-.right {
+div.right {
     width: @rightWidth;
     margin-right:(0-@rightWidth);
 }
 
-.left {
+div.left {
     width: @leftWidth;
     margin-left:(0-@leftWidth);
     left:-100%;
 }
 
-.box {
+div.box {
     clear:both;
     margin:10px;
     padding:8px;
@@ -107,7 +107,7 @@ contentPane {
     overflow:auto;
 }
 
-grid {
+[grid] {
     .button {
         .rounded-corners(4px);
         padding:0 2px 0 1px;

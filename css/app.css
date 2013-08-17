@@ -29,7 +29,7 @@ input {
 li {
   list-style: none;
 }
-topmenu {
+div.topMenu {
   position: relative;
   float: left;
   margin: 0;
@@ -41,11 +41,11 @@ topmenu {
   overflow: hidden;
 }
 div.contentWrap {
-  border-left: 20px solid #d3dce0;
+  border-left: 80px solid #d3dce0;
   border-right: 80px solid #d3dce0;
   height: 100%;
 }
-contentPane,
+div.contentPane,
 .left,
 .right {
   float: left;
@@ -54,20 +54,20 @@ contentPane,
 .left {
   position: relative;
 }
-contentPane {
+div.contentPane {
   width: 100%;
   background: #d0e5f2;
 }
-.right {
+div.right {
   width: 80px;
   margin-right: -80px;
 }
-.left {
-  width: 20px;
-  margin-left: -20px;
+div.left {
+  width: 80px;
+  margin-left: -80px;
   left: -100%;
 }
-.box {
+div.box {
   clear: both;
   margin: 10px;
   padding: 8px;
@@ -79,7 +79,7 @@ contentPane {
   border-radius: 10px;
   overflow: auto;
 }
-grid .button {
+[grid] .button {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
@@ -89,19 +89,22 @@ grid .button {
   background: #aaa;
   height: 12px;
 }
-grid .button .delButton {
+[grid] .button .delButton {
   background: transparent url('../image/glyph.png') -458px 2px no-repeat;
 }
-grid .button .expButton {
+[grid] .button .expButton {
   background: transparent url('../image/glyph.png') -1px -70px no-repeat;
 }
-grid .button .subButton {
+[grid] .button .subButton {
   background: transparent url('../image/glyph.png') -410px -118px no-repeat;
 }
-grid .button .savButton {
+[grid] .button .savButton {
   background: transparent url('../image/glyph.png') -290px 2px no-repeat;
 }
-grid .button input {
+[grid] .button.dirty {
+  background: #f55;
+}
+[grid] .button input {
   float: left;
   cursor: pointer;
   color: transparent;
@@ -112,7 +115,7 @@ grid .button input {
   margin-left: 2px;
   -webkit-border-radius: 0;
 }
-grid .gridHead {
+[grid] .gridHead {
   float: left;
   width: 100%;
   margin-bottom: 2px;
@@ -126,55 +129,56 @@ grid .gridHead {
   font-family: Helvetica;
   font-size: 0.9em;
 }
-grid .gridHead div:first-child {
+[grid] .gridHead div:first-child {
   font-style: italic;
   font-weight: bold;
   margin: 0;
   padding: 0px 3px;
   border-radius: 2px;
 }
-grid .gridHead div {
+[grid] .gridHead div {
   padding: 3px 0;
   position: relative;
   float: left;
   margin-left: 3px;
 }
-grid .gridHead .button {
+[grid] .gridHead .button {
   float: right;
   margin: 3px 2px 0px 1px;
   padding: 0px 1px 6px 0px;
   height: 11px;
   border-radius: 2px;
 }
-grid .gridHead input.addButton {
+[grid] .gridHead input.addButton {
   background: transparent url('../image/glyph.png') -409px -98px no-repeat;
 }
-grid .gridHead input.reloadButton {
+[grid] .gridHead input.reloadButton {
   background: transparent url('../image/glyph.png') -218px -25px no-repeat;
 }
-grid .gridHead input.restoreTable {
+[grid] .gridHead input.restoreTable {
   background: transparent url('../image/glyph.png') -409px -73px no-repeat;
 }
-grid .gridHead input.peekTable {
+[grid] .gridHead input.peekTable {
   background: transparent url('../image/glyph-white.png') -266px -25px no-repeat;
 }
-grid .gridHead input.peekTable.hidden {
+[grid] .gridHead input.peekTable.hidden {
   background: transparent url('../image/glyph.png') -266px -25px no-repeat;
 }
-grid .gridHead spaces {
+[grid] .gridHead div.spaces {
   position: relative;
   float: left;
   height: 22px;
   margin: 0px;
+  padding: 0px;
   background-color: #c7d2d8;
 }
-grid .gridHead spaces space {
+[grid] .gridHead div.spaces div.space {
   float: left;
   width: 22px;
   height: 22px;
   border-right: 1px dashed #6aa3c8;
 }
-grid .gridHead span {
+[grid] .gridHead span {
   display: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -190,31 +194,31 @@ grid .gridHead span {
   color: green;
   background: #d0e5f2;
 }
-grid .gridHead span.success {
+[grid] .gridHead span.success {
   color: #008000;
 }
-grid .gridHead span.info {
+[grid] .gridHead span.info {
   color: #0000ff;
 }
-grid .gridHead span.warning {
+[grid] .gridHead span.warning {
   color: #ffff00;
 }
-grid .gridHead span.error {
+[grid] .gridHead span.error {
   color: #a03a5e;
 }
-grid table {
+[grid] table {
   width: 100%;
   box-shadow: 1px 1px 11px #aaa;
   border-bottom-right-radius: 4px;
 }
-grid table.hidden,
-grid table tr.hidden {
+[grid] table.hidden,
+[grid] table tr.hidden {
   display: none;
 }
-grid table div.buttons {
+[grid] table div.buttons {
   float: right;
 }
-grid table tr th {
+[grid] table tr th {
   font-family: Helvetica;
   color: #777;
   font-size: 0.8em;
@@ -223,14 +227,14 @@ grid table tr th {
   text-decoration: underline;
   padding-left: 5px;
 }
-grid table tr td {
+[grid] table tr td {
   min-width: 56px;
   border-bottom: 1px dotted #afbfc7;
 }
-grid table tr td.button {
+[grid] table tr td.button {
   width: 62px;
 }
-grid table tr td input {
+[grid] table tr td input {
   cursor: pointer;
   text-overflow: ellipsis;
   border: 2px solid transparent;
@@ -239,52 +243,67 @@ grid table tr td input {
   padding: 2px 0 2px 2px;
   height: 20px;
 }
-grid table tr td input[type="radio"],
-grid table tr td input[type="checkbox"] {
+[grid] table tr td input[type="radio"],
+[grid] table tr td input[type="checkbox"] {
   width: auto;
   height: 12px;
   margin-top: 4px;
 }
-grid table tr td div.radios {
+[grid] table tr td div.active {
   cursor: pointer;
   float: left;
   font-family: Arial;
   font-size: 0.8em;
   width: auto;
-  margin: 0 4px 4px 0px;
+  margin: 0 0px 4px 0px;
   height: 12px;
   padding-top: 6px;
 }
-grid table tr td div.radios label {
+[grid] table tr td div.active label {
   margin: 0 4px 4px 0px;
 }
-grid table tr td.notext {
+[grid] table tr td div.active select {
+  margin-top: 1px;
+  width: 100%;
+}
+[grid] table tr td.notext {
   width: 1px;
   white-space: nowrap;
 }
-grid table tr td.notext div.radios {
+[grid] table tr td.notext div.active {
+  display: none;
   padding-top: 0;
   margin-top: 4px;
   height: 12px;
   font-style: italic;
 }
-grid table tr.selected td input[type='text'] {
+[grid] table tr td.notext div.text {
+  font-family: Arial;
+  font-size: 0.8em;
+  display: block;
+}
+[grid] table tr.selected td input[type='text'] {
   border: 2px solid #465b64;
   background: #e4f0f8;
 }
-grid table tr.selected td.notext div.radios {
+[grid] table tr.selected td.notext div.active {
+  display: block;
   margin-top: -1px;
 }
-grid table tr.selected td.notext > div {
+[grid] table tr.selected td.notext div.text {
+  display: none;
+}
+[grid] table tr.selected td.notext > div {
   height: 18px;
-  border: 1px solid #465b64;
+  border: 1px solid transparent;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  background: #e4f0f8;
+  background: #f8fbfd;
+  float: left;
 }
-grid table tr.dirty td.button {
+[grid] table tr.dirty td.button {
   background: #f55;
 }

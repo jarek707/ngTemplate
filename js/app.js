@@ -1,10 +1,10 @@
 // GLOBAL Utility START
 function SER(arg) { return JSON.stringify(arg); }
-function LG()     { console.log(arguments);     }
-function LGS()    { console.log(JSON.stringify(arguments));     }
+function LG()     { if (window.console) console.log(arguments);     }
+function LGS()    { if (window.console) console.log(JSON.stringify(arguments));     }
 function LGT()    { 
     var args  = _.map(arguments, function(v,k) {return v});
-    setTimeout(function() {console.log(args);}, args.pop()); 
+    setTimeout(function() {if (window.console) console.log(args);}, args.pop()); 
 }
 // GLOBAL Utility END
 
@@ -56,13 +56,9 @@ function contentPane($scope, $routeParams, $http, gridDataSrv, config) {
     }
     if ( _.isUndefined(localStorage['GRID:METADATA']) ) 
         localStorage['GRID:METADATA'] = JSON.stringify(config.meta);
-
-    LG( localStorage );
 }
 
 function leftPane() {}
 
 function rightPane($scope) {
 }
-
-

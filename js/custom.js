@@ -3,7 +3,7 @@ angular.module('app.customDirectives', ['app.gridConf'])
         return {
             restrict    : 'A',
             replace     : true,
-            templateUrl : config.tplUrls.subText,
+            templateUrl : config.tplUrls.subText
         }
     })
     .directive('sub', function factory($compile, gridDataSrv, config) { // head scope

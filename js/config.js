@@ -18,6 +18,11 @@ angular.module('app.gridConf', [])
             },
 
             'meta' : {
+                'members' : {
+                    'columns' : ["First"],
+                    'rel'     : 'friend',
+                    'relName' : 'friends'
+                },
                 'layout' : {
                     'columns' : [ 
                         'Name',
@@ -33,10 +38,9 @@ angular.module('app.gridConf', [])
                                 'static' : {
                                     'columns' : ['Name', 'Offset', 'Active:1:R:Y,N']
                                 }
-                            },
-                        },
-                    },
-                    'data'    : this
+                            }
+                        }
+                    }
                 },
                 'management' : {
                     'columns' : [   'First Name', 
