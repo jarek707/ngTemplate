@@ -1,11 +1,11 @@
 <div>
     <div class="active" ng-repeat="(k,v) in meta.labs">
-        <input type="radio" ng-model="field" value="{{k}}"
+        <input type="radio" ng-model="$parent.field" value="{{k}}"
                 ng-change="chg(i, k)" id="r{{id}}_{{k}}" name='rad{{id}}'>
         </input>
         <label for="r{{id}}_{{k}}">{{v}}</Label>
     </div>
     <div class='text' ng-click='$parent.clk()'>
-        {{meta.labs[field]}}
+        {{$parent.field|toLabel:meta.labs}}
     </div>
 </div>

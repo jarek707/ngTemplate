@@ -6,6 +6,21 @@ angular.module('app.directives', ['app.gridConf'])
             template    : "<div><input ng-model='field' ng-change='$parent.chg(i, field)' ng-click='$parent.clk()' ></input></div>"
         }
     })
+    .filter('toLabel', function() {
+        return function(input, labels) {
+            if (input == '') {
+                return '--none--';
+            } else {
+                var $return = '';
+
+                _(input.toString().split(',')).each( function(v,k) {
+                    $return += ',' + labels[v];
+                });
+
+                return $return.substr(1);
+            }
+        }
+    })
     .directive('tdText', function factory(config) {
         return {
             restrict    : 'A',
@@ -20,7 +35,10 @@ angular.module('app.directives', ['app.gridConf'])
             replace     : true,
             transclude  : true,
             templateUrl : config.tplUrls.tdRadio,
-            link        : function($scope) { $scope.meta = $scope.meta[$scope.i]; }
+            link        : function($scope) { 
+                $scope.meta = $scope.meta[$scope.i]; 
+                //$scope.$watch('field', function() { LG( 'watching field in radio', $scope.field); });
+            }
         }
     })
     .directive('tdCheckbox', function factory(config) {
