@@ -89,6 +89,19 @@ div.box {
   background: #aaa;
   height: 12px;
 }
+[grid] .button input {
+    font-size:0px;
+    min-height:14px;
+  float: left;
+  cursor: pointer;
+  color: #aaa;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0;
+  width: 13px;
+  margin-left: 2px;
+  -webkit-border-radius: 0;
+}
 [grid] .button .delButton {
   background: transparent url('../image/glyph.png') -458px 2px no-repeat;
 }
@@ -103,17 +116,6 @@ div.box {
 }
 [grid] .button.dirty {
   background: #f55;
-}
-[grid] .button input {
-  float: left;
-  cursor: pointer;
-  color: transparent;
-  background: transparent;
-  border: 1px solid transparent;
-  padding: 0;
-  width: 13px;
-  margin-left: 2px;
-  -webkit-border-radius: 0;
 }
 [grid] .gridHead {
   float: left;
@@ -271,6 +273,7 @@ div.box {
   white-space: nowrap;
 }
 [grid] table tr td.notext div.active {
+    float:left;
   display: none;
   padding-top: 0;
   margin-top: 4px;

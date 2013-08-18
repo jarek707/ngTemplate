@@ -123,6 +123,8 @@ div.box {
         }
     }
     .button input {
+        font-size:0px;
+        min-height:14px;
         float:left;
         cursor:pointer;
         color:transparent;
@@ -164,11 +166,12 @@ div.box {
         }
 
         input {
-            &.addButton    { .glyphBg(-409px, -98px); }
-            &.reloadButton { .glyphBg(-218px, -25px); }
-            &.restoreTable { .glyphBg(-409px, -73px); }
-            &.peekTable    { .glyphBgWhite(-266px,  -25px); }
-            &.peekTable.hidden { .glyphBg(-266px,  -25px); }
+            &.addButton    { .glyphBg(-409px, -97px); }
+            &.reloadButton { .glyphBg(-218px, -24px); }
+            //&.restoreTable { .glyphBg(-409px, -73px); }
+            &.restoreTable { .glyphBg(-266px,  -24px); }
+            &.peekTable    { .glyphBgWhite(-266px,  -24px); }
+            &.peekTable.hidden { .glyphBg(-266px,  -24px); }
         }
         div.spaces {
             position:relative;
@@ -225,6 +228,7 @@ div.box {
                 min-width:56px; 
                 &.button { width:62px; }
                 border-bottom:1px dotted @borderColor;
+                padding-right:4px;
 
                 input { 
                     cursor:pointer;
@@ -233,7 +237,7 @@ div.box {
                     background:transparent;
                     width:99%;
                     padding:2px 0 2px 2px;
-                    height:20px;
+                    margin:0;
 
                     &[type="radio"],
                     &[type="checkbox"] { width:auto; height:12px; margin-top:4px; }
@@ -281,6 +285,7 @@ div.box {
                     }
                     &.notext {
                         div.active{
+                            float:left;
                             display:block;
                             margin-top:-1px;
                         }

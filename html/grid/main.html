@@ -12,17 +12,17 @@
 <table ng-hide='tableHide'>
     <thead>
         <tr>
-            <th ng-repeat="colName in meta.columns">{{colName}}</th>
+            <th ng-repeat="colName in meta.columns.tab">{{colName}}</th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat="(id,row) in list" ng-class='trClass' sid="{{$id}}">
             <td ng-repeat='(i,field) in row' ng-class='getTdClass(i)' sid="{{$id}}">
                 <div ng-switch on="getType(i)" sid="{{$id}}">
-                   <input td-text     field="field" meta="meta[i]" ng-switch-when='T' />
-                   <input td-radio    field="field" meta="meta[i]" ng-switch-when="R" />
-                   <input td-checkbox field="field" meta="meta[i]" ng-switch-when='C' />
-                   <select td-select  field="field" meta="meta[i]" ng-switch-when='S' />
+                   <div td-text     ng-switch-when='T' ></div>
+                   <div td-radio    ng-switch-when="R" ></div>
+                   <div td-checkbox ng-switch-when='C' ></div>
+                   <div td-select   ng-switch-when='S' ></div>
                </div>
             </td>
             <td row-buttons class="button" pid="{{$parent.$id}}" sid="{{$id}}"></td>

@@ -8,16 +8,15 @@ angular.module('app.customDirectives', ['app.gridConf'])
     })
     .directive('sub', function factory($compile, gridDataSrv, config) { // head scope
         return {
-            replace : true,
-            restrict : 'A',
+            restrict    : 'A',
+            replace     : true,
+            transclude  : true,
             templateUrl : config.tplUrls.sub,
-            link : function($scope, $element) {
-                $scope.meta = [];
-                $scope.meta.columns = config.getTabColumns($scope.$attrs.key);
+            link : function($scope, $element, $attrs) {
+                LG( $scope.meta  , $scope, ' asdf', $attrs);
 
                 $scope.getType = function(i) {
-                    $scope.meta[i] = config.getInputMeta($scope.$attrs.key, i); 
-                    return $scope.meta[i].type;
+                    return $scope.meta.columns.all[i].type;
                 };
             }
         }

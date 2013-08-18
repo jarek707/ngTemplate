@@ -2,12 +2,14 @@ angular.module('app.relations', ['app.gridConf'])
     .factory('rel', function($http,config) {
         return  {
             'use'    : function(relKey, fnName, cb) {
-                    var relObj = this[relKey];
+                    if (!_.isUndefined(relKey)) 
+                        var relObj = this[relKey];
 
-                    if (!_.isUndefined(relObj) && _.isFunction(relObj[fnName])) 
+                    if (!_.isUndefined(relObj) && _.isFunction(relObj[fnName])) {
                         relObj[fnName]();
-                    else 
+                    } else {
                         cb();
+                    }
             },
             'friend' : {
                 'init' : function(scope, element) {
@@ -54,36 +56,23 @@ angular.module('app.services', ['app.gridConf', 'app.relations'])
                 _.isUndefined(key) ? localStorage.clear() : delete localStorage[key]; 
             },
 
-            setParams : function(attrs) {
-                var $return = {key:attrs.key, columns:[], url:null};
-                
-                $return.columns = config.getTabColumns(attrs.key);
-                $return.url     = _.isUndefined(attrs.url) ? config.getMeta(attrs.key).url 
-                                                           : attrs.url;
-                $return.rel     = config.getMeta(attrs.key).rel;
-                return _.isEmpty($return.columns) ? false : $return;
-            },
-
-            sav: function(attrs, list, id) {
-                var params = this.setParams(attrs);
-                switch (params.rel) {
+            sav: function(attrs, list) {
+                switch (config.findMeta(attrs.key).rel) {
                     case 'friends' :
                         localStorage[this.prefix + attrs.key] = 
                             JSON.stringify(rel.friend.set(this.getData(this.parentKey(attrs)), list));
                         break;
                     default :
-                        localStorage[this.prefix + attrs.key] = JSON.stringify( list );
+                        localStorage[this.prefix + attrs.key] = JSON.stringify(list);
                         break;
                 }
                 return 'success';
             },
 
-            get: function(attrs, scope, cb ) {
-console.log('in get');
-                var params = this.setParams(attrs);
-                var $return = null;
+            get: function(attrs, scope, cb) {
+                var $return = {};
 
-                switch (params.rel ) {
+                switch (config.findMeta(attrs.key).rel) {
                     case 'friends' : 
                         var cData = this.getData(attrs);
                         var pData = this.getData(this.parentKey(attrs));
@@ -94,25 +83,21 @@ console.log('in get');
                         break;
                 }
 
-                scope.listW = UT.doubleCopy( scope.list = $return );
+                scope.listW = angular.copy(scope.list = $return);
             },
 
             getData: function(attrs) {
-                var params = this.setParams(attrs);
-
-                if ( params.url )
+                if (!_.isUndefined(config.findMeta(attrs.key).url)) {
                     $http.get(params.url).success( function(data) { 
-                        return data;
+                        return data; 
                     });
-                 else 
-                    if ( _.isEmpty(localStorage[this.prefix + params.key]) )
+                 } else {
+                    var localData = localStorage[this.prefix + attrs.key];
+                    if (_.isUndefined(localData) || _.isEmpty(localData))
                         return {};
-                    else {
-                        if ( _.isUndefined(localStorage[this.prefix + params.key]) )
-                            return {};
-
-                        return JSON.parse(localStorage[this.prefix + params.key]);
-                    }
+                    else 
+                        return JSON.parse(localData);
+                }
             }
         }
     })

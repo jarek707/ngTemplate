@@ -24,6 +24,7 @@ angular.module('app.gridConf', [])
                     'relName' : 'friends'
                 },
                 'layout' : {
+                    'autoHide' : true,
                     'columns' : [ 
                         'Name',
                         'Position',
@@ -33,7 +34,8 @@ angular.module('app.gridConf', [])
                     ],
                     'children' : {
                         'editable' : {
-                            'columns' : ['Name', 'Dom Id', ''],
+                            'autoHide' : true,
+                            'columns' : ['Name', 'Dom Id'],
                             'children' : {
                                 'static' : {
                                     'columns' : ['Name', 'Offset', 'Active:1:R:Y,N']
@@ -47,8 +49,11 @@ angular.module('app.gridConf', [])
                                     'Last Name', 
                                     'Active:4:R:Yes,No', 
                                     'Member:6:C:New,Old', 
-                                    'Description:3/:TA', 
-                                    'Location:5/:S:static/location'],
+                                    'Description:3:TA', 
+                                    'Location:2:S:data/selects',
+                                    'Aux:+5:T',
+                                    'parentId:-'
+                                    ],
                     'children' : {
                         'population' : {
                             'columns' : ['Type', 'Percentage', 'Language'],
@@ -134,42 +139,74 @@ angular.module('app.gridConf', [])
                 return meta;
             },
 
-            getAllColumns:  function(key) { 
-                return this.findMeta(key).columns;
+            getAllColumns:  function(meta) { 
+                var $return = {}, cols = [], line = {}, count = 0, undefCount = 100;
+
+                _(meta.columns).each( function(v,k) {
+                    cols = v.split(':');
+                    if (_.isUndefined(cols[1]) || cols[1].substr(0,1) != '-') {
+                        switch (cols.length) {
+                            case 4  : line.labs = cols[3].split(',');
+                            case 3  : line.type = cols[2];
+                            case 2  : line.pos  = cols[1];
+                            case 1  : line.name = cols[0]; break;
+                            default : line = {};
+                        }
+                        if (_.isUndefined(line.type))  // Default to Text field
+                            line.type = 'T';
+
+                        if (_.isUndefined(line.pos)) {
+                            count = undefCount++;
+                        } else {
+                            count = parseInt(   
+                                isNaN(line.pos.substr(0,1)) ? line.pos.substr(1) : line.pos
+                            ) + 200;
+                        }
+
+                        $return[count] = angular.copy(line);
+                    }
+                });
+                
+                return _($return).filter( function() { return true; } );
             },
 
-            getTabColumns:  function(key) { 
-                var colNames = [], colsA = [], tabPos = '';
+            getTabColumns:  function(meta) { 
+                var colNames = [], cols = [];
 
-                _(this.findMeta(key).columns).each( function(v,k) {
-                    colsA = v.split(':');
-                    if ( _.isUndefined(colsA[1]) || _.isUndefined(colsA[1].split('/')[1]) )
-                        colNames.push(colsA[0]);
+                _(meta.columns).each( function(v,k) {
+                    cols = v.split(':');
+                    if (_.isUndefined(cols[1]) || (cols[1].substr(0,1) != '-' && cols[1].substr(0,1) != '+')) 
+                        colNames.push(cols[0]);
                 });
                 return colNames;
             },
 
-            getMeta : function(key, allCols) {
+            getMeta : function(key) {
                 var meta = this.findMeta(key);
 
-                if (_.isUndefined(meta))
-                    return false;
-                else {
-                    meta.columns = _.isUndefined(allCols) ? this.getTabColumns(key) 
-                                                          : this.getAllColumns(key);
-                    return meta;
-                }
+                if (_.isUndefined(meta)) return false;
+
+                meta.columns = {    tab : this.getTabColumns(meta),
+                                    all : this.getAllColumns(meta) };
+
+                // Defaults START
+                if (_.isUndefined(meta.autoHide))  meta.autoHide  = true;   
+                if (_.isUndefined(meta.headHide))  meta.headHide  = false;
+                if (_.isUndefined(meta.singleRow)) meta.singleRow = false;
+                // Defaults END
+
+                return meta;
             },
 
             getInputMeta: function(key, idx) {
-                var meta = this.getMeta(key,true).columns[idx].split(':');
+                var cols = this.getMeta(key).columns[idx].split(':');
                 var $return = {};
 
-                switch (meta.length) {
-                    case 4  : $return.labs = meta[3].split(',');
-                    case 3  : $return.type = meta[2] ;
-                    case 2  : $return.pos  = meta[1];
-                    case 1  : $return.name = meta[0]; break;
+                switch (cols.length) {
+                    case 4  : $return.labs = cols[3].split(',');
+                    case 3  : $return.type = cols[2] ;
+                    case 2  : $return.pos  = cols[1];
+                    case 1  : $return.name = cols[0]; break;
                     default : $return = false;
                 }
                 if (_.isUndefined($return.type)) $return.type = 'T';

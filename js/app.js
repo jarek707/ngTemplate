@@ -8,6 +8,7 @@ function LGT()    {
 }
 // GLOBAL Utility END
 
+LG( localStorage );
 UT = {
     minIntKey : function(obj, offset) {
         if (_.isUndefined(offset)) offset = 0;
