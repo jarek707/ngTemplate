@@ -6,21 +6,6 @@ angular.module('app.directives', ['app.gridConf'])
             template    : "<div><input ng-model='field' ng-change='$parent.chg(i, field)' ng-click='$parent.clk()' ></input></div>"
         }
     })
-    .filter('toLabel', function() {
-        return function(input, labels) {
-            if (input == '') {
-                return '--none--';
-            } else {
-                var $return = '';
-
-                _(input.toString().split(',')).each( function(v,k) {
-                    $return += ',' + labels[v];
-                });
-
-                return $return.substr(1);
-            }
-        }
-    })
     .directive('tdText', function factory(config) {
         return {
             restrict    : 'A',
@@ -37,7 +22,6 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
                 $scope.meta = $scope.meta[$scope.i]; 
-                //$scope.$watch('field', function() { LG( 'watching field in radio', $scope.field); });
             }
         }
     })
@@ -51,31 +35,34 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.values = [];
                 $scope.meta   = $scope.meta[$scope.i];
 
-                $scope.mkLabGetVals($scope.field);
+                for (var i=0; i<$scope.meta.labs.length; i++) {
+                    $scope.values[i] = $scope.field.toString().indexOf(i) > -1;
+                }
             },
             controller: function($scope, $attrs, $element) {
 
-                $scope.mkLabGetVals = function (src) {
-                    var keys = '', labs = '';
-
-                    _.each($scope.meta.labs, function(v,k) {
-                        if (src.toString().indexOf(k) > -1) { // LIMIT of 10
-                            $scope.values[k] = true;
-                            labs += ',' + v; 
-                            keys += ',' + k;
-                        }
-                    });
-                    $scope.labs = labs.substr(1);
-                    if ( $scope.labs == '') $scope.labs = '-- none --';
-                    return keys.substr(1);
-                }
-
                 $scope.chg = function(i) {
-                    var checked = '';
-                    _($scope.values).each( function(v,k) { if (v) checked += ',' + k });
-                    $scope.field = $scope.mkLabGetVals(checked);
-                    $scope.$parent.chg(i, $scope.field);
+                    var keys = '';
+                    _($scope.values).each( function(v,k) { 
+                        if (v) keys += ',' + k; 
+                    });
+                    $scope.$parent.chg(i, keys.substr(1));
                 };
+            }
+        }
+    })
+    .filter('toLabel', function() {
+        return function(input, labels, typ) {
+            if (input === '') {
+                return '--none--';
+            } else {
+                var $return = '';
+
+                _(input.toString().split(',')).each( function(v,k) {
+                    $return += ',' + labels[v];
+                });
+
+                return $return.substr(1);
             }
         }
     })
@@ -87,22 +74,18 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             templateUrl : config.tplUrls.tdSelect,
             link    : function($scope, $element) {
-                $scope.labs    = '';
-                $scope.options = [{ 'id' : 3, 'val' : 'One' },
-                                  { 'id' : 4, 'val' : 'Two' }];
-                $scope.mkLabs();
+                $scope.meta      = $scope.meta[$scope.i];
+                $scope.meta.labs = [];
+                $scope.options   = [  { 'id' : 0, 'val' : 'One' },
+                                      { 'id' : 1, 'val' : 'Two' },
+                                      { 'id' : 2, 'val' : 'Three' }
+                                   ];
+                _($scope.options).each( function(v,k) {
+                    $scope.meta.labs.push(v.val);
+                });
             },
             controller: function($scope) {
-                $scope.mkLabs = function(v,k) {
-                    _.each($scope.options, function(v,k) {
-                        if ($scope.field.toString().indexOf(v.id) > -1) 
-                            $scope.labs = v.val; 
-                    });
-                    if ( $scope.labs == '') $scope.labs = '-- none --';
-                };
-
                 $scope.chg = function(i) {
-                    $scope.mkLabs();
                     $scope.$parent.chg(i, $scope.field);
                 };
             }

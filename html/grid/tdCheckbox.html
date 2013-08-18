@@ -4,6 +4,6 @@
         <label for="c{{id}}_{{k}}">{{v}}</Label>
     </div>
     <div class="text" ng-click='$parent.clk()'>
-        {{labs}}
+        {{field|toLabel:meta.labs:'chk'}}
     </div>
 </div>
