@@ -30,6 +30,10 @@ angular.module('app.relations', ['app.gridConf'])
                     });
                     return cData; 
                 },
+                'sav' : function() {
+                },
+                'del' : function() {
+                },
                 'exp' :function(list) {
                         //element.find('table').after( '<gridChild><grid key="friend" /></gridChild>');
                 }

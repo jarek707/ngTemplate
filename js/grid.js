@@ -186,36 +186,48 @@ angular.module('app.directives', ['app.gridConf'])
         return {
             replace     : false,
             restrict    : 'AE',
-            scope       : {},
-            templateUrl : config.tplUrls.main,
+            scope       : { parentDataFn : '&', configObject : "@config"},
             transclude  : true,
-            link        : function($scope, $element, $attrs) {
-                // Attributes inherited and shared by row Scope and head Scope
-                $scope.meta      = config.getMeta($attrs.key);
+            templateUrl : config.tplUrls.main,
+            compile     : function(el, attrs, trans) {
+                if (!config.setConfigObject(attrs.config)) {
+                    el.remove();
+                    alert('Config object "' + attrs.config + '" is not defined'); 
+                    return false;
+                } else {
+                    return  function($scope, $element, $attrs) {
 
-                $scope.row = [];
-                $scope.lastRowScope = null;
-                $scope.$attrs    = $attrs;
-                $scope.tableHide = false;
-                $scope.list      = {};
-                $scope.listW     = {};
-                $scope.headHide  = $scope.meta.headHide;
+                        // Attributes inherited and shared by row Scope and head Scope
+                        $scope.meta      = config.getMeta($attrs.key);
 
-                gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
-                    if ( _.isEmpty(listData.data) ) {
-                        $scope.tableHide = true && $scope.meta.autoHide;
-                        if ( !_.isUndefined($scope.$attrs.child) ) 
-                            $scope.add();
-                        else
-                            $scope.notify('','info', 'Please click on the "+" sign to add rows', 5);
+                        $scope.row = [];
+                        $scope.lastRowScope = null;
+                        $scope.$attrs    = $attrs;
+                        $scope.tableHide = false;
+                        $scope.list      = {};
+                        $scope.listW     = {};
+                        $scope.headHide  = $scope.meta.headHide;
+
+                        $scope.commonObject = {};
+
+                        $scope.parentData = function(dataItem) {
+                            return $scope[dataItem];
+                        };
+
+                        gridDataSrv.get($scope.$attrs, $scope, function( listData ) {
+                            if ( _.isEmpty(listData.data) ) {
+                                $scope.tableHide = true && $scope.meta.autoHide;
+                                if ( !_.isUndefined($scope.$attrs.child) ) 
+                                    $scope.add();
+                            }
+                        });
+
+                        if (!_.isUndefined($scope.meta.rel)) 
+                            rel[$scope.meta.rel].init($scope, $element);
                     }
-                });
-
-                if (!_.isUndefined($scope.meta.rel)) 
-                    rel[$scope.meta.rel].init($scope, $element);
+                }
             },
             controller  :  function($scope, $element, $attrs) {
-
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
                     $scope.tableHide = false;
@@ -238,7 +250,9 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.sub = function(rowId, workRow) {
                     _(config.getChildren($attrs.key)).each( function(v, childKey) { 
                         $scope.after(
-                            '<div grid key="' + $attrs.key + '/' + rowId + '/' + childKey + '" child></div>'
+                            '<div grid key="' + $attrs.key + '/' + rowId + '/' + childKey + '" '
+                            + 'config="' + $scope.configObject + '" '
+                            + 'parent-data-fn="parentData(data)"></div>'
                         );
                     });
                     $scope.openSub(workRow);

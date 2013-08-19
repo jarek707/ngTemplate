@@ -15,6 +15,7 @@
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/angular.js"></script>
         <script src="http://ang/js/lib/jquery.js"></script>
+        <script src="http://ang/js/paneConfig.js"></script>
         <script src="http://ang/js/config.js"></script>
         <script src="http://ang/js/services.js"></script>
         <script src="http://ang/js/custom.js"></script>
@@ -28,7 +29,7 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div grid key='layout'></div>
+                    <div grid key='layout' config="PaneConfig"></div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
