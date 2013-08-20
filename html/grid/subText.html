@@ -1,4 +1,4 @@
 <div>
-    <label for="text_{{i}}">{{meta.columns[i]}}</label>
+    <label for="text_{{i}}">{{meta.all[i].name}}</label>
     <input id="text_{{i}}"type="text" ng-model="field" ng-change="$parent.chg(i, field)" />
 </div>

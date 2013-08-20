@@ -13184,7 +13184,13 @@ var ngRepeatDirective = ngDirective({
         }
 
         // we are not using forEach for perf reasons (trying to avoid #call)
-        for (index = 0, length = array.length; index < length; index++) {
+        /* ALTER BEGIN WITH LIMIT */
+        var length  = typeof scope.ngRepeatColumnLimit != 'undefined' && typeof attr.limit != 'undefined'
+                    ? Math.min(scope.ngRepeatColumnLimit, array.length) 
+                    : array.length;
+
+        for (index = 0; index < length; index++) {
+        /* ALTER END */
           key = (collection === array) ? index : array[index];
           value = collection[key];
           last = lastOrder.shift(value);

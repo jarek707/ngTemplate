@@ -2,8 +2,11 @@
 // Service Modules START
 //
 angular.module('app.gridConf', [])
-    .factory('config', function() {
+    .factory('config', function($http) {
         var tplDir = 'html/grid/';
+
+        var selects = null;
+        $http.get('data/selects').success(function(data) { selects = data; });
 
         return {
             'tplUrls' : {
@@ -16,7 +19,10 @@ angular.module('app.gridConf', [])
                 'tdCheckbox'  : tplDir + 'tdCheckbox.html',
 
                 'sub'         : tplDir + 'sub.html',
-                'subText'     : tplDir + 'subText.html'
+                'subText'     : tplDir + 'subText.html',
+                'subCheckbox' : tplDir + 'subCheckbox.html',
+                'subSelect'   : tplDir + 'subSelect.html',
+                'subRadio'    : tplDir + 'subRadio.html'
             },
 
             setConfigObject : function( configObjectName ) {
@@ -39,7 +45,8 @@ angular.module('app.gridConf', [])
             },
 
             getAllColumns:  function(meta) { 
-                var $return = {}, cols = [], line = {}, count = 0, undefCount = 100;
+                var $return = [], tab = [], cols = [], line = {}, count = 0, undefCount = 100;
+                var loadSelects = this.loadSelects;
 
                 _(meta.columns).each( function(v,k) {
                     cols = v.split(':');
@@ -51,33 +58,35 @@ angular.module('app.gridConf', [])
                             case 1  : line.name = cols[0]; break;
                             default : line = {};
                         }
-                        if (_.isUndefined(line.type))  // Default to Text field
-                            line.type = 'T';
+                        if (_.isUndefined(line.type)) line.type = 'T';
+                        if (line.type == 'S') line.labs = selects[line.labs];
+                        LG( selects === null, 'selects'  , line.labs );
 
-                        if (_.isUndefined(line.pos)) {
+                        if   (_.isUndefined(line.pos)) 
                             count = undefCount++;
-                        } else {
-                            count = parseInt(   
-                                isNaN(line.pos.substr(0,1)) ? line.pos.substr(1) : line.pos
-                            ) + 200;
-                        }
+                        else 
+                            count = parseInt(isNaN(line.pos.substr(0,1))    ? line.pos.substr(1) 
+                                                                            : line.pos) + 200;
+
+                        if (_.isUndefined(line.pos) || line.pos.substr(0,1) != '+')
+                            tab.push({ name : line.name, type : line.type, labs : line.labs });
 
                         $return[count] = angular.copy(line);
                     }
                 });
                 
-                return _($return).filter( function() { return true; } );
+                return {tab:tab, all:_($return).filter(function() { return true; })};
             },
 
             getTabColumns:  function(meta) { 
-                var colNames = [], cols = [];
+                var $return = [], cols = [];
 
                 _(meta.columns).each( function(v,k) {
                     cols = v.split(':');
                     if (_.isUndefined(cols[1]) || (cols[1].substr(0,1) != '-' && cols[1].substr(0,1) != '+')) 
-                        colNames.push(cols[0]);
+                        $return.push(cols[0]);
                 });
-                return colNames;
+                return $return;
             },
 
             getMeta : function(key) {
@@ -85,8 +94,7 @@ angular.module('app.gridConf', [])
 
                 if (_.isUndefined(meta)) return false;
 
-                meta.columns = {    tab : this.getTabColumns(meta),
-                                    all : this.getAllColumns(meta) };
+                meta.columns = this.getAllColumns(meta);
 
                 // Defaults START
                 if (_.isUndefined(meta.autoHide))  meta.autoHide  = true;   
@@ -95,21 +103,6 @@ angular.module('app.gridConf', [])
                 // Defaults END
 
                 return meta;
-            },
-
-            getInputMeta: function(key, idx) {
-                var cols = this.getMeta(key).columns[idx].split(':');
-                var $return = {};
-
-                switch (cols.length) {
-                    case 4  : $return.labs = cols[3].split(',');
-                    case 3  : $return.type = cols[2] ;
-                    case 2  : $return.pos  = cols[1];
-                    case 1  : $return.name = cols[0]; break;
-                    default : $return = false;
-                }
-                if (_.isUndefined($return.type)) $return.type = 'T';
-                return $return;
             },
 
             getChildren: function(key) {

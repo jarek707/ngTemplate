@@ -6,18 +6,34 @@ angular.module('app.customDirectives', ['app.gridConf'])
             templateUrl : config.tplUrls.subText
         }
     })
-    .directive('sub', function factory($compile, gridDataSrv, config) { // head scope
+    .directive('detail', function factory($compile, gridDataSrv, config) { // head scope
         return {
             restrict    : 'A',
             replace     : true,
             transclude  : true,
             templateUrl : config.tplUrls.sub,
-            link : function($scope, $element, $attrs) {
-                LG( $scope.meta  , $scope, ' asdf', $attrs);
+            scope       : true,
+            compile     : function(el, attrs) {
+                return function($scope, $element, $attrs) {
+                    $scope.detailShow = true;
+                    $scope.getType = function(i) {
+                        return $scope.meta.all[i].type;
+                    };
+                }
+            },
+            controller: function($scope, $element) {
+                $scope.metaType = 'all';
 
-                $scope.getType = function(i) {
-                    return $scope.meta.columns.all[i].type;
+                $scope.sav = function() { 
+                    LG( 'saving ');
+                    $scope.close();
+                    $scope.$parent.sav();
                 };
+
+                $scope.close = function() {
+                    $element.remove();
+                    $scope.$parent.$parent.tableHide = false;
+                }
             }
         }
     })

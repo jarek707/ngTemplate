@@ -21,7 +21,7 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
-                $scope.meta = $scope.meta[$scope.i]; 
+                $scope.meta = $scope.meta.tab[$scope.i]; 
             }
         }
     })
@@ -33,7 +33,7 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdCheckbox,
             link        : function($scope, $element) { // link function
                 $scope.values = [];
-                $scope.meta   = $scope.meta[$scope.i];
+                $scope.meta   = $scope.meta.tab[$scope.i];
 
                 for (var i=0; i<$scope.meta.labs.length; i++) {
                     $scope.values[i] = $scope.field.toString().indexOf(i) > -1;
@@ -51,21 +51,6 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
-    .filter('toLabel', function() {
-        return function(input, labels, typ) {
-            if (input === '') {
-                return '--none--';
-            } else {
-                var $return = '';
-
-                _(input.toString().split(',')).each( function(v,k) {
-                    $return += ',' + labels[v];
-                });
-
-                return $return.substr(1);
-            }
-        }
-    })
     .directive('tdSelect', function factory(config) {
         return {
             replace  : true,
@@ -74,15 +59,9 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             templateUrl : config.tplUrls.tdSelect,
             link    : function($scope, $element) {
-                $scope.meta      = $scope.meta[$scope.i];
-                $scope.meta.labs = [];
-                $scope.options   = [  { 'id' : 0, 'val' : 'One' },
-                                      { 'id' : 1, 'val' : 'Two' },
-                                      { 'id' : 2, 'val' : 'Three' }
-                                   ];
-                _($scope.options).each( function(v,k) {
-                    $scope.meta.labs.push(v.val);
-                });
+                $scope.meta      = $scope.meta[$scope.metaType][$scope.i];
+
+                LG( SER($scope.meta.labs), 'loaded labs' );
             },
             controller: function($scope) {
                 $scope.chg = function(i) {
@@ -104,24 +83,26 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.showSub = config.getChildren($scope.$attrs.key);
                 }
 
-                $scope.meta    = $scope.$parent.meta.columns.all;
                 $scope.workRow = _.clone($scope.row);
             },
             controller  : function($scope, $element, $attrs) {
+                $scope.meta    = $scope.$parent.meta.columns;
+                $scope.metaType = 'tab';
+
                 function isDirty() { 
                     return $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                 };
 
                 var rowDataExtract = function() { 
-                    return _($scope.workRow).map( function(v,k) {return v}).join(', ');
+                    LG($scope.workRow, $scope.meta.tab);
+                    return _($scope.workRow).filter( function(v,k) {
+                        if (!_.isUndefined($scope.meta.tab[k]))
+                            return $scope.meta.tab[k].type == 'T' ? v : false;
+                    }).join(', ');
                 }
 
-                $scope.getType = function(i) {
-                    return $scope.meta[i].type;
-                };
-
                 $scope.getTdClass = function(i) {
-                    return $scope.getType(i) == 'T' ? '' : 'notext';
+                    return $scope.meta.tab[i].type == 'T' ? '' : 'notext';
                 };
 
                 $scope.blr = function() { 
@@ -140,7 +121,7 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.sav = function() {
                     $scope.$parent.sav($scope.workRow, $scope.id);
-                    $scope.blr();
+                    $scope.trClass = '';
                 };
 
                 $scope.del = function() {
@@ -153,9 +134,9 @@ angular.module('app.directives', ['app.gridConf'])
                     });
                 };
 
-                $scope.exp = function() {
-                    rel.use($scope.$parent.meta.rel, 'exp', function() {
-                        $scope.$parent.exp($scope.id, rowDataExtract(), $scope.workRow);
+                $scope.detail = function() {
+                    rel.use($scope.$parent.meta.rel, 'detail', function() {
+                        $scope.$parent.detail($scope, rowDataExtract(), $scope.workRow );
                     });
                 };
             }
@@ -179,6 +160,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.notify('rel', 'success', _.isEmpty($scope.list) ? ' (empty)' : '');
                     if ($scope.tableHide) $scope.toggleTable();
                 };
+                $scope.headVar = 'var';
             }
         }
     })
@@ -199,6 +181,8 @@ angular.module('app.directives', ['app.gridConf'])
 
                         // Attributes inherited and shared by row Scope and head Scope
                         $scope.meta      = config.getMeta($attrs.key);
+                        LG( $scope.meta.columns.tab.length , ' scope mta ');
+                        $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
                         $scope.row = [];
                         $scope.lastRowScope = null;
@@ -228,6 +212,7 @@ angular.module('app.directives', ['app.gridConf'])
                 }
             },
             controller  :  function($scope, $element, $attrs) {
+
                 $scope.restore = function( a ) {
                     $element.find('grid').remove();
                     $scope.tableHide = false;
@@ -258,19 +243,21 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.openSub(workRow);
                 };
 
-                $scope.exp = function(rowId, workRow, row) {
-                    $scope.row = row;
+                $scope.detail = function(rowScope, rowText) {
+                    $scope.closeLastRow(rowScope);
+                    $scope.row = rowScope.workRow;
                     $scope.after(
-                        '<div sub key="' + $attrs.key + '/' + rowId + '/"></div>'
+                        '<div detail key="' + $attrs.key + '/' + rowScope.id + '/"></div>', rowScope
+
                     );
-                    $scope.openSub(workRow);
+                    $scope.openSub(rowText);
                 };
 
-                $scope.after = function(html) {
+                $scope.after = function(html, rowScope) {
                     if ( $element.find('table').parent().children().length > 2) 
                         $element.find('table').next().remove();
 
-                    $element.find('table').after($compile(html)($scope));
+                    $element.find('table').after($compile(html)(rowScope));
                 }
                 // Sub panes END
 
@@ -278,8 +265,8 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.add = function() {
                     var newIdx = UT.minIntKey($scope.list, -1);
 
-                    $scope.list[newIdx]  = UT.mkEmpty($scope.meta.columns.tab, '');
-                    $scope.listW[newIdx] = UT.mkEmpty($scope.meta.columns.tab, '');
+                    $scope.list[newIdx]  = UT.mkEmpty($scope.meta.columns.all, '');
+                    $scope.listW[newIdx] = UT.mkEmpty($scope.meta.columns.all, '');
 
                     $scope.closeLastRow(null);
                     $scope.tableHide = false;
@@ -356,8 +343,21 @@ angular.module('app.directives', ['app.gridConf'])
             return input.split(_.isUndefined(delim) ? ':' : delim).shift();
         }
     })
+    .filter('toLabel', function() {
+        return function(input, labels, type) {
+            if (input === '') {
+                return '--none--';
+            } else {
+                var $return = '';
 
+                _(input.toString().split(',')).each( function(v,k) {
+                    $return += ',' + (!_.isUndefined(type) && type == 'sel' ? labels[v].val : labels[v]);
+                });
 
+                return $return.substr(1);
+            }
+        }
+    })
 ;
 //  Directives END
 

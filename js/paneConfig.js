@@ -9,9 +9,10 @@ PaneConfig  = {
         'columns' : [ 
             'Name',
             'Position',
-            'SomeRadio:3:R:Chicken,Turkey',
-            'Type:4:S:static/types',
-            'AlergicTo:5:C:Fish,Bread,Food'
+            'SomeRadio:5:R:Chicken,Turkey',
+            'Type:4:S:single',
+            'AlergicTo:3:C:Fish,Bread,Food',
+            'SingleOnly:+8:S:single'
         ],
         'children' : {
             'editable' : {
@@ -29,9 +30,9 @@ PaneConfig  = {
         'columns' : [   'First Name', 
                         'Last Name', 
                         'Active:4:R:Yes,No', 
-                        'Member:6:C:New,Old', 
-                        'Description:3:TA', 
-                        'Location:2:S:data/selects',
+                        'Roles:6:C:Lead,Manager,Programmer', 
+                        'Description:+3:TA', 
+                        'Location:2:S:one',
                         'Aux:+5:T',
                         'parentId:-'
                         ],

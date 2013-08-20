@@ -98,7 +98,7 @@ div.left {
     left:-100%;
 }
 
-div.box {
+div.gridBox {
     clear:both;
     margin:10px;
     padding:8px;
@@ -108,6 +108,7 @@ div.box {
 }
 
 [grid] {
+    margin:0;
     .button {
         .rounded-corners(4px);
         padding:0 2px 0 1px;
@@ -115,7 +116,7 @@ div.box {
         background: #aaa;
         height:12px;
         .delButton { .glyphBg(-458px,    2px); }
-        .expButton { .glyphBg(  -1px,  -70px); }
+        .detailButton { .glyphBg(  -1px,  -70px); }
         .subButton { .glyphBg(-410px, -118px); }
         .savButton { .glyphBg(-290px,    2px); }
         &.dirty {
@@ -306,6 +307,19 @@ div.box {
             &.dirty td.button {
                 background:#f55;
             }
+        }
+    }
+    .detailLabel { display:none; width:120px; height:24px; }
+
+    [detail] {
+        & li {
+            clear:both;
+        }
+        & div {
+            float:left;
+        }
+        .detailLabel {
+            display:block;
         }
     }
 }
