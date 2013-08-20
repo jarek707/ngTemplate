@@ -1,8 +1,0 @@
-<div>
-    <div class="active">
-        <select ng-model='field' ng-options="o.id as o.val for o in options" ng-change="chg(i, field)"></select>
-    </div>
-    <div class='text' ng-click='clk()'>
-        {{field|toLabel:meta.labs}}
-    </div>
-</div>

@@ -14,7 +14,10 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdText,
             link        : function($scope) { 
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
-                $scope.chg  = function(i) { $scope.$parent.chg($scope.meta.pos, $scope.field) };
+                $scope.chg  = function(i) { 
+                    LG( $scope.meta );
+                    $scope.$parent.chg($scope.meta.pos, $scope.field) 
+                };
             }
         }
     })
@@ -41,7 +44,6 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
                 //$scope.workRow[$scope.meta.pos] = JSON.parse($scope.workRow[$scope.meta.pos]);
-                LG( $scope.workRow[$scope.meta.pos] , 'wk' );
                 if ( typeof $scope.workRow[$scope.meta.pos] != 'object' )
                     $scope.workRow[$scope.meta.pos] = [ true, false, false ]
                 if ( typeof $scope.row[$scope.meta.pos] != 'object' )
@@ -50,8 +52,6 @@ angular.module('app.directives', ['app.gridConf'])
             controller: function($scope, $attrs, $element) {
 
                 $scope.chg = function(i) {
-                    LG( SER($scope.workRow[$scope.meta.pos]), ' onasdf');
-                    LG( SER($scope.row[$scope.meta.pos]), ' onasdf  asdf');
                     $scope.$parent.chg($scope.meta.pos);
                 };
 
@@ -92,7 +92,8 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.showSub = config.getChildren($scope.$attrs.key);
                 }
 
-                $scope.workRow = _.clone($scope.row);
+                //$scope.workRow = _.clone($scope.row);
+                $scope.workRow = angular.copy($scope.row);
             },
             controller  : function($scope, $element, $attrs) {
                 $scope.meta    = $scope.$parent.meta.columns;
@@ -188,9 +189,6 @@ angular.module('app.directives', ['app.gridConf'])
 
                         // Attributes inherited and shared by row Scope and head Scope
                         $scope.meta      = config.getMeta($attrs.key);
-                        LG('cols');
-                        console.log( $scope.meta.columns.tab );
-                        console.log( $scope.meta.columns.all);
                         $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
                         $scope.row = [];
@@ -354,7 +352,6 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .filter('toLabel', function() {
         return function(input, labels, type) {
-            LG( input , type, 'to label', labels);
             if ( _.isUndefined(input)) input = '';
 
             if (input === '' || input === []) {

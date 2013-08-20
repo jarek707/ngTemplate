@@ -1,9 +1,0 @@
-<div sid="{{$id}}">
-    <div class="active" ng-repeat="(k,v) in meta.labs">
-        <input id="c{{id}}_{{k}}" type="checkbox" ng-model='values[k]' ng-click="chg(i, this)"></input>
-        <label for="c{{id}}_{{k}}">{{v}}</Label>
-    </div>
-    <div class="text" ng-click='$parent.clk()'>
-        {{field|toLabel:meta.labs}}
-    </div>
-</div>

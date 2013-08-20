@@ -1,11 +1,4 @@
 angular.module('app.customDirectives', ['app.gridConf'])
-    .directive('subText', function factory(config) {
-        return {
-            restrict    : 'A',
-            replace     : true,
-            templateUrl : config.tplUrls.subText
-        }
-    })
     .directive('detail', function factory($compile, gridDataSrv, config) { // head scope
         return {
             restrict    : 'A',

@@ -1,1 +1,4 @@
-<input type="text" ng-model="workRow[i]" ng-change="chg(i)" ng-click="clk()" />
+<div>
+    <label class='detailLabel' for="text_{{i}}">{{meta.name}}</label>
+    <input type="text" ng-model="workRow[meta.pos]" ng-change="chg(i)" ng-click="clk()" />
+</div>
