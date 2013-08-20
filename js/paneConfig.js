@@ -12,8 +12,10 @@ PaneConfig  = {
             'AlergicTo:5:C:Fish,Bread,Food',
             'Type:3:S:single',
             'Extra:+2:T',
-            'SomeRadio:4:R:Chicken,Turkey',
+            'Preference:4:R:Chicken,Beef',
+            'Another Extra:+6:R:Extra1,Extra2',
             'SingleOnly:-:S:country'
+
         ],
         'children' : {
             'editable' : {

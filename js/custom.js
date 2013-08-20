@@ -15,11 +15,9 @@ angular.module('app.customDirectives', ['app.gridConf'])
                 }
             },
             controller: function($scope, $element) {
-                LG( $scope.row, ' row' , $scope.meta );
                 $scope.metaType = 'all';
 
                 $scope.sav = function() { 
-                    LG( 'saving ');
                     $scope.close();
                     $scope.$parent.sav();
                 };

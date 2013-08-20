@@ -14,10 +14,7 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdText,
             link        : function($scope) { 
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
-                $scope.chg  = function(i) { 
-                    LG( $scope.meta );
-                    $scope.$parent.chg($scope.meta.pos, $scope.field) 
-                };
+                $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
             }
         }
     })
@@ -29,7 +26,7 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
-                $scope.chg  = function(i) { $scope.$parent.chg($scope.meta.pos) };
+                $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
             }
         }
     })
@@ -40,42 +37,27 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             templateUrl : config.tplUrls.tdCheckbox,
             link        : function($scope, $element) { // link function
-                $scope.values = [];
                 $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
-                //$scope.workRow[$scope.meta.pos] = JSON.parse($scope.workRow[$scope.meta.pos]);
-                if ( typeof $scope.workRow[$scope.meta.pos] != 'object' )
-                    $scope.workRow[$scope.meta.pos] = [ true, false, false ]
-                if ( typeof $scope.row[$scope.meta.pos] != 'object' )
-                    $scope.row[$scope.meta.pos] = [ true, false, false ]
-            },
-            controller: function($scope, $attrs, $element) {
-
-                $scope.chg = function(i) {
-                    $scope.$parent.chg($scope.meta.pos);
-                };
-
-                $scope.sav = function() {
-                    //$scope.workRow[$scope.meta.pos] = JSON.stringify($scope.workRow[$scope.meta.pos]);
-                    $scope.$parent.sav();
+                if ( typeof $scope.workRow[$scope.meta.pos] != 'object' ) {
+                    $scope.workRow[$scope.meta.pos] = UT.mkEmpty($scope.meta.labs);
+                    $scope.row[$scope.meta.pos]     = UT.mkEmpty($scope.meta.labs);
                 }
+
+                $scope.chg = function() { $scope.$parent.chg($scope.meta.pos); };
             }
         }
     })
     .directive('tdSelect', function factory(config) {
         return {
-            replace  : true,
-            restrict : 'EA',
-            scope    : true, 
+            replace     : true,
+            restrict    : 'EA',
+            scope       : true, 
             transclude  : true,
             templateUrl : config.tplUrls.tdSelect,
             link    : function($scope, $element) {
-                $scope.meta      = $scope.meta[$scope.metaType][$scope.i];
-            },
-            controller: function($scope) {
-                $scope.chg = function(i) {
-                    $scope.$parent.chg($scope.meta.pos);
-                };
+                $scope.meta = $scope.meta[$scope.metaType][$scope.i];
+                $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos); };
             }
         }
     })
@@ -352,23 +334,22 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .filter('toLabel', function() {
         return function(input, labels, type) {
-            if ( _.isUndefined(input)) input = '';
-
-            if (input === '' || input === []) {
+            if (_.isUndefined(input) || input === '') {
                 return '--none--';
             } else {
                 var $return = '';
-                if ( type == 'chk' ) {
-                    _(input).each(function(v,k) {
-                        $return += v ? ',' + labels[k] : '';
-                    });
-                } else {
-                    _(input.toString().split(',')).each( function(v,k) {
-                        $return += ',' + (!_.isUndefined(type) && type == 'sel' ? labels[v].val : labels[v]);
-                    });
+                switch (type) {
+                    case 'chk' :
+                        _.some(input) 
+                            ?  _(input).each(function(v,k) { $return += v ? ',' + labels[k] : ''; })
+                            : $return = ' --none--';
+                        $return = $return.substr(1);
+                        break;
+                    case 'sel' : $return = labels[input].val; break;
+                    default    : $return = labels[input];     break;
                 }
 
-                return $return.substr(1);
+                return $return;
             }
         }
     })
