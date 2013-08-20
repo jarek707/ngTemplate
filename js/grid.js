@@ -11,7 +11,11 @@ angular.module('app.directives', ['app.gridConf'])
             restrict    : 'A',
             replace     : true,
             transclude  : true,
-            templateUrl : config.tplUrls.tdText
+            templateUrl : config.tplUrls.tdText,
+            link        : function($scope) { 
+                $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
+                $scope.chg  = function(i) { $scope.$parent.chg($scope.meta.pos, $scope.field) };
+            }
         }
     })
     .directive('tdRadio', function factory(config) {
@@ -22,6 +26,7 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
+                $scope.chg  = function(i) { $scope.$parent.chg($scope.meta.pos) };
             }
         }
     })
@@ -35,19 +40,25 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.values = [];
                 $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
-                for (var i=0; i<$scope.meta.labs.length; i++) {
-                    $scope.values[i] = $scope.field.toString().indexOf(i) > -1;
-                }
+                //$scope.workRow[$scope.meta.pos] = JSON.parse($scope.workRow[$scope.meta.pos]);
+                LG( $scope.workRow[$scope.meta.pos] , 'wk' );
+                if ( typeof $scope.workRow[$scope.meta.pos] != 'object' )
+                    $scope.workRow[$scope.meta.pos] = [ true, false, false ]
+                if ( typeof $scope.row[$scope.meta.pos] != 'object' )
+                    $scope.row[$scope.meta.pos] = [ true, false, false ]
             },
             controller: function($scope, $attrs, $element) {
 
                 $scope.chg = function(i) {
-                    var keys = '';
-                    _($scope.values).each( function(v,k) { 
-                        if (v) keys += ',' + k; 
-                    });
-                    $scope.$parent.chg(i, keys.substr(1));
+                    LG( SER($scope.workRow[$scope.meta.pos]), ' onasdf');
+                    LG( SER($scope.row[$scope.meta.pos]), ' onasdf  asdf');
+                    $scope.$parent.chg($scope.meta.pos);
                 };
+
+                $scope.sav = function() {
+                    //$scope.workRow[$scope.meta.pos] = JSON.stringify($scope.workRow[$scope.meta.pos]);
+                    $scope.$parent.sav();
+                }
             }
         }
     })
@@ -63,7 +74,7 @@ angular.module('app.directives', ['app.gridConf'])
             },
             controller: function($scope) {
                 $scope.chg = function(i) {
-                    $scope.$parent.chg(i, $scope.field);
+                    $scope.$parent.chg($scope.meta.pos);
                 };
             }
         }
@@ -92,7 +103,6 @@ angular.module('app.directives', ['app.gridConf'])
                 };
 
                 var rowDataLabel = function() { 
-                    LG($scope.workRow, $scope.meta.tab);
                     return _($scope.workRow).filter( function(v,k) {
                         if (!_.isUndefined($scope.meta.tab[k]))
                             return $scope.meta.tab[k].type == 'T' ? v : false;
@@ -112,9 +122,7 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.trClass = 'selected' + (isDirty() ? ' dirty' : '');   
                 };
                 
-                $scope.chg = function(i, field) {
-                    LG(i, field, $scope.$id, $scope.field , $scope.row[i], $scope.workRow[i]);
-                    $scope.workRow[i] = field;
+                $scope.chg = function(idx) {
                     $scope.clk();
                 };
 
@@ -180,7 +188,9 @@ angular.module('app.directives', ['app.gridConf'])
 
                         // Attributes inherited and shared by row Scope and head Scope
                         $scope.meta      = config.getMeta($attrs.key);
-                        LG( $scope.meta.columns.tab.length , ' scope mta ');
+                        LG('cols');
+                        console.log( $scope.meta.columns.tab );
+                        console.log( $scope.meta.columns.all);
                         $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
                         $scope.row = [];
@@ -344,14 +354,22 @@ angular.module('app.directives', ['app.gridConf'])
     })
     .filter('toLabel', function() {
         return function(input, labels, type) {
-            if (input === '') {
+            LG( input , type, 'to label', labels);
+            if ( _.isUndefined(input)) input = '';
+
+            if (input === '' || input === []) {
                 return '--none--';
             } else {
                 var $return = '';
-
-                _(input.toString().split(',')).each( function(v,k) {
-                    $return += ',' + (!_.isUndefined(type) && type == 'sel' ? labels[v].val : labels[v]);
-                });
+                if ( type == 'chk' ) {
+                    _(input).each(function(v,k) {
+                        $return += v ? ',' + labels[k] : '';
+                    });
+                } else {
+                    _(input.toString().split(',')).each( function(v,k) {
+                        $return += ',' + (!_.isUndefined(type) && type == 'sel' ? labels[v].val : labels[v]);
+                    });
+                }
 
                 return $return.substr(1);
             }

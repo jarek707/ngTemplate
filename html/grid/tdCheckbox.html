@@ -1,10 +1,10 @@
 <div sid="{{$id}}">
     <div class='detailLabel'>{{meta.name}}</div>
     <div class="active" ng-repeat="(k,v) in meta.labs">
-        <input id="c{{id}}_{{k}}" type="checkbox" ng-model='values[k]' ng-click="chg(i, this)"></input>
+        <input id="c{{id}}_{{k}}" type="checkbox" ng-model='workRow[meta.pos][k]' ng-click="chg(i)"></input>
         <label for="c{{id}}_{{k}}">{{v}}</Label>
     </div>
     <div class="text" ng-click='$parent.clk()'>
-        {{field|toLabel:meta.labs}}
+        {{workRow[meta.pos]|toLabel:meta.labs:'chk'}}
     </div>
 </div>

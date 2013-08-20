@@ -1,9 +1,9 @@
 <div>
     <div class='detailLabel'>{{meta.name}}</div>
     <div class="active">
-        <select ng-model='field' ng-options="o.id as o.val for o in meta.labs" ng-change="chg(i, $parent.field)"></select>
+        <select ng-model='workRow[meta.pos]' ng-options="o.id as o.val for o in meta.labs" ng-change="chg(i)"></select>
     </div>
     <div class='text' ng-click='clk()'>
-        {{field|toLabel:meta.labs:'sel'}}
+        {{workRow[meta.pos]|toLabel:meta.labs:'sel'}}
     </div>
 </div>

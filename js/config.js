@@ -45,11 +45,12 @@ angular.module('app.gridConf', [])
             },
 
             getAllColumns:  function(meta) { 
-                var $return = [], tab = [], cols = [], line = {}, count = 0, undefCount = 100;
-                var loadSelects = this.loadSelects;
+                var $return = [], tab = [], cols = [], line = {}, count = 0, undefCount = 0;
+                var posMap = {};
 
                 _(meta.columns).each( function(v,k) {
                     cols = v.split(':');
+                    line = {};
                     if (_.isUndefined(cols[1]) || cols[1].substr(0,1) != '-') {
                         switch (cols.length) {
                             case 4  : line.labs = cols[3].split(',');
@@ -59,23 +60,28 @@ angular.module('app.gridConf', [])
                             default : line = {};
                         }
                         if (_.isUndefined(line.type)) line.type = 'T';
-                        if (line.type == 'S') line.labs = selects[line.labs];
-                        LG( selects === null, 'selects'  , line.labs );
+                        if (line.type == 'S')         line.labs = selects[line.labs];
 
-                        if   (_.isUndefined(line.pos)) 
-                            count = undefCount++;
-                        else 
+                        if   (_.isUndefined(line.pos)) {
+                            posMap[k] = undefCount;
+                            count = 100 + undefCount++;
+                        } else {
                             count = parseInt(isNaN(line.pos.substr(0,1))    ? line.pos.substr(1) 
                                                                             : line.pos) + 200;
+                            posMap[k] = count - 200;
+                        }
 
-                        if (_.isUndefined(line.pos) || line.pos.substr(0,1) != '+')
-                            tab.push({ name : line.name, type : line.type, labs : line.labs });
+                        if (_.isUndefined(line.pos) || line.pos.substr(0,1) != '+') {
+                            line.pos = k.toString();
+                            tab.push(_.clone(line));
+                        }
 
+                        line.pos = k.toString();
                         $return[count] = angular.copy(line);
                     }
                 });
                 
-                return {tab:tab, all:_($return).filter(function() { return true; })};
+                return {tab:tab, all:_($return).filter(function() { return true; }) };
             },
 
             getTabColumns:  function(meta) { 
