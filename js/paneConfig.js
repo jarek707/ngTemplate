@@ -9,10 +9,10 @@ PaneConfig  = {
         'columns' : [ 
             'Name',
             'Position',
-            'SomeRadio:5:R:Chicken,Turkey',
-            'Type:4:S:single',
-            'AlergicTo:3:C:Fish,Bread,Food',
-            'SingleOnly:+8:S:single'
+            'SomeRadio:4:R:Chicken,Turkey',
+            'Type:3:S:single',
+            'AlergicTo:5:C:Fish,Bread,Food',
+            'SingleOnly:-:S:country'
         ],
         'children' : {
             'editable' : {

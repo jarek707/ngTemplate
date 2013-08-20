@@ -7,5 +7,10 @@
                 [  { "id" : 0, "val" : "Single" },
                    { "id" : 1, "val" : "Couple" },
                    { "id" : 2, "val" : "Who knows" }
+                ],
+        "country" :
+                [  { "id" : 0, "val" : "Poland" },
+                   { "id" : 1, "val" : "China" },
+                   { "id" : 2, "val" : "U.S.A." }
                 ]
     }

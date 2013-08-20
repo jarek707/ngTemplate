@@ -21,7 +21,7 @@ angular.module('app.directives', ['app.gridConf'])
             transclude  : true,
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
-                $scope.meta = $scope.meta.tab[$scope.i]; 
+                $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
             }
         }
     })
@@ -33,7 +33,7 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdCheckbox,
             link        : function($scope, $element) { // link function
                 $scope.values = [];
-                $scope.meta   = $scope.meta.tab[$scope.i];
+                $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
                 for (var i=0; i<$scope.meta.labs.length; i++) {
                     $scope.values[i] = $scope.field.toString().indexOf(i) > -1;
@@ -60,8 +60,6 @@ angular.module('app.directives', ['app.gridConf'])
             templateUrl : config.tplUrls.tdSelect,
             link    : function($scope, $element) {
                 $scope.meta      = $scope.meta[$scope.metaType][$scope.i];
-
-                LG( SER($scope.meta.labs), 'loaded labs' );
             },
             controller: function($scope) {
                 $scope.chg = function(i) {
@@ -93,7 +91,7 @@ angular.module('app.directives', ['app.gridConf'])
                     return $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                 };
 
-                var rowDataExtract = function() { 
+                var rowDataLabel = function() { 
                     LG($scope.workRow, $scope.meta.tab);
                     return _($scope.workRow).filter( function(v,k) {
                         if (!_.isUndefined($scope.meta.tab[k]))
@@ -115,6 +113,7 @@ angular.module('app.directives', ['app.gridConf'])
                 };
                 
                 $scope.chg = function(i, field) {
+                    LG(i, field, $scope.$id, $scope.field , $scope.row[i], $scope.workRow[i]);
                     $scope.workRow[i] = field;
                     $scope.clk();
                 };
@@ -130,13 +129,13 @@ angular.module('app.directives', ['app.gridConf'])
 
                 $scope.sub = function() {
                     rel.use($scope.$parent.meta.rel, 'sub', function() {
-                        $scope.$parent.sub($scope.id, rowDataExtract());
+                        $scope.$parent.sub($scope, rowDataLabel());
                     });
                 };
 
                 $scope.detail = function() {
                     rel.use($scope.$parent.meta.rel, 'detail', function() {
-                        $scope.$parent.detail($scope, rowDataExtract(), $scope.workRow );
+                        $scope.$parent.detail($scope, rowDataLabel());
                     });
                 };
             }
@@ -232,12 +231,12 @@ angular.module('app.directives', ['app.gridConf'])
                     $scope.rowContent = '{' + rowData + '}';
                 };
 
-                $scope.sub = function(rowId, workRow) {
+                $scope.sub = function(rowScope, workRow) {
                     _(config.getChildren($attrs.key)).each( function(v, childKey) { 
                         $scope.after(
-                            '<div grid key="' + $attrs.key + '/' + rowId + '/' + childKey + '" '
+                            '<div grid key="' + $attrs.key + '/' + rowScope.id + '/' + childKey + '" '
                             + 'config="' + $scope.configObject + '" '
-                            + 'parent-data-fn="parentData(data)"></div>'
+                            + 'parent-data-fn="parentData(data)"></div>', rowScope
                         );
                     });
                     $scope.openSub(workRow);
