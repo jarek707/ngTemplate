@@ -5,7 +5,7 @@
                 ],
         "single" :
                 [  { "id" : 0, "val" : "Single" },
-                   { "id" : 1, "val" : "Couple" },
+                   { "id" : 1, "val" : "Double" },
                    { "id" : 2, "val" : "Who knows" }
                 ],
         "country" :

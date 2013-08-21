@@ -1,7 +1,7 @@
 //
 // Service Modules START
 //
-angular.module('app.gridConf', [])
+angular.module('app.gridConf', ['app.directives'])
     .factory('config', function($http) {
         var tplDir = 'html/grid/';
 
@@ -23,6 +23,15 @@ angular.module('app.gridConf', [])
                 'subCheckbox' : tplDir + 'subCheckbox.html',
                 'subSelect'   : tplDir + 'subSelect.html',
                 'subRadio'    : tplDir + 'subRadio.html'
+            },
+
+
+            getTplUrl : function( tplName , obj ) {
+                return this.tplUrls[tplName];
+            },
+
+            getTpl : function( tplName, cb) {
+                $http.get(this.getTplUrl(tplName)).success(cb);
             },
 
             setConfigObject : function( configObjectName ) {
