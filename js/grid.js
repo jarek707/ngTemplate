@@ -1,4 +1,4 @@
-angular.module('app.directives', ['app.gridConf'])
+angular.module('app.directives', ['app.gridConf', 'app.functions'])
     .directive('tdTest', function factory(config) {
         return {
             restrict    : 'A',
@@ -64,7 +64,7 @@ angular.module('app.directives', ['app.gridConf'])
             }
         }
     })
-    .directive('rowButtons', function factory(config, gridDataSrv, rel) { // row scope
+    .directive('rowButtons', function factory(config, gridDataSrv, rel, row) { // row scope
         return {
             replace     : false,
             restrict    : 'A',
@@ -81,6 +81,7 @@ angular.module('app.directives', ['app.gridConf'])
                 $scope.workRow = angular.copy($scope.row);
             },
             controller  : function($scope, $element, $attrs) {
+                $.extend($scope, row);
                 $scope.meta     = $scope.$parent.meta.columns;
                 $scope.metaType = 'tab';
 
@@ -107,9 +108,7 @@ angular.module('app.directives', ['app.gridConf'])
                     }
                 };
                 
-                $scope.chg = function(idx) {
-                    $scope.trClass = 'editable' + (isDirty() ? ' dirty' : '');   
-                };
+                $scope.chg = function(idx) { $scope.trClass = 'editable' + (isDirty() ? ' dirty' : '');   };
 
                 $scope.editRow = function() { // Usually on ng-Dblclick
                     rel.use(relName, 'editRow', function() { 

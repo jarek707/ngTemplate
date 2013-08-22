@@ -1,3 +1,17 @@
+angular.module('app.functions', [])
+    .factory('row', function($http,config, $compile) {
+        return {
+            'chg' : function(idx) {
+                $scope.trClass = 'editable' + (isDirty() ? ' dirty' : '');   
+            },
+            'set' : function( scope, fnName ) {
+                $scope = scope;
+                scope[fnName] =  this[fnName].prototype; 
+            }
+        }
+    })
+
+;
 angular.module('app.relations', ['app.gridConf'])
     .factory('rel', function($http,config, $compile) {
         return  {
