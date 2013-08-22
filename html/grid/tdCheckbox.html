@@ -4,7 +4,7 @@
         <input id="c{{id}}_{{k}}" type="checkbox" ng-model='workRow[meta.pos][k]' ng-click="chg(i)"></input>
         <label for="c{{id}}_{{k}}">{{v}}</Label>
     </div>
-    <div class="text" ng-click='$parent.clk()'>
+    <div class="text" ng-Dblclick='editRow()'>
         {{workRow[meta.pos]|toLabel:meta.labs:'chk'}}
     </div>
 </div>

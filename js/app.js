@@ -21,8 +21,8 @@ UT = {
         }
     },
 
-    mkEmpty : function(arr, id) {
-        return _.map(arr, function(a) {return (_.isUndefined(id) ? '' : id)});
+    mkEmpty : function(arr, data) {
+        return _.map(arr, function(a) {return (_.isUndefined(data) ? '' : data)});
     },
 
     camelize : function(str, upFirst) {
@@ -55,8 +55,8 @@ function contentPane($scope, $routeParams, $http, gridDataSrv, config) {
         if (confirm ('This will clear your entire local storage.\nPlease confirm.\n\nAftwrwards you need to reload the page to see changes.'))
             gridDataSrv.clear();
     }
-    if ( _.isUndefined(localStorage['GRID:METADATA']) ) 
-        localStorage['GRID:METADATA'] = JSON.stringify(config.meta);
+    //if ( _.isUndefined(localStorage['GRID:METADATA']) ) 
+        //localStorage['GRID:METADATA'] = JSON.stringify(config.meta);
 }
 
 function leftPane() {}

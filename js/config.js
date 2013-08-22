@@ -45,7 +45,7 @@ angular.module('app.gridConf', ['app.directives'])
 
             findMeta : function(key) {
                 var keys = UT.gridKey(key).split('/');
-                var meta = UT.doubleCopy(this.configObject[keys.shift()]);
+                var meta = angular.copy(this.configObject[keys.shift()]);
 
                 for (var i=0 ; i<keys.length ; i++ )
                     meta = meta.children[keys[i]];
@@ -69,7 +69,8 @@ angular.module('app.gridConf', ['app.directives'])
                             default : line = {};
                         }
                         if (_.isUndefined(line.type)) line.type = 'T';
-                        if (line.type == 'S')         line.labs = selects[line.labs];
+                        if (line.type == 'S' && !_.isUndefined(selects[line.labs]))
+                            line.labs = selects[line.labs];
 
                         if   (_.isUndefined(line.pos)) {
                             posMap[k] = undefCount;

@@ -34,12 +34,11 @@
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
                     <div class='gridBox'>
-                        <div grid key='layout' config="PaneConfig"></div>
                     </div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    data here left
+                    <div grid key='members' config="PaneConfig"></div>
                 </div>
                 <div class='right'>
                     <div style='position:relative; float:left'>data right</div>

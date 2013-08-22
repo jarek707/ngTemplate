@@ -1,8 +1,14 @@
 PaneConfig  = {
     'members' : {
-        'columns' : ["First"],
+        'columns' : ["First", "relations:+1"],
         'rel'     : 'friend',
-        'relName' : 'friends'
+        'relName' : 'friends',
+        'children' : {
+            'friend' : {
+                'rel'     :'friend',
+                'columns' : ["First"]
+            }
+        }
     },
     'layout' : {
         'autoHide' : false,
