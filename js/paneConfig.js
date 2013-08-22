@@ -21,7 +21,6 @@ PaneConfig  = {
             'Preference:4:R:Chicken,Beef',
             'Another Extra:+6:R:Extra1,Extra2',
             'SingleOnly:-:S:country'
-
         ],
         'children' : {
             'editable' : {

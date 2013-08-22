@@ -43,7 +43,7 @@ angular.module('app.relations', ['app.gridConf'])
                     }
                 },
                 'detail' :function(addScope) { // add friend to member
-                    if (typeof scope.$attrs.child == 'undefined') {
+                    if (typeof addScope.$attrs.child == 'undefined') {
                         var memberRow = addScope.activeRowScope.workRow;
                         var addObj = {};
                         addObj[addScope.id] = addScope.row[0];
