@@ -29,16 +29,16 @@ angular.module('app.controllers', ['app.gridConf'])
                         if (_.isUndefined(relationData[activeId]) || _.isEmpty(relationData[activeId]))
                             relationData[activeId] = [];
 
-                        // TODO; do not allow duplicates
-                        relationData[activeId].push($scope.id);
-                        gridDataSrv.sav({key: 'members/friend'}, relationData);
-                        $scope.childGridScope.list[$scope.id] = [ $scope.row[0] ];
+                        if (!_(relationData[activeId]).contains($scope.id)) {
+                            relationData[activeId].push($scope.id);
+                            gridDataSrv.sav({key: 'members/friend'}, relationData);
+                            $scope.childGridScope.list[$scope.id] = [ $scope.row[0] ];
+                        }
                     }
                 } 
 
                 var defaultFn = $scope.del;
                 $scope.del = function(cb) { // deleting from child scope
-                    var relationData = null;
                     if (typeof $scope.$attrs.child != 'undefined') {
 
                         var activeId     = $scope.parentDataFn({data: 'activeRowScope'}).id;
@@ -46,13 +46,13 @@ angular.module('app.controllers', ['app.gridConf'])
 
                         relationData[activeId] =_(relationData[activeId]).without($scope.id);
                         delete $scope.list[$scope.id];
+                        gridDataSrv.sav({key: 'members/friend'}, relationData);
                     } else {
-                        // TODO; remove element from the object instead just setting it to []
-                        $scope.relationData[$scope.id] = [];
-                        delete $scope.relationData[$scope.i];
+                        //TODO: traverse all fields and remove all references to the deleted id
+                        delete $scope.relationData[$scope.id];
+                        gridDataSrv.sav({key: 'members/friend'}, $scope.relationData);
                         defaultFn();
                     }
-                    gridDataSrv.sav({key: 'members/friend'}, relationData);
                 }
             },
             'controller' : function($scope) {
