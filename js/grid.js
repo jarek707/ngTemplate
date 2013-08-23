@@ -275,7 +275,6 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
     .filter('toLabel', function() {
         return function(input, labels, type) {
             if ( typeof labels == 'undefined' ) return 'no labels';
-            if ( type == 'sel' ) 
 
             if (_.isUndefined(input) || input === '') {
                 return '--none--';
