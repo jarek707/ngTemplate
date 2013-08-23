@@ -1,7 +1,9 @@
+//angular.module('app.relations', ['app.gridConf', 'app.services'])
 angular.module('app.relations', ['app.gridConf'])
     .factory('rel', function($http,config, $compile) {
         return  {
             'use' : function(relKey, fnName, cb, args) {
+            LG( ' in use ');
                         if (!_.isUndefined(relKey)) 
                             var relObj = this[relKey];
 
@@ -16,9 +18,14 @@ angular.module('app.relations', ['app.gridConf'])
             'friend' : {
                 'mkList' : function(memberScope) {
                     var $return = {};
-                    for (var i in memberScope.row[1])
-                        $return[memberScope.row[1][i]] 
-                            = [ memberScope.list[ memberScope.row[1][i]][0] ];
+
+                    var id = memberScope.id;
+                    var data = memberScope.relationData[id];
+                    if ( !_.isUndefined(data) )
+                        for( var i = 0;  data.length>i; i++ ) {
+                            if ( _.isUndefined( $return[data[i]] )) $return[data[i]] = [];
+                            $return[data[i]].push(memberScope.list[data[i]][0]);
+                        }
 
                     return $return;
                 },
@@ -30,20 +37,6 @@ angular.module('app.relations', ['app.gridConf'])
                         scope.id = scope.$attrs.key.split('/')[1];
                     }
                 },
-                'detail' :function(addScope) { // add friend to member
-                    if (typeof addScope.$attrs.child == 'undefined') {
-                        var memberRow = addScope.activeRowScope.workRow;
-                        var addObj = {};
-                        addObj[addScope.id] = addScope.row[0];
-
-
-                        if ( _.isEmpty(memberRow[1])) { memberRow[1] = [addScope.id];
-                        } else {                        memberRow[1].push(addScope.id); }
-
-                        addScope.childGridScope.list[addScope.id] = [ addScope.row[0] ];
-                        addScope.activeRowScope.sav();
-                    }
-                }, 
                 'sav' : function(scope, cb) {
                     if (typeof scope.$attrs.child == 'undefined') cb();
                 },

@@ -131,8 +131,12 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
                             }
                         });
 
-                        if (!_.isUndefined($scope.meta.rel)) 
+                        if (!_.isUndefined($scope.meta.rel)) {
                             rel[$scope.meta.rel].init($scope, $element, attrs);
+                            if ( $scope.$attrs.key == 'members' ) {
+                                $scope.relationData = gridDataSrv.getData('members/friend');
+                            }
+                        }
                     }
                 }
             },
