@@ -1,17 +1,3 @@
-angular.module('app.functions', [])
-    .factory('row', function($http,config, $compile) {
-        return {
-            'chg' : function(idx) {
-                $scope.trClass = 'editable' + (isDirty() ? ' dirty' : '');   
-            },
-            'set' : function( scope, fnName ) {
-                $scope = scope;
-                scope[fnName] =  this[fnName].prototype; 
-            }
-        }
-    })
-
-;
 angular.module('app.relations', ['app.gridConf'])
     .factory('rel', function($http,config, $compile) {
         return  {
@@ -44,18 +30,6 @@ angular.module('app.relations', ['app.gridConf'])
                         scope.id = scope.$attrs.key.split('/')[1];
                     }
                 },
-                'clk' : function(scope) { // click on the member list
-                    if (typeof scope.$attrs.child == 'undefined') {
-                        scope.$parent.activeRowScope = scope;
-
-                        var html = 
-                            "<div grid key='members/" + scope.id + "/friend'" 
-                                + ' parent-data-fn="parentData(data)"'
-                                + " config='PaneConfig' child></div>";
-
-                        scope.$parent.after(html, scope.$parent);
-                    }
-                },
                 'detail' :function(addScope) { // add friend to member
                     if (typeof addScope.$attrs.child == 'undefined') {
                         var memberRow = addScope.activeRowScope.workRow;
@@ -70,22 +44,6 @@ angular.module('app.relations', ['app.gridConf'])
                         addScope.activeRowScope.sav();
                     }
                 }, 
-                'del' : function(scope, cb) { // deleting from child scope
-                    if (typeof scope.$attrs.child != 'undefined') {
-
-                        var activeMember = scope.parentDataFn({data: 'activeRowScope'});
-
-                        for (var i=0; activeMember.workRow[1].length > i; i++) {
-                            if (scope.id == activeMember.workRow[1][i]) {
-                                activeMember.workRow[1] = _(activeMember.workRow[1]).without(scope.id);
-                                delete scope.list[scope.id];
-                            }
-                        }
-                        activeMember.sav();
-                    } else {
-                        cb();
-                    }
-                },
                 'sav' : function(scope, cb) {
                     if (typeof scope.$attrs.child == 'undefined') cb();
                 },
@@ -131,30 +89,17 @@ angular.module('app.services', ['app.gridConf', 'app.relations'])
                 return 'success';
             },
 
-            get: function(attrs, scope, cb) {
-                var $return = {};
-
-                switch (config.findMeta(attrs.key).rel) {
-                    case 'friends' : 
-                        var cData = this.getData(attrs);
-                        var pData = this.getData(this.parentKey(attrs));
-                        $return = rel.friend.get(pData, cData);
-                        break;
-                    default: 
-                        $return = this.getData(attrs);
-                        break;
-                }
-
-                scope.listW = angular.copy(scope.list = $return);
+            get: function(attrs, scope) {
+                scope.listW = angular.copy(scope.list = this.getData(attrs.key));
             },
 
-            getData: function(attrs) {
-                if (!_.isUndefined(config.findMeta(attrs.key).url)) {
-                    $http.get(config.findMeta(attrs.key).url).success( function(data) { 
+            getData: function(key) {
+                if (!_.isUndefined(config.findMeta(key).url)) {
+                    $http.get(config.findMeta(key).url).success( function(data) { 
                         return data; 
                     });
                  } else {
-                    var localData = localStorage[this.prefix + attrs.key];
+                    var localData = localStorage[this.prefix + key];
                     if (_.isUndefined(localData) || _.isEmpty(localData))
                         return {};
                     else 

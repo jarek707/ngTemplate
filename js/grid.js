@@ -1,4 +1,4 @@
-angular.module('app.directives', ['app.gridConf', 'app.functions'])
+angular.module('app.directives', ['app.gridConf', 'app.controllers'])
     .directive('tdTest', function factory(config) {
         return {
             restrict    : 'A',
@@ -80,78 +80,10 @@ angular.module('app.directives', ['app.gridConf', 'app.functions'])
                 // Setup a shadow data row to keep local changes for comparisons and saving
                 $scope.workRow = angular.copy($scope.row);
             },
-            controller  : function($scope, $element, $attrs) {
-                $.extend($scope, row);
-                $scope.meta     = $scope.$parent.meta.columns;
-                $scope.metaType = 'tab';
-
-                var relName = $scope.$parent.meta.rel;
-
-                function isDirty() { 
-                    return $scope.dirty = !_($scope.row).isEqual($scope.workRow);
-                };
-
-                function rowDataLabel() { 
-                    return _($scope.workRow).filter( function(v,k) {
-                        if (!_.isUndefined($scope.meta.tab[k]))
-                            return $scope.meta.tab[k].type == 'T' ? v : false;
-                    }).join(', ');
-                }
-
-                $scope.getElementClass = function(i) {
-                    return $scope.meta.tab[i].type == 'T' ? '' : 'notext';
-                };
-
-                $scope.blr = function() { 
-                    if ($scope.trClass.indexOf('editable') > -1) {
-                        $scope.trClass = $scope.trClass.replace('editable','');
-                    }
-                };
-                
-                $scope.chg = function(idx) { $scope.trClass = 'editable' + (isDirty() ? ' dirty' : '');   };
-
-                $scope.editRow = function() { // Usually on ng-Dblclick
-                    rel.use(relName, 'editRow', function() { 
-                        $scope.closeLastRow($scope);
-                        $scope.chg();
-                    }, $scope);
-                };
-
-                $scope.defaultClk = function(idx) {
-                }, 
-
-                $scope.clk = function(idx) {
-                    rel.use(relName, 'clk', function() { $scope.defaultClk(idx); }, $scope);
-                },
-
-                $scope.sav = function() {
-                    rel.use(relName, 'sav', function() { 
-                        $scope.$parent.sav($scope.workRow, $scope.id);
-                        $scope.trClass = '';
-                    }, $scope);
-                };
-
-                $scope.del = function() {
-                    rel.use(relName, 'del', function() { 
-                        $scope.$parent.del($scope.id);
-                    }, $scope);
-                }
-
-                $scope.sub = function() {
-                    rel.use(relName, 'sub', function() {
-                        $scope.$parent.sub($scope, rowDataLabel());
-                    });
-                };
-
-                $scope.detail = function() {
-                    rel.use(relName, 'detail', function() {
-                        $scope.$parent.detail($scope, rowDataLabel());
-                    }, $scope);
-                };
-            }
+            controller  : function($scope, $element, $attrs) { row.set($scope,'friend'); }
         }
     })
-    .directive('headButtons', function factory(gridDataSrv, config) { // head scope
+    .directive('headButtons', function factory(gridDataSrv, config, head) { // head scope
         return {
             replace  : false,
             restrict : 'C',
@@ -159,18 +91,7 @@ angular.module('app.directives', ['app.gridConf', 'app.functions'])
             link        : function($scope, $attrs) {
                 ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
             },
-            controller  : function($scope, $element, $attrs ) {
-                $scope.peekTable = function() {
-                    $scope.tableHide = $scope.tableHide ? false : 'hidden';
-                };
-
-                $scope.reload = function() { 
-                    $scope.list  = UT.dobuleCopy($scope.list, $scope.listW);
-                    $scope.notify('rel', 'success', _.isEmpty($scope.list) ? ' (empty)' : '');
-                    if ($scope.tableHide) $scope.toggleTable();
-                };
-                $scope.headVar = 'var';
-            }
+            controller  : function($scope) { head.controller($scope); }
         }
     })
     .directive('grid', function factory($compile, gridDataSrv, config, rel) {

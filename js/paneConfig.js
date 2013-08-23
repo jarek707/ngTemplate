@@ -1,12 +1,11 @@
 PaneConfig  = {
     'members' : {
-        'columns' : ["First", "relations:+1"],
+        'columns' : ["", "relations:+1"],
         'rel'     : 'friend',
-        'relName' : 'friends',
         'children' : {
             'friend' : {
                 'rel'     :'friend',
-                'columns' : ["First"]
+                'columns' : [""]
             }
         }
     },
