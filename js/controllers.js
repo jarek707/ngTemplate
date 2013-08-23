@@ -1,10 +1,10 @@
 angular.module('app.controllers', [])
     .service('row', function($http, config, $compile, rel) {
         return {
-            'set' : function($scope, relation) {
+            'set' : function($scope) {
                 this.controller($scope);
-                if (!_.isUndefined(relation) && _.isFunction(this[relation])) {
-                    this[relation]($scope);
+                if (!_.isUndefined($scope.$attrs.rel) && _.isFunction(this[$scope.$attrs.rel])) {
+                    this[$scope.$attrs.rel]($scope);
                 }
             },
             'friend'     : function($scope) {

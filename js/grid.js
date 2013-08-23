@@ -80,7 +80,7 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
                 // Setup a shadow data row to keep local changes for comparisons and saving
                 $scope.workRow = angular.copy($scope.row);
             },
-            controller  : function($scope, $element, $attrs) { row.set($scope,'friend'); }
+            controller  : function($scope, $element, $attrs) { row.set($scope); }
         }
     })
     .directive('headButtons', function factory(gridDataSrv, config, head) { // head scope
