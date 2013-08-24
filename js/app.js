@@ -52,8 +52,7 @@ function topMenu($scope) {
 
 function contentPane($scope, $routeParams, $http, gridDataSrv, config) {
     $scope.clearLocalStorage = function() {
-        if (confirm ('This will clear your entire local storage.\nPlease confirm.\n\nAftwrwards you need to reload the page to see changes.'))
-            gridDataSrv.clear();
+        gridDataSrv.clear();
     }
     //if ( _.isUndefined(localStorage['GRID:METADATA']) ) 
         //localStorage['GRID:METADATA'] = JSON.stringify(config.meta);

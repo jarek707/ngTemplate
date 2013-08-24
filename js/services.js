@@ -3,29 +3,25 @@ angular.module('app.relations', ['app.gridConf'])
     .factory('rel', function($http,config, $compile) {
         return  {
             'use' : function(relKey, fnName, cb, args) {
-            LG( ' in use ');
-                        if (!_.isUndefined(relKey)) 
-                            var relObj = this[relKey];
+                if (!_.isUndefined(relKey)) 
+                    var relObj = this[relKey];
 
-                        if (!_.isUndefined(relObj) && _.isFunction(relObj[fnName])) 
-                            relObj[fnName](args, cb);
-                        else
-                            if (_.isFunction(this.default[fnName]))
-                                this['default'][fnName](args);
-                            else
-                                cb();
+                if (!_.isUndefined(relObj) && _.isFunction(relObj[fnName])) 
+                    relObj[fnName](args, cb);
+                else
+                    if (_.isFunction(this.default[fnName])) this['default'][fnName](args);
+                    else                                    cb();
             },
             'friend' : {
                 'mkList' : function(memberScope) {
                     var $return = {};
+                    var data    = memberScope.relationData[memberScope.id];
 
-                    var id = memberScope.id;
-                    var data = memberScope.relationData[id];
-                    if ( !_.isUndefined(data) )
-                        for( var i = 0;  data.length>i; i++ ) {
-                            if ( _.isUndefined( $return[data[i]] )) $return[data[i]] = [];
-                            $return[data[i]].push(memberScope.list[data[i]][0]);
-                        }
+                    for (var i in data) {
+                        if (_.isUndefined($return[data[i]])) 
+                            $return[data[i]] = [];
+                        $return[data[i]].push(memberScope.list[data[i]][0]);
+                    }
 
                     return $return;
                 },
@@ -65,8 +61,15 @@ angular.module('app.services', ['app.gridConf', 'app.relations'])
                 return $return;
             }, 
 
-            clear: function(key) { 
-                _.isUndefined(key) ? localStorage.clear() : delete localStorage[key]; 
+            clear: function() { 
+                var keys = '';
+
+                for (var i in localStorage) 
+                    if (i.substr(0,5) == this.prefix) 
+                        keys += i.substr(5) + '\n';
+
+                var key = prompt('Enter key from the list:\n\n' + keys );
+                _.isEmpty(key) ? localStorage.clear() : delete localStorage[this.prefix + key]; 
             },
 
             sav: function(attrs, list) {

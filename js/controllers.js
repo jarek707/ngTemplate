@@ -26,11 +26,16 @@ angular.module('app.controllers', ['app.gridConf'])
                         var relationData = $scope.$parent.relationData;
                         var activeId     = $scope.activeRowScope.id;
                         
-                        if (_.isUndefined(relationData[activeId]) || _.isEmpty(relationData[activeId]))
-                            relationData[activeId] = [];
-
                         if (!_(relationData[activeId]).contains($scope.id)) {
-                            relationData[activeId].push($scope.id);
+                            function addRelation(activeId, scopeId) {
+                                if ( _.isUndefined(relationData[activeId]) )
+                                    relationData[activeId] = [];
+                                relationData[activeId].push(scopeId);
+                            }
+
+                            addRelation(activeId, $scope.id);
+                            if (true)  addRelation($scope.id, activeId); // mutual case
+
                             gridDataSrv.sav({key: 'members/friend'}, relationData);
                             $scope.childGridScope.list[$scope.id] = [ $scope.row[0] ];
                         }
@@ -39,20 +44,31 @@ angular.module('app.controllers', ['app.gridConf'])
 
                 var defaultFn = $scope.del;
                 $scope.del = function(cb) { // deleting from child scope
-                    if (typeof $scope.$attrs.child != 'undefined') {
 
+                    function dropRelation(relationData, activeId, scopeId) {
+                        relationData[activeId] = _(relationData[activeId]).without(scopeId);
+                        if (true) // for mutual case
+                            relationData[scopeId] = _(relationData[scopeId]).without(activeId);
+                    }
+
+                    if (typeof $scope.$attrs.child != 'undefined') {
                         var activeId     = $scope.parentDataFn({data: 'activeRowScope'}).id;
                         var relationData = $scope.parentDataFn({data: 'relationData'});
 
-                        relationData[activeId] =_(relationData[activeId]).without($scope.id);
+                        dropRelation(relationData, activeId, $scope.id);
                         delete $scope.list[$scope.id];
-                        gridDataSrv.sav({key: 'members/friend'}, relationData);
                     } else {
-                        //TODO: traverse all fields and remove all references to the deleted id
-                        delete $scope.relationData[$scope.id];
-                        gridDataSrv.sav({key: 'members/friend'}, $scope.relationData);
+                        var relationData = $scope.relationData;
+                        var related = relationData[$scope.id];
+
+                        for (var i=0; related.length>i; i++)
+                            dropRelation(relationData, related[i], $scope.id);
+
+                        relationData = _(relationData).omit($scope.id);
                         defaultFn();
                     }
+
+                    gridDataSrv.sav({key: 'members/friend'}, relationData);
                 }
             },
             'controller' : function($scope) {
