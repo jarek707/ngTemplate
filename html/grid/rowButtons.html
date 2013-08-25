@@ -1,6 +1,6 @@
     <div class='buttons'  sid="{{$id}}">
-        <input type='button' class='savButton' value='' ng-click='sav()' ng-show='dirty'></input>
-        <input type='button' class='subButton' value='' ng-click='sub()' ng-show='showSub'></input>
-        <input type='button' class='detailButton' value='' ng-click='detail()'></input>
-        <input type='button' class='delButton' value='' ng-click='del()'></input>
+        <input type='button' class='savButton' value='' ng-click='save()' ng-show='buttons.save'></input>
+        <input type='button' class='subButton' value='' ng-click='subPane()' ng-show='buttons.sub'></input>
+        <input type='button' class='detailButton' value='' ng-click='detail()' ng-show='buttons.detail'></input>
+        <input type='button' class='delButton' value='' ng-click='del()' ng-show='buttons.del'></input>
     </div>

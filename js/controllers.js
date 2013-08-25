@@ -1,82 +1,96 @@
 angular.module('app.controllers', ['app.gridConf'])
     .service('row', function($http, config, $compile, rel, gridDataSrv) {
         return {
-            'set' : function($scope) {
+            'set' : function($scope, $element) {
                 this.controller($scope);
-                if (!_.isUndefined($scope.$attrs.rel) && _.isFunction(this[$scope.$attrs.rel])) {
-                    this[$scope.$attrs.rel]($scope);
+                
+                if (!_.isUndefined($scope.$attrs.rel) && _.isFunction(this[$scope.$attrs.rel]))
+                    if (_.isUndefined($scope.$attrs.child))
+                        this[$scope.$attrs.rel]($scope, $element);
+                    else
+                        this[$scope.$attrs.rel + '_child']($scope, $element);
+            },
+            'friend_child' : function($scope, $element) {
+                
+                $scope.del = function(cb) {
+                    var activeId     = $scope.parentDataFn({data: 'activeRowScope'}).id;
+                    var relationData = $scope.parentDataFn({data: 'relationData'});
+                    relationData[activeId] = _(relationData[activeId]).without($scope.id);
+                    if (true) // for mutual case
+                        relationData[$scope.id] = _(relationData[$scope.id]).without(activeId);
+
+                    delete $scope.list[$scope.id];
+                    gridDataSrv.sav({key: 'members/friend'}, relationData);
                 }
             },
-            'friend'     : function($scope) {
+            'friend'     : function($scope, $element) {
+                $($element).find('.subButton').removeClass('subButton').addClass('addButton'); //JQ
+                $scope.buttons = { save : false, sub : true, detail : false, del : true };
+
+                $scope.$on('rowClicked', function (evt, scopeId) {
+                    $scope.buttons.sub = !_($scope.relationData[$scope.id]).contains(scopeId);
+                });
+
                 $scope.clk =  function() { // click on the member list
-                    if (typeof $scope.$attrs.child == 'undefined') {
-                        $scope.$parent.activeRowScope = $scope;
+                    $scope.$parent.activeRowScope = $scope;
 
-                        var html = 
-                            "<div grid key='members/" + $scope.id + "/friend'"
-                                + " parent-data-fn='parentData(data)'  rel='friend'"
-                                + " config='PaneConfig' child></div>";
+                    var html = 
+                        "<div grid key='members/" + $scope.id + "/friend'"
+                            + " parent-data-fn='parentData(data)'  rel='friend'"
+                            + " config='PaneConfig' child></div>";
 
-                        $scope.$parent.after(html, $scope.$parent);
-                    }
+                    $scope.$parent.after(html, $scope.$parent);
+
+                    $scope.$parent.$broadcast('rowClicked', $scope.id);
                 }
 
-                $scope.detail = function() { // add friend to member
-                    if (typeof $scope.$attrs.child == 'undefined') {
-                        var relationData = $scope.$parent.relationData;
-                        var activeId     = $scope.activeRowScope.id;
-                        
-                        if (!_(relationData[activeId]).contains($scope.id)) {
-                            function addRelation(activeId, scopeId) {
-                                if ( _.isUndefined(relationData[activeId]) )
-                                    relationData[activeId] = [];
-                                relationData[activeId].push(scopeId);
-                            }
-
-                            addRelation(activeId, $scope.id);
-                            if (true)  addRelation($scope.id, activeId); // mutual case
-
-                            gridDataSrv.sav({key: 'members/friend'}, relationData);
-                            $scope.childGridScope.list[$scope.id] = [ $scope.row[0] ];
+                $scope.subPane = function() { // add friend to member
+                    var relationData = $scope.$parent.relationData;
+                    var activeId     = $scope.activeRowScope.id;
+                    
+                    if (!_(relationData[activeId]).contains($scope.id)) {
+                        function addRelation(activeId, scopeId) {
+                            if ( _.isUndefined(relationData[activeId]) )
+                                relationData[activeId] = [];
+                            relationData[activeId].push(scopeId);
                         }
+
+                        addRelation(activeId, $scope.id);
+                        if (true && (activeId != $scope.id)) // mutual case
+                            addRelation($scope.id, activeId);
+
+                        gridDataSrv.sav({key: 'members/friend'}, relationData);
+                        $scope.childGridScope.list[$scope.id] = [ $scope.row[0] ];
+
+                        $scope.buttons.sub = false; 
                     }
                 } 
 
                 var defaultFn = $scope.del;
-                $scope.del = function(cb) { // deleting from child scope
+                $scope.del = function(cb) {
+                    var relationData = $scope.relationData;
+                    var related = relationData[$scope.id];
 
-                    function dropRelation(relationData, activeId, scopeId) {
-                        relationData[activeId] = _(relationData[activeId]).without(scopeId);
-                        if (true) // for mutual case
-                            relationData[scopeId] = _(relationData[scopeId]).without(activeId);
-                    }
+                    if ( !_.isUndefined(related) )
+                        for (var i=0; related.length>i; i++) {
+                            relationData[related[i]] = _(relationData[related[i]]).without($scope.id);
+                            if (true) // for mutual case
+                                relationData[$scope.id] = _(relationData[$scope.id]).without(related[i]);
+                        }
 
-                    if (typeof $scope.$attrs.child != 'undefined') {
-                        var activeId     = $scope.parentDataFn({data: 'activeRowScope'}).id;
-                        var relationData = $scope.parentDataFn({data: 'relationData'});
+                    gridDataSrv.sav({key: 'members/friend'}, _(relationData).omit($scope.id));
+                    defaultFn();
 
-                        dropRelation(relationData, activeId, $scope.id);
-                        delete $scope.list[$scope.id];
-                    } else {
-                        var relationData = $scope.relationData;
-                        var related = relationData[$scope.id];
-
-                        for (var i=0; related.length>i; i++)
-                            dropRelation(relationData, related[i], $scope.id);
-
-                        relationData = _(relationData).omit($scope.id);
-                        defaultFn();
-                    }
-
-                    gridDataSrv.sav({key: 'members/friend'}, relationData);
                 }
             },
             'controller' : function($scope) {
                 $scope.meta     = $scope.$parent.meta.columns;
                 $scope.metaType = 'tab';
 
+                $scope.buttons = { save : false, sub : false, detail : true, del : true};
+
                 function isDirty() { 
-                    return $scope.dirty = !_($scope.row).isEqual($scope.workRow);
+                    return $scope.buttons.save = $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                 };
 
                 function rowDataLabel() { 
@@ -104,41 +118,32 @@ angular.module('app.controllers', ['app.gridConf'])
                 var relName = $scope.$parent.meta.rel;
 
                 $scope.editRow = function() { // Usually on ng-Dblclick
-                    rel.use(relName, 'editRow', function() { 
-                        $scope.closeLastRow($scope);
-                        $scope.chg();
-                    }, $scope);
+                   $scope.closeLastRow($scope);
+                   $scope.chg();
                 }
 
                 $scope.defaultClk = function(idx) {
                 } 
 
                 $scope.clkz = function(idx) {
-                    rel.use(relName, 'clk', function() { $scope.defaultClk(idx); }, $scope);
+                    $scope.defaultClk(idx);
                 }
 
                 $scope.sav = function() {
-                    rel.use(relName, 'sav', function() { 
-                        $scope.$parent.sav($scope.workRow, $scope.id);
-                        $scope.trClass = '';
-                    }, $scope);
+                    $scope.$parent.sav($scope.workRow, $scope.id);
+                    $scope.trClass = '';
                 }
 
                 $scope.del = function() {
-                LG( 'default del ' );
                     $scope.$parent.del($scope.id);
                 }
 
-                $scope.sub = function() {
-                    rel.use(relName, 'sub', function() {
-                        $scope.$parent.sub($scope, rowDataLabel());
-                    });
+                $scope.subPane = function() {
+                    $scope.$parent.subPane($scope, rowDataLabel());
                 }
 
                 $scope.detail = function() {
-                    rel.use(relName, 'detail', function() {
-                        $scope.$parent.detail($scope, rowDataLabel());
-                    }, $scope);
+                    $scope.$parent.detail($scope, rowDataLabel());
                 }
                 // Relation functions END
                 

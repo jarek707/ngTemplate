@@ -1,0 +1,1 @@
+cat lib/underscore.js lib/angular.js lib/jquery.js paneConfig.js config.js services.js custom.js controllers.js grid.js app.js >all.js

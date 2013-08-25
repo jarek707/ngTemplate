@@ -26,15 +26,15 @@ angular.module('app.gridConf', ['app.directives'])
             },
 
 
-            getTplUrl : function( tplName , obj ) {
+            getTplUrl : function(tplName) {
                 return this.tplUrls[tplName];
             },
 
-            getTpl : function( tplName, cb) {
+            getTpl : function(tplName, cb) {
                 $http.get(this.getTplUrl(tplName)).success(cb);
             },
 
-            setConfigObject : function( configObjectName ) {
+            setConfigObject : function(configObjectName) {
                 try {
                     var configObject = eval(configObjectName);
                 } catch (err) {
@@ -116,6 +116,7 @@ angular.module('app.gridConf', ['app.directives'])
                 if (_.isUndefined(meta.autoHide))  meta.autoHide  = true;   
                 if (_.isUndefined(meta.headHide))  meta.headHide  = false;
                 if (_.isUndefined(meta.singleRow)) meta.singleRow = false;
+                if (_.isUndefined(meta.autoAdd)  ) meta.autoAdd   = true;
                 // Defaults END
 
                 return meta;

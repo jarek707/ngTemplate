@@ -71,16 +71,16 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
             templateUrl : config.tplUrls.rowButtons,
             link        : function($scope, $element) {
                 if (_.some($scope.row)) {
-                    $scope.showSub = config.getChildren($scope.$attrs.key);
+                    $scope.buttons.sub = config.getChildren($scope.$attrs.key);
                 } else {
                     $scope.trClass = 'editable'; 
-                    $scope.showSub = false;
+                    $scope.buttons.sub = false;
                 }
 
                 // Setup a shadow data row to keep local changes for comparisons and saving
                 $scope.workRow = angular.copy($scope.row);
             },
-            controller  : function($scope, $element, $attrs) { row.set($scope); }
+            controller  : function($scope, $element, $attrs) { row.set($scope, $element); }
         }
     })
     .directive('headButtons', function factory(gridDataSrv, config, head) { // head scope
@@ -100,7 +100,7 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
             restrict    : 'AE',
             scope       : { parentDataFn : '&', configObject : "@config"},
             transclude  : true,
-            templateUrl : config.tplUrls.main,
+            template    : "",
             compile     : function(el, attrs, trans) {
                 if (!config.setConfigObject(attrs.config)) {
                     el.remove();
@@ -108,36 +108,37 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
                     return false;
                 } else {
                     return  function($scope, $element, $attrs) {
+                        config.getTpl('main', function(html) { 
+                            $element.append($compile(html)($scope));
 
-                        $scope.childGridScope = null;
-                        $scope.meta      = config.getMeta($attrs.key);
-                        $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
+                            $scope.childGridScope = null;
+                            $scope.meta           = config.getMeta($attrs.key);
+                            $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
-                        $scope.$attrs       = $attrs;
-                        $scope.lastRowScope = null;
-                        $scope.headHide     = $scope.meta.headHide;
+                            $scope.$attrs       = $attrs;
+                            $scope.lastRowScope = null;
+                            $scope.headHide     = $scope.meta.headHide;
 
-                        $scope.commonObject = {};
+                            $scope.parentData = function(dataItem) {
+                                return $scope[dataItem];
+                            };
 
-                        $scope.parentData = function(dataItem) {
-                            return $scope[dataItem];
-                        };
+                            gridDataSrv.get($attrs, $scope, function( listData ) {
+                                if ( _.isEmpty(listData.data) ) {
+                                    $scope.tableHide = true && $scope.meta.autoHide;
+                                    if ( !_.isUndefined($attrs.child) ) 
+                                        $scope.add();
+                                }
+                            });
 
-                        gridDataSrv.get($attrs, $scope, function( listData ) {
-                            if ( _.isEmpty(listData.data) ) {
-                                $scope.tableHide = true && $scope.meta.autoHide;
-                                if ( !_.isUndefined($attrs.child) ) 
-                                    $scope.add();
+                            if (!_.isUndefined($scope.meta.rel)) {
+                                rel[$scope.meta.rel].init($scope, $element, attrs);
+                                if ( $scope.$attrs.key == 'members' ) {
+                                    $scope.relationData = gridDataSrv.getData('members/friend');
+                                    if ( _.isEmpty($scope.relationData)) $scope.relationData = {};
+                                }
                             }
                         });
-
-                        if (!_.isUndefined($scope.meta.rel)) {
-                            rel[$scope.meta.rel].init($scope, $element, attrs);
-                            if ( $scope.$attrs.key == 'members' ) {
-                                $scope.relationData = gridDataSrv.getData('members/friend');
-                                if ( _.isEmpty($scope.relationData)) $scope.relationData = {};
-                            }
-                        }
                     }
                 }
             },
@@ -206,6 +207,10 @@ angular.module('app.directives', ['app.gridConf', 'app.controllers'])
                 $scope.sav = function(row, id) {
                     $scope.list[id] = _.clone(row);
                     $scope.notify('sav', gridDataSrv.sav($attrs, $scope.list, id));
+
+                    if ($scope.meta.autoAdd) { //autoAdd
+                        $scope.add();
+                    }
                 };
 
                 $scope.del = function(id)  { 

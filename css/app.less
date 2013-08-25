@@ -115,10 +115,11 @@ div.gridBox {
         //background: lighten(@borderColor,8%);
         background: #aaa;
         height:12px;
-        .delButton { .glyphBg(-458px,    2px); }
-        .detailButton { .glyphBg(  -1px,  -70px); }
-        .subButton { .glyphBg(-410px, -118px); }
-        .savButton { .glyphBg(-290px,    2px); }
+        .delButton      { .glyphBg(-458px,    2px); }
+        .detailButton   { .glyphBg(  -1px,  -70px); }
+        .subButton      { .glyphBg(-410px, -118px); }
+        .savButton      { .glyphBg(-290px,    2px); }
+        .addButton      { .glyphBg(-409px, -97px);  }
         &.dirty {
             background:#f55;
         }
@@ -132,7 +133,7 @@ div.gridBox {
         background:transparent;
         border: 1px solid transparent;
         padding:0;
-        width:13px;
+        width:16px;
         margin-left:2px;
         -webkit-border-radius:0;
     }
@@ -227,7 +228,11 @@ div.gridBox {
             }
             td { 
                 min-width:56px; 
-                &.button { width:62px; }
+                &.button { 
+                    min-width:1px;
+                    width:1px; 
+                    white-space:nowrap;
+                }
                 border-bottom:1px dotted @borderColor;
                 padding-right:4px;
 

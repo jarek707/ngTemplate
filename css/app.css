@@ -238,7 +238,9 @@ div.gridBox {
   padding-right: 4px;
 }
 [grid] table tr td.button {
-  width: 62px;
+  min-width: 1px;
+  width: 1px;
+  white-space: nowrap;
 }
 [grid] table tr td input {
   cursor: pointer;
