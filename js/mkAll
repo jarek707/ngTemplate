@@ -1,1 +1,14 @@
-cat lib/underscore.js lib/angular.js lib/jquery.js paneConfig.js config.js services.js custom.js controllers.js grid.js app.js >all.js
+cat lib/json3.js \
+    paneConfig.js \
+    config.js \
+    services.js \
+    custom.js \
+    controllers.js \
+    grid.js \
+    app.js >all.js
+
+
+    ~/bin/uglifyjs lib/angular.js lib/underscore.js lib/jquery.js  all.js > min/all.min.js
+    
+    cat lib/angular.js lib/underscore.js lib lib/jquery.js  all.js>> libs.js
+    mv libs.js all.js

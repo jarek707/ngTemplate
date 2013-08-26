@@ -20,7 +20,7 @@ angular.module('app.relations', ['app.gridConf'])
                     for (var i in data) {
                         if (_.isUndefined($return[data[i]])) 
                             $return[data[i]] = [];
-                        $return[data[i]].push(memberScope.list[data[i]][0]);
+                        $return[data[i]].push(memberScope.list[data[i]].join(', '));
                     }
 
                     return $return;

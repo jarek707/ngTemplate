@@ -11,6 +11,8 @@ angular.module('app.gridConf', ['app.directives'])
         return {
             'tplUrls' : {
                 'main'        : tplDir + 'main.html',
+                'mainDiv'     : tplDir + 'mainDiv.html',
+                'mainNoHead'  : tplDir + 'mainNoHead.html',
                 'headButtons' : tplDir + 'headButtons.html',
                 'rowButtons'  : tplDir + 'rowButtons.html',
                 'tdSelect'    : tplDir + 'tdSelect.html',
@@ -116,7 +118,7 @@ angular.module('app.gridConf', ['app.directives'])
                 if (_.isUndefined(meta.autoHide))  meta.autoHide  = true;   
                 if (_.isUndefined(meta.headHide))  meta.headHide  = false;
                 if (_.isUndefined(meta.singleRow)) meta.singleRow = false;
-                if (_.isUndefined(meta.autoAdd)  ) meta.autoAdd   = true;
+                if (_.isUndefined(meta.autoAdd)  ) meta.autoAdd   = false;
                 // Defaults END
 
                 return meta;

@@ -6,6 +6,7 @@ body {
   background: #eee;
   margin: 0;
   padding: 0;
+  font-family: Helvetica;
 }
 div#page {
   min-width: 400px;
@@ -89,11 +90,10 @@ div.gridBox {
   -o-border-radius: 4px;
   border-radius: 4px;
   padding: 0 2px 0 1px;
-  background: #aaa;
   height: 12px;
 }
 [grid] .button .delButton {
-  background: transparent url('../image/glyph.png') -458px 2px no-repeat;
+  background: transparent url('../image/glyph.png') -458px 0px no-repeat;
 }
 [grid] .button .detailButton {
   background: transparent url('../image/glyph.png') -1px -70px no-repeat;
@@ -102,10 +102,13 @@ div.gridBox {
   background: transparent url('../image/glyph.png') -410px -118px no-repeat;
 }
 [grid] .button .savButton {
-  background: transparent url('../image/glyph.png') -290px 2px no-repeat;
+  background: transparent url('../image/glyph.png') -290px 0px no-repeat;
 }
-[grid] .button.dirty {
-  background: #f55;
+[grid] .button .addButton {
+  background: transparent url('../image/glyph.png') -408px -96px no-repeat;
+}
+[grid] .button .removeButton {
+  background: transparent url('../image/glyph.png') -312px 0px no-repeat;
 }
 [grid] .button input {
   font-size: 0px;
@@ -116,7 +119,7 @@ div.gridBox {
   background: transparent;
   border: 1px solid transparent;
   padding: 0;
-  width: 13px;
+  width: 16px;
   margin-left: 2px;
   -webkit-border-radius: 0;
 }
@@ -211,6 +214,74 @@ div.gridBox {
 [grid] .gridHead span.error {
   color: #a03a5e;
 }
+[grid] div.dataContent {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 11px #aaa;
+  width: 98%;
+  padding: 0;
+}
+[grid] div.dataContent ul {
+  font-size: 0.9em;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+}
+[grid] div.dataContent ul li.row {
+  clear: both;
+  width: 100%;
+  background: #d0e5f2;
+}
+[grid] div.dataContent ul li.row.editable .active {
+  display: block;
+}
+[grid] div.dataContent ul li.row.editable .text {
+  display: none;
+}
+[grid] div.dataContent ul [grid] div.dataContent {
+  width: 100%;
+}
+[grid] div.dataContent ul [grid] ul li > div {
+  margin-left: 12px;
+}
+[grid] div.dataContent ul [grid] ul li.row {
+  background: #e4f0f8;
+  width: 100%;
+}
+[grid] div.dataContent ul li {
+  float: left;
+}
+[grid] div.dataContent ul li.button {
+  height: 16px;
+  margin-top: 2px;
+  float: right;
+  width: auto;
+  white-space: nowrap;
+}
+[grid] div.dataContent ul li ul li > div {
+  margin: 4px;
+  cursor: pointer;
+}
+[grid] div.dataContent ul li ul row-buttons {
+  float: left;
+}
+[grid] div.dataContent ul li ul row-buttons.button {
+  height: 16px;
+  margin: 4px 4px 0 0;
+  float: right;
+  width: auto;
+  white-space: nowrap;
+}
+[grid] div.dataContent ul li ul row-buttons.button [grid] row-buttons.button {
+  float: left;
+}
+[grid] div.dataContent ul li ul li .active {
+  display: none;
+}
 [grid] table {
   width: 100%;
   box-shadow: 1px 1px 11px #aaa;
@@ -236,6 +307,9 @@ div.gridBox {
   min-width: 56px;
   border-bottom: 1px dotted #afbfc7;
   padding-right: 4px;
+  text-overflow: ellipsis;
+  width: 1px;
+  white-space: nowrap;
 }
 [grid] table tr td.button {
   min-width: 1px;
@@ -244,7 +318,6 @@ div.gridBox {
 }
 [grid] table tr td input {
   cursor: pointer;
-  text-overflow: ellipsis;
   border: 2px solid transparent;
   background: transparent;
   width: 99%;
@@ -261,48 +334,46 @@ div.gridBox {
   cursor: pointer;
   float: left;
   font-family: Arial;
-  font-size: 0.8em;
-  width: auto;
   margin: 0 0px 4px 0px;
   height: 12px;
-  padding-top: 6px;
+  padding-top: 0px;
 }
 [grid] table tr td div.active label {
   margin: 0 4px 4px 0px;
+  font-size: 0.8em;
 }
 [grid] table tr td div.active select {
   margin-top: 1px;
   width: 100%;
 }
-[grid] table tr td.notext {
-  width: 1px;
-  white-space: nowrap;
-}
-[grid] table tr td.notext div.active {
+[grid] table tr td .active {
   display: none;
   padding-top: 0;
   margin-top: 4px;
   height: 12px;
   font-style: italic;
 }
-[grid] table tr td.notext div.text {
+[grid] table tr td .text {
   font-family: Arial;
   font-size: 0.8em;
   display: block;
+}
+[grid] table tr.selected {
+  background: #fff;
 }
 [grid] table tr.editable td input[type='text'] {
   border: 2px solid #465b64;
   background: #e4f0f8;
 }
-[grid] table tr.editable td.notext div.active {
+[grid] table tr.editable td .active {
   float: left;
   display: block;
   margin-top: -1px;
 }
-[grid] table tr.editable td.notext div.text {
+[grid] table tr.editable td .text {
   display: none;
 }
-[grid] table tr.editable td.notext > div {
+[grid] table tr.editable td > div {
   height: 18px;
   border: 1px solid transparent;
   -webkit-border-radius: 4px;
@@ -310,7 +381,7 @@ div.gridBox {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  background: #f8fbfd;
+  background: transparent;
   float: left;
 }
 [grid] table tr.dirty td.button {

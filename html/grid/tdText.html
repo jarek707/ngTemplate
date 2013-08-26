@@ -1,4 +1,5 @@
 <div>
     <label class='detailLabel' for="text_{{i}}">{{meta.name}}</label>
-    <input type="text" ng-model="workRow[meta.pos]" ng-change="chg(i)" ng-Dblclick="editRow()" ng-click="clk()" />
+    <input class='active' type="text" ng-model="workRow[meta.pos]" ng-change="chg(i)" ng-click="clk()" />
+    <div class='text' ng-click='clk()' ng-Dblclick="editRow()">{{workRow[meta.pos]}}</div>
 </div>

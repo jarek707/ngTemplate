@@ -5,15 +5,15 @@
     <head>
         <title>Angular Grid (DEV)</title>
 
-        <![if !IE]>
-            <link href="http://ang//css/app.less" rel="stylesheet/less" type="text/css"></link>
-            <script src="http://ang/js/lib/less.js"></script>
-        <![endif]>
-
         <![if lte IE 8]>
             <link href="http://ang/css/app.css" rel="stylesheet" type="text/css" />
             <link href="http://ang/css/ie8.css" rel="stylesheet" type="text/css" />
             <script src='http://ang/js/lib/json2.js'></script>
+        <![endif]>
+
+        <![if !IE]>
+            <link href="http://ang//css/app.less" rel="stylesheet/less" type="text/css"></link>
+            <script src="http://ang/js/lib/less.js"></script>
         <![endif]>
 
         <!--
@@ -42,7 +42,7 @@
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div grid key='members' config="PaneConfig" rel="friend"></div>
+                    <div grid="members,notable" key='members' config="PaneConfig" rel="friend"></div>
                 </div>
                 <div class='right'>
                     <div style='position:relative; float:left'>data right</div>

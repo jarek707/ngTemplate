@@ -39,6 +39,7 @@ body {
     background: #eee;
     margin:  0;
     padding: 0;
+    font-family: Helvetica;
 }
 
 div#page {
@@ -112,17 +113,13 @@ div.gridBox {
     .button {
         .rounded-corners(4px);
         padding:0 2px 0 1px;
-        //background: lighten(@borderColor,8%);
-        background: #aaa;
         height:12px;
-        .delButton      { .glyphBg(-458px,    2px); }
-        .detailButton   { .glyphBg(  -1px,  -70px); }
-        .subButton      { .glyphBg(-410px, -118px); }
-        .savButton      { .glyphBg(-290px,    2px); }
-        .addButton      { .glyphBg(-409px, -97px);  }
-        &.dirty {
-            background:#f55;
-        }
+        .delButton      { .glyphBg(-456px,    0px); }
+        .detailButton   { .glyphBg(   0px,  -72px); }
+        .subButton      { .glyphBg(-410px, -120px); }
+        .savButton      { .glyphBg(-290px,    0px); }
+        .addButton      { .glyphBg(-408px, -96px);  }
+        .removeButton   { .glyphBg(-312px,    0px); }
     }
     .button input {
         font-size:0px;
@@ -133,7 +130,7 @@ div.gridBox {
         background:transparent;
         border: 1px solid transparent;
         padding:0;
-        width:16px;
+        width:14px;
         margin-left:2px;
         -webkit-border-radius:0;
     }
@@ -207,6 +204,82 @@ div.gridBox {
         span.error   {color:@errorColor;  }
     }
 
+    div.dataContent {
+        .rounded-corners(5px);
+        box-shadow: 1px 1px 11px #aaa;
+        width:98%;
+        padding:0;
+        ul {
+            font-size:0.9em;
+            margin:0;
+            padding:0;
+            width:100%;
+            overflow:hidden;
+            li.row {
+                clear:both;
+                width:100%;
+                background:@mainPaneBg;
+                &.editable .active {
+                    display:block;
+                }
+                &.editable .text {
+                    display:none;
+                }
+                &.selected {
+                    background:darken(@mainPaneBg, 5%);
+                }
+            }
+            [grid]  {
+                div.dataContent {
+                    width:100%;
+                }
+                ul {
+                    li {
+                        &>div{
+                            margin-left:12px;
+                        }
+                        &.row {
+                            background:lighten(@mainPaneBg,5%);
+                            width:100%;
+                        }
+                    }
+                }
+            }
+            li {
+                float:left;
+                &.button {
+                    height:16px;
+                    margin-top:2px;
+                    float:right;
+                    width:auto;
+                    white-space:nowrap;
+                }
+                ul {
+                    li {
+                        &>div { 
+                            margin:4px;
+                            cursor:pointer;
+                        }
+                    }
+                    row-buttons {
+                        float:left;
+                        &.button {
+                            height:16px;
+                            margin:4px 4px 0 0;
+                            float:right;
+                            width:auto;
+                            white-space:nowrap;
+                        }
+                        &.button [grid] row-buttons.button { float:left;}
+                    }
+                    li .active {
+                        display:none;
+                    }
+                }
+            }
+        }
+    }
+
     table {
         width:100%;
         box-shadow: 1px 1px 11px #aaa;
@@ -236,9 +309,9 @@ div.gridBox {
                 border-bottom:1px dotted @borderColor;
                 padding-right:4px;
 
+                text-overflow: ellipsis;
                 input { 
                     cursor:pointer;
-                    text-overflow: ellipsis;
                     border:2px solid transparent;
                     background:transparent;
                     width:99%;
@@ -252,50 +325,48 @@ div.gridBox {
                     cursor:pointer;
                     float:left;
                     font-family:Arial;
-                    font-size:0.8em;
-                    width:auto;
                     margin:0 0px 4px 0px;;
                     height:12px;
-                    padding-top:6px;
+                    padding-top:0px;
                     label {
                         margin:0 4px 4px 0px;;
+                        font-size:0.8em;
                     }
                     select { 
                         margin-top:1px; 
                         width:100%;
                     }
                 }
-                &.notext {
                     width:1px;
                     white-space:nowrap;
-                    div.active {
+                    .active {
                         display:none;
                         padding-top:0;
                         margin-top:4px;
                         height:12px;
                         font-style:italic;
                     }
-                    div.text {
+                    .text {
                         font-family:Arial;
                         font-size:0.8em;
                         display:block;
                     }
-                }
             }
-
+            &.selected {
+                background : #fff;
+            }
             &.editable {
                 td {
                     input[type='text'] {
                         border: 2px solid darken(@borderColor, 40%);
                         background: lighten(@mainPaneBg, 5%);
                     }
-                    &.notext {
-                        div.active{
+                        .active{
                             float:left;
                             display:block;
                             margin-top:-1px;
                         }
-                        div.text {
+                        .text {
                             display:none;
                         }
                         &> div {
@@ -303,10 +374,9 @@ div.gridBox {
                             //border: 1px solid darken(@borderColor, 40%);
                             border: 1px solid transparent;
                             .rounded-corners(4px);
-                            background: lighten(@mainPaneBg, 10%);
+                            background: transparent;
                             float:left;
                         }
-                    }
                 }
             }
             &.dirty td.button {

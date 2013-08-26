@@ -1,10 +1,12 @@
 PaneConfig  = {
     'members' : {
-        'columns' : ["", "relations:+1"],
+        'columns' : ["", ""],
         'rel'     : 'friend',
+        'mutual'  : true,
         'children' : {
             'friend' : {
                 'rel'     :'friend',
+                'mutual'  : true,
                 'columns' : [""]
             }
         }
