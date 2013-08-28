@@ -93,13 +93,13 @@ div.gridBox {
   height: 12px;
 }
 [grid] .button .delButton {
-  background: transparent url('../image/glyph.png') -458px 0px no-repeat;
+  background: transparent url('../image/glyph.png') -456px 0px no-repeat;
 }
 [grid] .button .detailButton {
-  background: transparent url('../image/glyph.png') -1px -70px no-repeat;
+  background: transparent url('../image/glyph.png') 0px -72px no-repeat;
 }
 [grid] .button .subButton {
-  background: transparent url('../image/glyph.png') -410px -118px no-repeat;
+  background: transparent url('../image/glyph.png') -410px -120px no-repeat;
 }
 [grid] .button .savButton {
   background: transparent url('../image/glyph.png') -290px 0px no-repeat;
@@ -119,7 +119,7 @@ div.gridBox {
   background: transparent;
   border: 1px solid transparent;
   padding: 0;
-  width: 16px;
+  width: 14px;
   margin-left: 2px;
   -webkit-border-radius: 0;
 }
@@ -242,6 +242,9 @@ div.gridBox {
 [grid] div.dataContent ul li.row.editable .text {
   display: none;
 }
+[grid] div.dataContent ul li.row.selected {
+  background: #bcdaec;
+}
 [grid] div.dataContent ul [grid] div.dataContent {
   width: 100%;
 }
@@ -359,7 +362,7 @@ div.gridBox {
   display: block;
 }
 [grid] table tr.selected {
-  background: #fff;
+  background: #bcdaec;
 }
 [grid] table tr.editable td input[type='text'] {
   border: 2px solid #465b64;

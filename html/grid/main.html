@@ -1,14 +1,4 @@
-<div class='gridHead'  ng-class='trClass' ng-hide='headHide' sid="{{$id}}">
-    <div class='spaces'>
-        <div ng-repeat='space in spaces' class='space'></div>
-    </div>
-    <div><div>{{$attrs.key|Last}}</div></div>
-    <div>{{rowContent}}</div>
-    <div class='headButtons button'>
-        <div ng-transclude></div>
-    </div>
-    <span class='notify'></span>
-</div>
+<div grid-head ng-class='trClass'></div>
 <table ng-hide='tableHide'>
     <thead>
         <tr>

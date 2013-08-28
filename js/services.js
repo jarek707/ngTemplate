@@ -1,53 +1,5 @@
-//angular.module('app.relations', ['app.gridConf', 'app.services'])
-angular.module('app.relations', ['app.gridConf'])
-    .factory('rel', function($http,config, $compile) {
-        return  {
-            'use' : function(relKey, fnName, cb, args) {
-                if (!_.isUndefined(relKey)) 
-                    var relObj = this[relKey];
-
-                if (!_.isUndefined(relObj) && _.isFunction(relObj[fnName])) 
-                    relObj[fnName](args, cb);
-                else
-                    if (_.isFunction(this.default[fnName])) this['default'][fnName](args);
-                    else                                    cb();
-            },
-            'friend' : {
-                'mkList' : function(memberScope) {
-                    var $return = {};
-                    var data    = memberScope.relationData[memberScope.id];
-
-                    for (var i in data) {
-                        if (_.isUndefined($return[data[i]])) 
-                            $return[data[i]] = [];
-                        $return[data[i]].push(memberScope.list[data[i]].join(', '));
-                    }
-
-                    return $return;
-                },
-                'init' : function(scope, element, attrs) {
-                    if (!_.isUndefined(scope.$attrs.child) ) {
-                        scope.$parent.childGridScope = scope;
-                        scope.list = this.mkList(scope.$parent.activeRowScope);
-
-                        scope.id = scope.$attrs.key.split('/')[1];
-                    }
-                },
-                'sav' : function(scope, cb) {
-                    if (typeof scope.$attrs.child == 'undefined') cb();
-                },
-                // disable these buttons even if they don't show
-                'editRow' :function(list) { }, 
-                'sub' :function(list) { } 
-            },
-            'default' : {
-                'clk' : function(args) {}
-            }
-        }
-    })
-;
-angular.module('app.services', ['app.gridConf', 'app.relations'])
-    .factory('gridDataSrv', function($http, config, rel) {
+angular.module('app.services', ['app.gridConf'])
+    .factory('gridDataSrv', function($http, config) {
         return  {
             prefix: 'GRID:',
 
@@ -74,10 +26,6 @@ angular.module('app.services', ['app.gridConf', 'app.relations'])
 
             sav: function(attrs, list) {
                 switch (config.findMeta(attrs.key).rel) {
-                    case 'friendz' :
-                        localStorage[this.prefix + attrs.key] = 
-                            JSON.stringify(rel.friend.set(this.getData(this.parentKey(attrs)), list));
-                        break;
                     default :
                         localStorage[this.prefix + attrs.key] = JSON.stringify(list);
                         break;

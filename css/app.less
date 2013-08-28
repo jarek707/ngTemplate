@@ -134,7 +134,7 @@ div.gridBox {
         margin-left:2px;
         -webkit-border-radius:0;
     }
-    .gridHead {
+    [grid-head] {
         float:left;
         width:100%;
         margin-bottom:2px;
@@ -353,7 +353,7 @@ div.gridBox {
                     }
             }
             &.selected {
-                background : #fff;
+                 background:darken(@mainPaneBg, 5%);
             }
             &.editable {
                 td {

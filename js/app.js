@@ -1,14 +1,20 @@
 // GLOBAL Utility START
 function SER(arg) { return JSON.stringify(arg); }
 function LG()     { if (window.console) console.log(arguments);     }
+function LGE()    { 
+    if (window.console)
+        for (var i=0; i < arguments.length; i++ ) {
+            console.log(arguments[i]);
+        }
+}
 function LGS()    { if (window.console) console.log(JSON.stringify(arguments));     }
 function LGT()    { 
     var args  = _.map(arguments, function(v,k) {return v});
     setTimeout(function() {if (window.console) console.log(args);}, args.pop()); 
 }
+LG( localStorage);
 // GLOBAL Utility END
 
-LG( localStorage );
 UT = {
     minIntKey : function(obj, offset) {
         if (_.isUndefined(offset)) offset = 0;
@@ -43,6 +49,16 @@ UT = {
 
     gridKey : function( inKey ) {
         return inKey.replace(/-*\d+\//g, '');
+    },
+
+    // IE8 workaround for array.join()
+    joinCSV : function(inArr) {
+        var csv = '';
+        for (var i = 0; i<inArr.length; i++)
+            if (inArr[i] != '') 
+                csv += ', ' + inArr[i];
+
+       return csv.substr(2);
     }
 }
 

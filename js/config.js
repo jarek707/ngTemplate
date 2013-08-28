@@ -13,7 +13,7 @@ angular.module('app.gridConf', ['app.directives'])
                 'main'        : tplDir + 'main.html',
                 'mainDiv'     : tplDir + 'mainDiv.html',
                 'mainNoHead'  : tplDir + 'mainNoHead.html',
-                'headButtons' : tplDir + 'headButtons.html',
+                'gridHead'    : tplDir + 'gridHead.html',
                 'rowButtons'  : tplDir + 'rowButtons.html',
                 'tdSelect'    : tplDir + 'tdSelect.html',
                 'tdText'      : tplDir + 'tdText.html',
