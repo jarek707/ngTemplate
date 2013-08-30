@@ -6,10 +6,11 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                     this[type]['default']($scope, $element);
                     
                     if (!_.isUndefined($scope.$attrs.rel) && _.isFunction(this[type][$scope.$attrs.rel])) {
-                        if (_.isUndefined($scope.$attrs.child))
+                        if (_.isUndefined($scope.$attrs.child)) {
                             this[type][$scope.$attrs.rel]($scope, $element);
-                        else
+                        } else {
                             this[type][$scope.$attrs.rel + '_child']($scope, $element);
+                        }
                     } else {
                         //this[type]['default']($scope, $element);
                     }
@@ -49,7 +50,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                 if (_.isUndefined($return[data[i]])) 
                                     $return[data[i]] = [];
 
-                                $return[data[i]].push( UT.joinCSV(memberScope.list[data[i]]) );
+                                $return[data[i]].push( UT.join(memberScope.list[data[i]]) );
                             }
                             return $return;
                         }
@@ -57,33 +58,19 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         $scope.$parent.childGridScope = $scope;
                         $scope.id   = $scope.$attrs.key.split('/')[1];
 
-                        $scope.setData = function() {
-                            $scope.list = mkList($scope.$parent.lastRowScope);
-                        }
+                        $scope.list = mkList($scope.$parent.lastRowScope);
                     },
                     'friend' : function($scope, $element) {
                         $scope.relationData = gridDataSrv.getData('members/friend');
                     },
                     'default' : function($scope, $element) {
-                        var tpl = $scope.$attrs.grid.indexOf('notable') > -1 ? 'mainDiv'    : 'main';
-                            tpl = $scope.$attrs.grid.indexOf('nohead' ) > -1 ? 'mainNoHead' : tpl;
-                        config.getTpl(tpl, function(html) { 
-                            $element.append($compile(html)($scope));
-                        LG( ' compiled friend' , html);
+                        $scope.childGridScope = null;
+                        $scope.meta           = config.getMeta($scope.$attrs.key);
+                        $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
-                            $scope.childGridScope = null;
-                            $scope.meta           = config.getMeta($scope.$attrs.key);
-                            $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
+                        $scope.lastRowScope = null;
 
-                            $scope.lastRowScope = null;
-
-                            $scope.parentData = function(dataItem) {
-                                return $scope[dataItem];
-                            };
-
-                            gridDataSrv.get($scope.$attrs, $scope);
-                            if (_.isFunction($scope.setData)) $scope.setData();
-                        });
+                        gridDataSrv.get($scope.$attrs, $scope);
                     }
                 }
             }
@@ -171,8 +158,25 @@ angular.module('app.directiveScopes', ['app.gridConf'])
 
                                 $scope.after(html, $scope.$parent);
                                 $scope.sel();
-                                $scope.$parent.$broadcast('rowClicked', $scope.id);
+                                $scope.rowClicked();
                             }
+                        }
+
+                        var defaultFn = $scope.del;
+                        $scope.del = function() {
+                            var relationData = $scope.relationData;
+                            var related = relationData[$scope.id];
+
+                            if ( !_.isUndefined(related) )
+                                for (var i=0; related.length>i; i++) {
+                                    relationData[related[i]] = _(relationData[related[i]]).without($scope.id);
+                                    if (true) // for mutual case
+                                        relationData[$scope.id] = _(relationData[$scope.id]).without(related[i]);
+                                }
+
+                            gridDataSrv.sav({key: 'members/friend'}, _(relationData).omit($scope.id));
+                            delete $scope.childGridScope.list[$scope.id];
+                            defaultFn();
                         }
                          
                         //
@@ -213,26 +217,11 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                 }
                             }
                         } 
-
-                        var defaultFn = $scope.del;
-                        $scope.del = function() {
-                            var relationData = $scope.relationData;
-                            var related = relationData[$scope.id];
-
-                            if ( !_.isUndefined(related) )
-                                for (var i=0; related.length>i; i++) {
-                                    relationData[related[i]] = _(relationData[related[i]]).without($scope.id);
-                                    if (true) // for mutual case
-                                        relationData[$scope.id] = _(relationData[$scope.id]).without(related[i]);
-                                }
-
-                            gridDataSrv.sav({key: 'members/friend'}, _(relationData).omit($scope.id));
-                            defaultFn();
-                        }
                     },
                     'default' : function($scope, $element) {
                         $scope.meta     = $scope.$parent.meta.columns;
                         $scope.metaType = 'tab';
+                        $scope.trClass  = '';
 
                         $scope.buttons = { save : false, sub : false, detail : true, del : true};
 
@@ -241,10 +230,10 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         };
 
                         function rowDataLabel() { 
-                            return _($scope.workRow).filter( function(v,k) {
+                            return UT.join(_($scope.workRow).filter( function(v,k) {
                                 if (!_.isUndefined($scope.meta.tab[k]))
                                     return $scope.meta.tab[k].type == 'T' ? v : false;
-                            }).join(', ');
+                            }))
                         }
 
                         $scope.getElementClass = function(i) {
@@ -265,6 +254,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         }
                         
                         $scope.editRow = function() { // Usually on ng-Dblclick
+                           LG( $scope.trClass, 'trclas');
                            $scope.closeLastRow($scope);
                            $scope.chg();
                         }
@@ -273,6 +263,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         } 
 
                         $scope.clk = function(idx) {
+                            LG( 'clk in row ' );
                             if ($scope.closeLastRow($scope))
                                 $scope.sel();
                         }
@@ -301,7 +292,6 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                     'friend' : function($scope, $element) {
                         var parentAdd = $scope.add;
                         $scope.add = function() {
-                            LG( 'add in friend');
                             parentAdd();
                         }
                     },

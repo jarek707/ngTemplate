@@ -5,7 +5,7 @@ angular.module('app.gridConf', ['app.directives'])
     .factory('config', function($http) {
         var tplDir = 'html/grid/';
 
-        var selects = null;
+        var selects = {};
         $http.get('data/selects').success(function(data) { selects = data; });
 
         return {
@@ -13,7 +13,10 @@ angular.module('app.gridConf', ['app.directives'])
                 'main'        : tplDir + 'main.html',
                 'mainDiv'     : tplDir + 'mainDiv.html',
                 'mainNoHead'  : tplDir + 'mainNoHead.html',
+                'mainNoButtons': tplDir + 'mainNoButtons.html',
+                'simple'        : tplDir + 'simple.html',
                 'gridHead'    : tplDir + 'gridHead.html',
+                'loopContent' : tplDir + 'loopContent.html',
                 'rowButtons'  : tplDir + 'rowButtons.html',
                 'tdSelect'    : tplDir + 'tdSelect.html',
                 'tdText'      : tplDir + 'tdText.html',
@@ -24,6 +27,7 @@ angular.module('app.gridConf', ['app.directives'])
                 'subText'     : tplDir + 'subText.html',
                 'subCheckbox' : tplDir + 'subCheckbox.html',
                 'subSelect'   : tplDir + 'subSelect.html',
+                'pImg'          : tplDir + 'pImg.html',
                 'subRadio'    : tplDir + 'subRadio.html'
             },
 

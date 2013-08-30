@@ -1,4 +1,7 @@
 PaneConfig  = {
+    'img' : {
+        'columns' : ["Caption", "Url"],
+    },
     'members' : {
         'columns' : ["", ""],
         'rel'     : 'friend',

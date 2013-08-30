@@ -1,10 +1,10 @@
+<div grid-head ng-class='trClass'></div>
 <div class='dataContent'>
     <ul>
-        <li ng-repeat="(id,row) in list" ng-class='trClass' class='row' sid='{{$id}}'>
+        <li ng-repeat="(id,row) in list" ng-class='trClass' class='row' sid="{{$id}}">
             <ul>
-                <li row-buttons class="button" pid="{{$parent.$id}}" sid="{{$id}}"></li>
                 <li ng-repeat='(i,field) in row' hasLimit="true" limit="1" ng-class='getElementClass(i)'>
-                    <div loop-content></div>
+                    {{injectHtml}}
                 </li>
             </ul>
         </li>

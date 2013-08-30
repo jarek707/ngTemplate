@@ -1,0 +1,15 @@
+<div sid={{$id}}>
+    <div class='active' ng-Dblclick='blr()'>
+        <ul>
+            <li>
+            <label>Caption</label><textarea ng-model="workRow[0]" ng-change='chg(0)'></textarea>
+            <li></li>
+            <label>Url:</label><textarea ng-model="workRow[1]" ng-change='chg(1)'></textarea>
+            </li>
+        </ul>
+        <div row-buttons class="button" pid="{{$parent.$id}}" sid="{{$id}}"></div>
+    </div>
+    <p class='' ng-Dblclick='editRow()'>
+        <img width="120" ng-src='{{workRow[1]}}'></img>{{workRow[0]}}
+    </p>
+</div>

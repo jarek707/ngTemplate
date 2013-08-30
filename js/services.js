@@ -9,7 +9,7 @@ angular.module('app.services', ['app.gridConf'])
                 sp.pop();
                 
                 var $return = _.clone(attrs);
-                $return.key = sp.join('/');
+                $return.key = UT.joins(sp, '/');
                 return $return;
             }, 
 

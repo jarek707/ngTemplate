@@ -100,7 +100,6 @@ div.left {
 }
 
 div.gridBox {
-    clear:both;
     margin:10px;
     padding:8px;
     border:3px solid @borderColor;
@@ -216,7 +215,6 @@ div.gridBox {
             width:100%;
             overflow:hidden;
             li.row {
-                clear:both;
                 width:100%;
                 background:@mainPaneBg;
                 &.editable .active {
@@ -396,5 +394,51 @@ div.gridBox {
         .detailLabel {
             display:block;
         }
+    }
+}
+
+.active, .editable .text { display:none; }
+.text, .editable .active { display:block; }
+
+.pimg {
+    .row {
+        float:left;
+        width:auto;
+        padding:8px;
+        margin:8px 0px 0 8px;
+        max-width:300px;
+        border-radius:5px;
+        border:1px solid #aaa;
+        height:150px;
+        p {
+            margin:0;
+            height:150px;
+            overflow:scroll;
+        }
+        img {
+            float:right;
+        }
+    }
+    .active {
+        padding:8px;
+        border:1px solid #aaa;
+        textarea {
+            width:100%;
+        }
+        label {
+            clear:left;
+            font-size:0.9em;
+        }
+        ul {
+            li {
+                width:100%;
+            }
+        }
+    }
+}
+
+.members { 
+    input {
+        width:100px;
     }
 }

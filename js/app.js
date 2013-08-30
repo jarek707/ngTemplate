@@ -34,9 +34,9 @@ UT = {
     camelize : function(str, upFirst) {
         var firstChar = str.charAt(0);
 
-        var $return = ( _(str.split('_')).map( 
+        var $return = UT.join( _(str.split('_')).map( 
             function(a,b) { return  a.charAt(0).toUpperCase() + a.substring(1).toLowerCase() }
-        )).join('');
+        ),'');
 
         return upFirst ? $return : firstChar + $return.substr(1);
     },
@@ -52,13 +52,16 @@ UT = {
     },
 
     // IE8 workaround for array.join()
-    joinCSV : function(inArr) {
+    join : function(inArr, delim) {
+        if (typeof delim == 'undefined') 
+            delim = ', ';
+            
         var csv = '';
         for (var i = 0; i<inArr.length; i++)
-            if (inArr[i] != '') 
-                csv += ', ' + inArr[i];
+            if (typeof inArr[i] != 'undefined' && !_.isEmpty(inArr[i]) && inArr[i] != null) 
+                csv += delim  + inArr[i];
 
-       return csv.substr(2);
+       return csv.substr(delim.length);
     }
 }
 

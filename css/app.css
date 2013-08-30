@@ -69,7 +69,6 @@ div.left {
   left: -100%;
 }
 div.gridBox {
-  clear: both;
   margin: 10px;
   padding: 8px;
   border: 3px solid #afbfc7;
@@ -123,7 +122,7 @@ div.gridBox {
   margin-left: 2px;
   -webkit-border-radius: 0;
 }
-[grid] .gridHead {
+[grid] [grid-head] {
   float: left;
   width: 100%;
   margin-bottom: 2px;
@@ -137,42 +136,42 @@ div.gridBox {
   font-family: Helvetica;
   font-size: 0.9em;
 }
-[grid] .gridHead div:first-child {
+[grid] [grid-head] div:first-child {
   font-style: italic;
   font-weight: bold;
   margin: 0;
   padding: 0px 3px;
   border-radius: 2px;
 }
-[grid] .gridHead div {
+[grid] [grid-head] div {
   padding: 3px 0;
   position: relative;
   float: left;
   margin-left: 3px;
 }
-[grid] .gridHead .button {
+[grid] [grid-head] .button {
   float: right;
   margin: 3px 2px 0px 1px;
   padding: 0px 1px 6px 0px;
   height: 11px;
   border-radius: 2px;
 }
-[grid] .gridHead input.addButton {
+[grid] [grid-head] input.addButton {
   background: transparent url('../image/glyph.png') -409px -97px no-repeat;
 }
-[grid] .gridHead input.reloadButton {
+[grid] [grid-head] input.reloadButton {
   background: transparent url('../image/glyph.png') -218px -24px no-repeat;
 }
-[grid] .gridHead input.restoreTable {
+[grid] [grid-head] input.restoreTable {
   background: transparent url('../image/glyph.png') -266px -24px no-repeat;
 }
-[grid] .gridHead input.peekTable {
+[grid] [grid-head] input.peekTable {
   background: transparent url('../image/glyph-white.png') -266px -24px no-repeat;
 }
-[grid] .gridHead input.peekTable.hidden {
+[grid] [grid-head] input.peekTable.hidden {
   background: transparent url('../image/glyph.png') -266px -24px no-repeat;
 }
-[grid] .gridHead div.spaces {
+[grid] [grid-head] div.spaces {
   position: relative;
   float: left;
   height: 22px;
@@ -180,13 +179,13 @@ div.gridBox {
   padding: 0px;
   background-color: #c7d2d8;
 }
-[grid] .gridHead div.spaces div.space {
+[grid] [grid-head] div.spaces div.space {
   float: left;
   width: 22px;
   height: 22px;
   border-right: 1px dashed #6aa3c8;
 }
-[grid] .gridHead span {
+[grid] [grid-head] span {
   display: none;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -202,16 +201,16 @@ div.gridBox {
   color: green;
   background: #d0e5f2;
 }
-[grid] .gridHead span.success {
+[grid] [grid-head] span.success {
   color: #008000;
 }
-[grid] .gridHead span.info {
+[grid] [grid-head] span.info {
   color: #0000ff;
 }
-[grid] .gridHead span.warning {
+[grid] [grid-head] span.warning {
   color: #ffff00;
 }
-[grid] .gridHead span.error {
+[grid] [grid-head] span.error {
   color: #a03a5e;
 }
 [grid] div.dataContent {
@@ -232,7 +231,6 @@ div.gridBox {
   overflow: hidden;
 }
 [grid] div.dataContent ul li.row {
-  clear: both;
   width: 100%;
   background: #d0e5f2;
 }
@@ -404,4 +402,36 @@ div.gridBox {
 }
 [grid] [detail] .detailLabel {
   display: block;
+}
+.active,
+.editable .text {
+  display: none;
+}
+.text,
+.editable .active {
+  display: block;
+}
+.pimg .row {
+  float: left;
+  width: auto;
+  padding: 8px;
+  margin: 0 8px 0 0;
+  max-width: 180px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  height: 150px;
+}
+.pimg .active {
+  padding: 8px;
+  border: 1px solid #aaa;
+}
+.pimg .active textarea {
+  width: 100%;
+}
+.pimg .active label {
+  clear: left;
+  font-size: 0.9em;
+}
+.pimg .active ul li {
+  width: 100%;
 }

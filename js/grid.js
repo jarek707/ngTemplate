@@ -1,10 +1,24 @@
 angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
+    .directive('pImg', ['config', function(config) {
+        return {
+            restrict    : 'A',
+            replace     : true,
+            transclude  : true,
+            templateUrl : config.tplUrls.pImg,
+            link        : function($scope, $element) { 
+            },
+            controller: function($scope, $element) {
+                $scope.trClass = false;
+            }
+        }
+    }])
     .directive('tdText', ['config', function(config) {
         return {
             restrict    : 'A',
             replace     : true,
             transclude  : true,
             templateUrl : config.tplUrls.tdText,
+            //require     : 'rowButtons',
             link        : function($scope, $element) { 
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
@@ -70,6 +84,16 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             }
         }
     ])
+    .directive('loopContent', ['$compile', 'config',
+        function($compile, config) {
+            return {
+                replace     : true,
+                restrict    : 'EA',
+                template    : '',
+                templateUrl : config.getTplUrl('loopContent')
+            }
+        }
+    ])
     .directive('gridHead', ['config', 'controllers', 'linkers',
         function(config, controllers, linkers) {
             return {
@@ -89,9 +113,16 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                 replace     : false,
                 restrict    : 'AE',
                 scope       : { parentDataFn : '&', configObject : "@config"},
-                transclude  : true,
+                transclude  : false,
                 template    : "",
                 compile     : function(el, attrs, trans) {
+                    var customTransclude  = !_.isEmpty(el.find('params')) || !_.isUndefined(attrs.customTransclude) ;
+                    if ( customTransclude ) {
+                        var params  = el.find('params').remove();
+                        var content = el.html();
+                        el.find('*').remove();
+                    } 
+                    
                     if (!config.setConfigObject(attrs.config)) {
                         el.remove();
                         alert('Config object "' + attrs.config + '" is not defined'); 
@@ -99,10 +130,25 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                     } else {
                         return  function($scope, $element, $attrs) {
                             linkers.set('main', $scope, $element);
+
+                            $scope.extendKey = '';
+                            var tpl = $scope.$attrs.grid.indexOf('notable') > -1 ? 'mainDiv'    : 'main';
+                                tpl = $scope.$attrs.grid.indexOf('nohead' ) > -1 ? 'mainNoHead' : tpl;
+                                tpl = $scope.$attrs.grid.indexOf('simple' ) > -1 ? 'simple' : tpl;
+                                tpl = $scope.$attrs.grid.indexOf('nobuttons' ) > -1 ? 'mainNoButtons' : tpl;
+                            config.getTpl(tpl, function(html) { 
+                                if (customTransclude)
+                                    html = html.replace('{{injectHtml}}', content);
+                                $element.append($compile(html)($scope));
+                            });
                         }
                     }
                 },
                 controller  :  function($scope, $element, $attrs) {
+                    $scope.parentData = function(dataItem) {
+                        return $scope[dataItem];
+                    };
+
                     $scope.$attrs = $attrs;
                     controllers.set('main', $scope, $element);
                 }

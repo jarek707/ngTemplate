@@ -41,11 +41,15 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div grid key='layout' config="PaneConfig"></div>
+                    <div grid='simple' class='pimg' config="PaneConfig" custom-transclude key='img'>
+                        <div p-img ></div>
+                    </div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div grid="members,notable" key='members' config="PaneConfig" rel="friend"></div>
+                    <div class='members' grid='notable' key='members' config="PaneConfig" rel="friend" custom-transclude>
+                        <div td-text></div>
+                    </div>
                 </div>
                 <div class='right'>
                     <div style='position:relative; float:left'>data right</div>
