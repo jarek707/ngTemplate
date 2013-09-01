@@ -20,7 +20,10 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             templateUrl : config.tplUrls.tdText,
             //require     : 'rowButtons',
             link        : function($scope, $element) { 
-                $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
+                $scope.meta = $scope.meta['tab'][$scope.i]; 
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
 
                 if ($scope.i == 0 && $scope.row[$scope.i] == '')
@@ -37,6 +40,9 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             transclude  : true,
             templateUrl : config.tplUrls.tdRadio,
             link        : function($scope) { 
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
             }
@@ -49,6 +55,9 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             transclude  : true,
             templateUrl : config.tplUrls.tdCheckbox,
             link        : function($scope, $element) { // link function
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
                 $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
                 if ( typeof $scope.workRow[$scope.meta.pos] != 'object' ) {
