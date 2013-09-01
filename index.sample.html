@@ -41,17 +41,22 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div class='members' grid='main' key='members' config="PaneConfig" rel="friend">
-                        <div td-text></div>
-                    </div>
-                    <div grid='main' key='layout' config='PaneConfig'>
-                        <input type='text' value='empty'></input>
-                    </div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='simple' key='members' config="PaneConfig" rel="friend">
-                        <div p-img></div>
+                    <div class='members' grid='notable' key='members' config="PaneConfig" rel="friend">
+                        <params>
+                            <config file='paneConfig.js'>
+                                <tpl-dir>custom</tpl-dir>
+                                <tpl-url>simple</tpl-url>
+                            </config>
+                            <child-container>.right .friends</child-container>
+                            <grid-header>true</grid-header>
+                            <iterator><div p-img></div></iterator>
+                        </params>
+                    </div>
+                    <div grid key='layout' config='PaneConfig'>
+                        <input type='text' value='empty'></input>
                     </div>
                 </div>
                 <div class='right'>

@@ -415,11 +415,22 @@ div.gridBox {
   float: left;
   width: auto;
   padding: 8px;
-  margin: 0 8px 0 0;
-  max-width: 180px;
+  margin: 8px 0px 0 8px;
+  max-width: 300px;
   border-radius: 5px;
   border: 1px solid #aaa;
-  height: 150px;
+  min-height: 80px;
+  overflow: scroll;
+}
+.pimg .row > div {
+  max-width: 250px;
+}
+.pimg .row p {
+  margin: 0;
+}
+.pimg .row img {
+  float: right;
+  width: 80px;
 }
 .pimg .active {
   padding: 8px;
@@ -434,4 +445,7 @@ div.gridBox {
 }
 .pimg .active ul li {
   width: 100%;
+}
+.members input {
+  width: 100px;
 }

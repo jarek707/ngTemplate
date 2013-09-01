@@ -237,6 +237,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         }
 
                         $scope.getElementClass = function(i) {
+                            LG( $scope.meta,$scope.$id, $scope.$attrs.key, 'asdf' );
                             return $scope.meta.tab[i].type == 'T' ? '' : 'notext';
                         }
 

@@ -409,14 +409,17 @@ div.gridBox {
         max-width:300px;
         border-radius:5px;
         border:1px solid #aaa;
-        height:150px;
+        min-height:80px;
+        overflow:scroll;
+        >div {
+            max-width:250px;
+        }
         p {
             margin:0;
-            height:150px;
-            overflow:scroll;
         }
         img {
             float:right;
+            width:80px;
         }
     }
     .active {

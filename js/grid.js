@@ -6,6 +6,10 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             transclude  : true,
             templateUrl : config.tplUrls.pImg,
             link        : function($scope, $element) { 
+            LG( $scope.meta , $scope.$attrs.key, $scope.$id);
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+            LG( $scope.meta , $scope.$attrs.key, $scope.$id);
             },
             controller: function($scope, $element) {
                 $scope.trClass = false;
@@ -125,32 +129,40 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                 transclude  : false,
                 template    : "",
                 compile     : function(el, attrs, trans) {
-                    var customTransclude  = !_.isEmpty(el.find('params')) || !_.isUndefined(attrs.customTransclude) ;
-                    if ( customTransclude ) {
-                        var params  = el.find('params').remove();
-                        var content = el.html();
-                        el.find('*').remove();
-                    } 
-                    
-                    if (!config.setConfigObject(attrs.config)) {
-                        el.remove();
-                        alert('Config object "' + attrs.config + '" is not defined'); 
-                        return false;
-                    } else {
-                        return  function($scope, $element, $attrs) {
-                            linkers.set('main', $scope, $element);
+                    var params       = el.find('params').remove();
+                    var conf         = params.find('config').remove();
+                    var children     = el.html().trim();
+                    var doTransclude = !_.isEmpty(params) || !_.isEmpty(children);
 
-                            $scope.extendKey = '';
-                            var tpl = $scope.$attrs.grid.indexOf('notable') > -1 ? 'mainDiv'    : 'main';
-                                tpl = $scope.$attrs.grid.indexOf('nohead' ) > -1 ? 'mainNoHead' : tpl;
-                                tpl = $scope.$attrs.grid.indexOf('simple' ) > -1 ? 'simple' : tpl;
-                                tpl = $scope.$attrs.grid.indexOf('nobuttons' ) > -1 ? 'mainNoButtons' : tpl;
-                            config.getTpl(tpl, function(html) { 
-                                if (customTransclude)
-                                    html = html.replace('{{injectHtml}}', content);
-                                $element.append($compile(html)($scope));
-                            });
-                        }
+                    el.find('*').remove();
+
+                    var paramsObj = {};
+                    if ( doTransclude ) {
+                        paramsObj = {
+                            'tplDir'         : conf.find('tpl-dir').text(),
+                            'tplUrl'         : conf.find('tpl-url').text(),
+                            'childContainer' : params.find('child-container').text(),
+                            'iterator'       : params.find('iterator').html(),
+                            'gridHeader'     : params.find('grid-header').html(),
+                            'gridFooter'     : params.find('grid-footer').html(),
+                        };
+
+                        if (!_.isEmpty(children))
+                            paramsObj.iterator = children;
+                    }
+                    if (_.isEmpty(paramsObj.tplUrl)) paramsObj.tplUrl = attrs.grid;
+
+                    return  function($scope, $element, $attrs) {
+                        config.setConfigObject('PaneConfig');
+                        linkers.set('main', $scope, $element);
+
+                        config.getTpl(paramsObj.tplUrl, function(html) { 
+                            if (doTransclude)
+                                html = html.replace('{{injectHtml}}', paramsObj.iterator);
+                                LG( html, ' html ', $attrs.key, $attrs.grid, paramsObj.tplUrl );
+                            $element.append($compile(html)($scope));
+                        });
+                        _.extend($scope.meta, paramsObj);
                     }
                 },
                 controller  :  function($scope, $element, $attrs) {
