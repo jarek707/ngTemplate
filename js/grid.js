@@ -130,7 +130,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                     var params       = el.find('params').remove();
                     var iterate      = el.find('iterate').html();
                     el.find('iterate').replaceWith('{{iteration}}');
-                    var children     = el.html().trim();
+                    var children     = el.html();
 
                     el.find('*').remove();
                     
