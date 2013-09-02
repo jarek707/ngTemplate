@@ -14,7 +14,7 @@ angular.module('app.gridConf', ['app.directives'])
                 'mainDiv'     : tplDir + 'mainDiv.html',
                 'mainNoHead'  : tplDir + 'mainNoHead.html',
                 'mainNoButtons': tplDir + 'mainNoButtons.html',
-                'simple'        : tplDir + 'simple.html',
+                'singleLoop'  : tplDir + 'singleLoop.html',
                 'gridHead'    : tplDir + 'gridHead.html',
                 'loopContent' : tplDir + 'loopContent.html',
                 'rowButtons'  : tplDir + 'rowButtons.html',
@@ -31,13 +31,51 @@ angular.module('app.gridConf', ['app.directives'])
                 'subRadio'    : tplDir + 'subRadio.html'
             },
 
+            setParams : function(attrs, params) {
+                var $ret  = _.isEmpty(params) ? {}
+                          : {
+                                'config'         : params.find('config').text(),
+                                'tplDir'         : params.find('tpl-dir').text(),
+                                'grid'           : params.find('grid').text(),
+                                'childContainer' : params.find('child-container').text(),
+                                'iterator'       : params.find('iterator').html(),
+                                'header'         : params.find('header').html(),
+                                'footer'         : params.find('footer').html(),
+                                'rel'            : params.find('rel').html(),
+                                'autoClose'      : params.find('auto-close').html()
+                            };
+
+                // attributes override params
+                function setDefault(arg, defaultVal) {
+                    if (_.isUndefined(attrs[arg]) || _.isEmpty(attrs[arg]))
+                        $ret[arg] = _.isEmpty($ret[arg]) ? defaultVal : $ret[arg];
+                    else 
+                        $ret[arg] = attrs[arg];
+                }
+
+                setDefault('config',         'PaneConfig');
+                setDefault('grid',           'main');
+                setDefault('tplDir',         'default');
+                setDefault('childContainer', false);
+                setDefault('header',         false);
+                setDefault('footer',         false);
+                setDefault('autoClose',      false);
+                setDefault('rel',            '');
+
+                this.setConfigObject($ret.config);
+
+                return $ret;
+            },
 
             getTplUrl : function(tplName) {
                 return this.tplUrls[tplName];
             },
 
             getTpl : function(tplName, cb) {
-                $http.get(this.getTplUrl(tplName)).success(cb);
+                var tplUrl = this.getTplUrl(tplName);
+
+                if (_.isUndefined(tplUrl))  cb('');
+                else                        $http.get(this.getTplUrl(tplName)).success(cb);
             },
 
             setConfigObject : function(configObjectName) {

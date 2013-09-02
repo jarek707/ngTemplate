@@ -24,8 +24,8 @@
         -->
 
         <script src='http://ang/js/lib/underscore.js'></script>
-        <script src="http://ang/js/lib/angular.js"></script>
         <script src="http://ang/js/lib/jquery.js"></script>
+        <script src="http://ang/js/lib/angular.js"></script>
         <script src="http://ang/js/paneConfig.js"></script>
         <script src="http://ang/js/config.js"></script>
         <script src="http://ang/js/services.js"></script>
@@ -45,17 +45,22 @@
                         <div td-text></div>
                     </div>
                     <div grid='main' key='layout' config='PaneConfig'>
-                        <input type='text' value='empty'></input>
+                        <div td-text></div>
                     </div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='simple' key='members' config="PaneConfig" rel="friend">
-                        <div p-img></div>
+                    <div class='pimg members' grid='singleLoop' key='members' rel="friend">
+                        <div grid-head ng-class="trClass"></div>
+                        <iterate>
+                            <div p-img></div>
+                        </iterate>
+                        <div>HERE IS YOUR FOOTER</div>
                     </div>
                 </div>
                 <div class='right'>
-                    <div class='friends' style='position:relative; float:left'></div>
+                    <div id='childMembers' class='friends' style='position:relative; float:left'>
+                    </div>
                 </div>
             </div> <!-- contentWrap -->
         </div> <!-- page -->
