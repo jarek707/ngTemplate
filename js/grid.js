@@ -120,8 +120,8 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             }
         }
     ])
-    .directive('grid', ['$compile', 'gridDataSrv', 'config', 'controllers','linkers','$templateCache',
-        function ($compile, gridDataSrv, config, controllers, linkers, $templateCache) {
+    .directive('grid', ['$compile',  'config', 'controllers','linkers',
+        function ($compile, config, controllers, linkers) {
             return {
                 replace     : false,
                 restrict    : 'AE',
@@ -137,6 +137,9 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                     el.find('*').remove();
                     
                     return  function($scope, $element, $attrs) {
+                        var metaParams = config.setParams($attrs, params); 
+                        $scope.meta = _.extend(config.getMeta($scope.$attrs.key), metaParams); 
+
                         linkers.set('main', $scope, $attrs, params);
 
                         config.getTpl($scope.meta.grid, '', function(html) { 
@@ -146,6 +149,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                             if (children.indexOf('{{ITERATION}}') > -1)
                                 html = children.replace('{{ITERATION}}',html); 
 
+LG( html );
                             $element.append($compile(html)($scope));
                         });
                     }

@@ -38,33 +38,30 @@ angular.module('app.gridConf', ['app.directives'])
             setParams : function(attrs, params) {
                 var $ret  = _.isEmpty(params) ? {}
                           : {
-                                'config'         : params.find('config').text(),
-                                'tplDir'         : params.find('tpl-dir').text(),
-                                'grid'           : params.find('grid').text(),
-                                'childContainer' : params.find('child-container').text(),
-                                'iterator'       : params.find('iterator').html(),
-                                'header'         : params.find('header').html(),
-                                'footer'         : params.find('footer').html(),
-                                'rel'            : params.find('rel').html(),
-                                'autoClose'      : params.find('auto-close').html()
+                                'config'         : params.attr('config'),
+                                'tplDir'         : params.attr('tpl-dir'),
+                                'grid'           : params.attr('grid'),
+                                'childContainer' : params.attr('child-container'),
+                                'rel'            : params.attr('rel'),
+                                'autoClose'      : params.attr('auto-close')
                             };
+                            LG( SER($ret) );
 
                 // attributes override params
                 function setDefault(arg, defaultVal) {
-                    if (_.isUndefined(attrs[arg]) || _.isEmpty(attrs[arg]))
+                    if (_.isUndefined(attrs[arg]) && _.isEmpty(attrs[arg]))
                         $ret[arg] = _.isEmpty($ret[arg]) ? defaultVal : $ret[arg];
                     else 
                         $ret[arg] = attrs[arg];
                 }
 
                 setDefault('config',         'PaneConfig');
-                setDefault('grid',           'main');
                 setDefault('tplDir',         '');
+                setDefault('grid',           'main');
                 setDefault('childContainer', false);
-                setDefault('header',         false);
-                setDefault('footer',         false);
                 setDefault('autoClose',      false);
                 setDefault('rel',            '');
+                LG( SER($ret), 'ret');
 
                 setTplDir($ret.tplDir);
                 this.setConfigObject($ret.config);

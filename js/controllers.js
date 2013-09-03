@@ -64,14 +64,9 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         $scope.relationData = gridDataSrv.getData('members/friend');
                     },
                     'default' : function($scope, $attrs, params) {
-                        $scope.childGridScope = null;
-
-                        var cfgParams = config.setParams($attrs, params);
-                        $scope.meta = _.extend( config.getMeta($scope.$attrs.key), cfgParams);
-
-                        $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
-
-                        $scope.lastRowScope = null;
+                        $scope.lastRowScope         = null;
+                        $scope.childGridScope       = null;
+                        $scope.ngRepeatColumnLimit  = $scope.meta.columns.tab.length;
 
                         gridDataSrv.get($scope.$attrs, $scope);
                     }
@@ -156,13 +151,32 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             if ($scope.closeLastRow($scope)) {
                                 var html = 
                                     "<div grid='singleLoop' key='members/" + $scope.id + "/friend'"
-                                        + " expose='exposing(data)'  rel='friend' child>"
+                                        + " expose='exposing(data)' rel='friend' child" 
+                                        + " parent-list='list' >"
                                         + " <!--ITERATE<div p-img>--></div>";
 
                                 $scope.after(html, $scope.$parent);
                                 $scope.sel();
                                 $scope.rowClicked();
                             }
+                        }
+                         
+                        //
+                        $scope.after = function(html, rowScope) {
+                            var parentMeta = $scope.$parent.meta;
+
+                            if (!parentMeta.autoClose)
+                                if (parentMeta.childContainer) 
+                                    $(parentMeta.childContainer).find('*').remove();
+                                else 
+                                    $($element.parent().parent().parent()).find('.friend_child').remove();
+                                    
+
+                            var compiled = $compile('<li class="row friend_child">' + html +'</li>')(rowScope);
+                            if (parentMeta.childContainer)
+                                $(parentMeta.childContainer).append($compile(html)(rowScope));
+                            else
+                                $element.parent().parent().after( compiled );
                         }
 
                         var defaultFn = $scope.del;
@@ -180,15 +194,6 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             gridDataSrv.sav({key: 'members/friend'}, _(relationData).omit($scope.id));
                             delete $scope.childGridScope.list[$scope.id];
                             defaultFn();
-                        }
-                         
-                        //
-                        $scope.after = function(html, rowScope) {
-                            if (!$scope.$parent.meta.autoClose)
-                                $($element.parent().parent().parent()).find('.friend_child').remove();
-
-                            var compiled = $compile('<li class="row friend_child">' + html +'</li>')(rowScope);
-                            $element.parent().parent().after( compiled );
                         }
 
                         //

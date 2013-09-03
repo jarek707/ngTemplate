@@ -418,7 +418,7 @@ div.gridBox {
   margin: 0;
   max-width: 300px;
   min-height: 80px;
-  overflow: scroll;
+  overflow: auto;
 }
 .pimg .row > div {
   border-radius: 5px;

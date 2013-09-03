@@ -11,6 +11,7 @@
             <script src='http://ang/js/lib/json2.js'></script>
             <script>
                 document.createElement('row-buttons');
+                document.createElement('grid');
             </script>
         <![endif]>
 
@@ -42,7 +43,8 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div class='members' grid='mainDiv' key='members' config="PaneConfig" rel="friend" tpl-dir='bullshit'>
+                    <div id='childMembers' class='friends' style='position:relative; float:left'></div>
+                    <div class='members' grid='mainDiv' key='members' config="PaneConfig" rel="friend">
                         <!-- ITERATE
                             <div td-text=""></div>
                         -->
@@ -51,7 +53,12 @@
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='singleLoop' key='members' rel="friend" tpl-dir='notable' child-container='#childMembers'>
+                    <div class='pimg members' grid='singleLoop' key='members' rel="friend" > 
+                        <params
+                            child-container='#childMembers'
+                            tpl-dir='notable'
+                        >
+                        </params>
                         <div grid-head ng-class="trClass"></div>
                         <!-- ITERATE
                             <div p-img></div>
@@ -60,8 +67,6 @@
                     </div>
                 </div>
                 <div class='right'>
-                    <div id='childMembers' class='friends' style='position:relative; float:left'>
-                    </div>
                 </div>
             </div> <!-- contentWrap -->
         </div> <!-- page -->
