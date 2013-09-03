@@ -32,11 +32,35 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                     'friend' : function($scope, $element) {
                         $scope.buttons = { save : false, sub : false, detail : false, del : true };
 
-                        $($element).find('.subButton').removeClass('subButton').addClass('addButton'); //JQ
+                        $($element).find('.subButton').removeClass('subButton')
+                                                      .addClass('addButton'); //JQ
+                        //
+                        $scope.after = function(html, rowScope) {
+                            var parentMeta = $scope.$parent.meta;
 
-                        $scope.buttons.sub = false;
+                            if (!parentMeta.autoClose)
+                                if (parentMeta.childContainer) 
+                                    $(parentMeta.childContainer).find('*').remove();
+                                else 
+                                    $($element.parent().parent().parent()).find('.friend_child').remove();
+                                    
+
+                            var compiled = $compile('<li class="row friend_child">' + html +'</li>')(rowScope);
+                            if (parentMeta.childContainer)
+                                $(parentMeta.childContainer).append($compile(html)(rowScope));
+                            else
+                                $element.parent().parent().after( compiled );
+                        }
                     },
                     'default' : function($scope) {
+                        if ( !_.isUndefined($scope.$parent.meta) )
+                            $scope.meta = $scope.$parent.meta.columns;
+
+                        $scope.buttons = { save : false, sub : false, detail : true, del : true};
+
+                        $scope.metaType = 'tab';
+                        $scope.trClass  = '';
+
                         if (_.some($scope.row)) {
                             $scope.buttons.sub = config.getChildren($scope.$parent.meta.key);
                             $scope.trClass = false; 
@@ -157,24 +181,6 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                 $scope.rowClicked();
                             }
                         }
-                         
-                        //
-                        $scope.after = function(html, rowScope) {
-                            var parentMeta = $scope.$parent.meta;
-
-                            if (!parentMeta.autoClose)
-                                if (parentMeta.childContainer) 
-                                    $(parentMeta.childContainer).find('*').remove();
-                                else 
-                                    $($element.parent().parent().parent()).find('.friend_child').remove();
-                                    
-
-                            var compiled = $compile('<li class="row friend_child">' + html +'</li>')(rowScope);
-                            if (parentMeta.childContainer)
-                                $(parentMeta.childContainer).append($compile(html)(rowScope));
-                            else
-                                $element.parent().parent().after( compiled );
-                        }
 
                         var defaultFn = $scope.del;
                         $scope.del = function() {
@@ -228,14 +234,6 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         } 
                     },
                     'default' : function($scope, $element) {
-                        if ( !_.isUndefined($scope.$parent.meta) )
-                            $scope.meta = $scope.$parent.meta.columns;
-
-                        $scope.metaType = 'tab';
-                        $scope.trClass  = '';
-
-                        $scope.buttons = { save : false, sub : false, detail : true, del : true};
-
                         function isDirty() { 
                             return $scope.buttons.save = $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                         };
