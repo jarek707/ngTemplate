@@ -21,7 +21,6 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             transclude  : true,
             templateUrl : config.getTplUrl('tdText'),
             link        : function($scope, $element) { 
-            LG( $scope.meta, 'in td', $scope.$id );
                 if (!_.isUndefined($scope.meta.columns))
                     $scope.meta = $scope.meta.columns;
 
@@ -196,8 +195,8 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
     })
     .directive('box', function factory() {
         return {
-            restrict:   'E',
-            template:   '<div class="box"></div>',
+            restrict:   'EA',
+            template:   '<div class="box">text in a box</div>',
             transclude: true,
             replace:    true
         }

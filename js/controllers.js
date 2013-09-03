@@ -157,7 +157,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                 var html = 
                                     "<div grid='singleLoop' key='members/" + $scope.id + "/friend'"
                                         + " expose='exposing(data)'  rel='friend' child>"
-                                        + " <!--ITERATE<div p-img>--></div></div>";
+                                        + " <!--ITERATE<div p-img>--></div>";
 
                                 $scope.after(html, $scope.$parent);
                                 $scope.sel();
@@ -184,7 +184,6 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                          
                         //
                         $scope.after = function(html, rowScope) {
-                        LG( $scope.$parent, $scope.$parent.$id);
                             if (!$scope.$parent.meta.autoClose)
                                 $($element.parent().parent().parent()).find('.friend_child').remove();
 
@@ -227,10 +226,8 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         } 
                     },
                     'default' : function($scope, $element) {
-                        LG( $scope.meta, 'default row friend');
                         if ( !_.isUndefined($scope.$parent.meta) )
                             $scope.meta = $scope.$parent.meta.columns;
-                        LG( $scope.meta, 'default row friend 2');
 
                         $scope.metaType = 'tab';
                         $scope.trClass  = '';
