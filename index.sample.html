@@ -24,9 +24,8 @@
         -->
 
         <script src='http://ang/js/lib/underscore.js'></script>
-        <script src="http://ang/js/lib/jquery.js"></script>
         <script src="http://ang/js/lib/angular.js"></script>
-        <script src="http://ang/js/utils.js"></script>
+        <script src="http://ang/js/lib/jquery.js"></script>
         <script src="http://ang/js/paneConfig.js"></script>
         <script src="http://ang/js/config.js"></script>
         <script src="http://ang/js/services.js"></script>
@@ -42,26 +41,26 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div class='members' grid='mainDiv' key='members' config="PaneConfig" rel="friend" tpl-dir='bullshit'>
-                        <!-- ITERATE
-                            <div td-text=""></div>
-                        -->
-                    </div>
-                    <div grid key='layout' config='PaneConfig'></div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='singleLoop' key='members' rel="friend" tpl-dir='notable'>
-                        <div grid-head ng-class="trClass"></div>
-                        <!-- ITERATE
-                            <div p-img></div>
-                        -->
-                        <div>HERE IS YOUR FOOTER</div>
+                    <div class='members' grid='notable' key='members' config="PaneConfig" rel="friend">
+                        <params>
+                            <config file='paneConfig.js'>
+                                <tpl-dir>custom</tpl-dir>
+                                <tpl-url>simple</tpl-url>
+                            </config>
+                            <child-container>.right .friends</child-container>
+                            <grid-header>true</grid-header>
+                            <iterator><div p-img></div></iterator>
+                        </params>
+                    </div>
+                    <div grid key='layout' config='PaneConfig'>
+                        <input type='text' value='empty'></input>
                     </div>
                 </div>
                 <div class='right'>
-                    <div id='childMembers' class='friends' style='position:relative; float:left'>
-                    </div>
+                    <div class='friends' style='position:relative; float:left'></div>
                 </div>
             </div> <!-- contentWrap -->
         </div> <!-- page -->

@@ -414,15 +414,33 @@ div.gridBox {
 .pimg .row {
   float: left;
   width: auto;
-  padding: 8px;
-  margin: 0 8px 0 0;
-  max-width: 180px;
+  padding: 0;
+  margin: 0;
+  max-width: 300px;
+  min-height: 80px;
+  overflow: scroll;
+}
+.pimg .row > div {
   border-radius: 5px;
   border: 1px solid #aaa;
-  height: 150px;
+  margin: 8px;
+  overflow: auto;
+  padding: 8px;
+}
+.pimg .row p {
+  margin: 0;
+}
+.pimg .row img {
+  float: right;
+  width: 40px;
+  height: 40px;
+}
+.pimg .row .button {
+  float: left;
 }
 .pimg .active {
-  padding: 8px;
+  padding: 8px 8px 20px 8px;
+  margin-bottom: 8px;
   border: 1px solid #aaa;
 }
 .pimg .active textarea {
@@ -434,4 +452,10 @@ div.gridBox {
 }
 .pimg .active ul li {
   width: 100%;
+}
+.pimg .active .button {
+  float: right;
+}
+.members input {
+  width: 100px;
 }

@@ -4,8 +4,10 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             restrict    : 'A',
             replace     : true,
             transclude  : true,
-            templateUrl : config.tplUrls.pImg,
+            templateUrl : config.getTplUrl('pImg'),
             link        : function($scope, $element) { 
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
             },
             controller: function($scope, $element) {
                 $scope.trClass = false;
@@ -17,10 +19,13 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             restrict    : 'A',
             replace     : true,
             transclude  : true,
-            templateUrl : config.tplUrls.tdText,
-            //require     : 'rowButtons',
+            templateUrl : config.getTplUrl('tdText'),
             link        : function($scope, $element) { 
-                $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
+            LG( $scope.meta, 'in td', $scope.$id );
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
+                $scope.meta = $scope.meta['tab'][$scope.i]; 
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
 
                 if ($scope.i == 0 && $scope.row[$scope.i] == '')
@@ -35,8 +40,11 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             restrict    : 'EA',
             replace     : true,
             transclude  : true,
-            templateUrl : config.tplUrls.tdRadio,
+            templateUrl : config.getTplUrl('tdRadio'),
             link        : function($scope) { 
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i]; 
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos) };
             }
@@ -47,8 +55,11 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             replace     : true,
             restrict    : 'EA',
             transclude  : true,
-            templateUrl : config.tplUrls.tdCheckbox,
+            templateUrl : config.getTplUrl('tdCheckbox'),
             link        : function($scope, $element) { // link function
+                if (!_.isUndefined($scope.meta.columns))
+                    $scope.meta = $scope.meta.columns;
+
                 $scope.meta   = $scope.meta[$scope.metaType][$scope.i];
 
                 if ( typeof $scope.workRow[$scope.meta.pos] != 'object' ) {
@@ -66,7 +77,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             restrict    : 'EA',
             scope       : true, 
             transclude  : true,
-            templateUrl : config.tplUrls.tdSelect,
+            templateUrl : config.getTplUrl('tdSelect'),
             link    : function($scope, $element) {
                 $scope.meta = $scope.meta[$scope.metaType][$scope.i];
                 $scope.chg  = function() { $scope.$parent.chg($scope.meta.pos); };
@@ -78,7 +89,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             return {
                 replace     : false,
                 restrict    : 'EA',
-                templateUrl : config.tplUrls.rowButtons,
+                templateUrl : config.getTplUrl('rowButtons'),
                 link        : function($scope, $element) { linkers.set('row', $scope, $element); },
                 controller  : function($scope, $element) { controllers.set('row', $scope, $element); }
             }
@@ -94,58 +105,54 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             }
         }
     ])
-    .directive('gridHead', ['config', 'controllers', 'linkers',
-        function(config, controllers, linkers) {
+    .directive('gridHead', ['config', 'controllers', 'linkers', '$compile',
+        function(config, controllers, linkers, $compile) {
             return {
                 replace  : false,
                 restrict : 'A',
-                templateUrl : config.tplUrls.gridHead,
-                link        : function($scope, $attrs) {
+                link        : function($scope, $element, $attrs) {
+                    config.getTpl('gridHead', $scope.meta.tplDir, function(tpl) { 
+                        $element.append($compile(tpl)($scope));
+                    });
+                    
                     ($scope.spaces = UT.gridKey($scope.$attrs.key).split('/')).pop();
                 },
                 controller  : function($scope) { controllers.head['default']($scope); }
             }
         }
     ])
-    .directive('grid', ['$compile', 'gridDataSrv', 'config', 'controllers','linkers',
-        function ($compile, gridDataSrv, config, controllers, linkers) {
+    .directive('grid', ['$compile', 'gridDataSrv', 'config', 'controllers','linkers','$templateCache',
+        function ($compile, gridDataSrv, config, controllers, linkers, $templateCache) {
             return {
                 replace     : false,
                 restrict    : 'AE',
-                scope       : { parentDataFn : '&', configObject : "@config"},
+                scope       : { expose : '&', parentList : '='},
                 transclude  : false,
                 template    : "",
                 compile     : function(el, attrs, trans) {
-                    var customTransclude  = !_.isEmpty(el.find('params')) || !_.isUndefined(attrs.customTransclude) ;
-                    if ( customTransclude ) {
-                        var params  = el.find('params').remove();
-                        var content = el.html();
-                        el.find('*').remove();
-                    } 
+                    var params   = el.find('params').remove();
+                    var matches = $(el).html().match(/<!--.*?ITERATE([\s\S]*?)-->/);
+                    var iterate = matches ? matches[1] : '';
+                    var children = el.html().replace(/<!--.*?ITERATE[\s\S]*?-->/ , '{{ITERATION}}')
+                                            .replace(/<!--.*?ITERATE[\s\S]*?-->/g, '');
+                    el.find('*').remove();
                     
-                    if (!config.setConfigObject(attrs.config)) {
-                        el.remove();
-                        alert('Config object "' + attrs.config + '" is not defined'); 
-                        return false;
-                    } else {
-                        return  function($scope, $element, $attrs) {
-                            linkers.set('main', $scope, $element);
+                    return  function($scope, $element, $attrs) {
+                        linkers.set('main', $scope, $attrs, params);
 
-                            $scope.extendKey = '';
-                            var tpl = $scope.$attrs.grid.indexOf('notable') > -1 ? 'mainDiv'    : 'main';
-                                tpl = $scope.$attrs.grid.indexOf('nohead' ) > -1 ? 'mainNoHead' : tpl;
-                                tpl = $scope.$attrs.grid.indexOf('simple' ) > -1 ? 'simple' : tpl;
-                                tpl = $scope.$attrs.grid.indexOf('nobuttons' ) > -1 ? 'mainNoButtons' : tpl;
-                            config.getTpl(tpl, function(html) { 
-                                if (customTransclude)
-                                    html = html.replace('{{injectHtml}}', content);
-                                $element.append($compile(html)($scope));
-                            });
-                        }
+                        config.getTpl($scope.meta.grid, '', function(html) { 
+                            if (html.indexOf('{{injectHtml}}') > -1)
+                                html = html.replace('{{injectHtml}}', iterate);
+
+                            if (children.indexOf('{{ITERATION}}') > -1)
+                                html = children.replace('{{ITERATION}}',html); 
+
+                            $element.append($compile(html)($scope));
+                        });
                     }
                 },
                 controller  :  function($scope, $element, $attrs) {
-                    $scope.parentData = function(dataItem) {
+                    $scope.exposing = function(dataItem) {
                         return $scope[dataItem];
                     };
 
