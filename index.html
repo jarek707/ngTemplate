@@ -53,10 +53,12 @@
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='singleLoop' key='members' rel="friend" > 
+                    <div class='pimg members' grid rel="friend" key='members' >
                         <params
+                            grid="singleLoop"
                             child-container='#childMembers'
                             tpl-dir='notable'
+                            child
                         >
                         </params>
                         <div grid-head ng-class="trClass"></div>

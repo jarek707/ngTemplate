@@ -38,17 +38,19 @@ angular.module('app.gridConf', ['app.directives'])
             setParams : function(attrs, params) {
                 var $ret  = _.isEmpty(params) ? {}
                           : {
-                                'config'         : params.attr('config'),
-                                'tplDir'         : params.attr('tpl-dir'),
-                                'grid'           : params.attr('grid'),
-                                'childContainer' : params.attr('child-container'),
-                                'rel'            : params.attr('rel'),
-                                'autoClose'      : params.attr('auto-close')
+                                'config'         : params.attr('config') || false,
+                                'tplDir'         : params.attr('tpl-dir') || false,
+                                'grid'           : params.attr('grid') || false,
+                                'childContainer' : params.attr('child-container') || false,
+                                'rel'            : params.attr('rel') || false,
+                                'key'            : params.attr('key') || false,
+                                'child'          : !_.isUndefined(params.attr('child')),
+                                'autoClose'      : !_.isUndefined(params.attr('auto-close'))
                             };
 
                 // attributes override params
                 function setDefault(arg, defaultVal) {
-                    if (_.isUndefined(attrs[arg]) && _.isEmpty(attrs[arg]))
+                    if (_.isUndefined(attrs[arg]) ||  _.isEmpty(attrs[arg]))
                         $ret[arg] = _.isEmpty($ret[arg]) ? defaultVal : $ret[arg];
                     else 
                         $ret[arg] = _.isEmpty(attrs[arg]) ? defaultVal : attrs[arg];
@@ -58,8 +60,11 @@ angular.module('app.gridConf', ['app.directives'])
                 setDefault('tplDir',         '');
                 setDefault('grid',           'main');
                 setDefault('childContainer', false);
-                setDefault('autoClose',      false);
                 setDefault('rel',            '');
+                setDefault('key',            false);
+
+                $ret.child     = $ret['child']      || !_.isUndefined(attrs['child']);
+                $ret.autoClose = $ret['auto-close'] || !_.isUndefined(attrs['auto-close']);
 
                 setTplDir($ret.tplDir);
                 this.setConfigObject($ret.config);

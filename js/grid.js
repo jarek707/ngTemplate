@@ -89,7 +89,9 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                 replace     : false,
                 restrict    : 'EA',
                 templateUrl : config.getTplUrl('rowButtons'),
-                link        : function($scope, $element) { linkers.set('row', $scope, $element); },
+                link        : function($scope, $element) { 
+                    linkers.set('row', $scope, $element); 
+                },
                 controller  : function($scope, $element) { controllers.set('row', $scope, $element); }
             }
         }
@@ -149,7 +151,6 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                             if (children.indexOf('{{ITERATION}}') > -1)
                                 html = children.replace('{{ITERATION}}',html); 
 
-LG( 'zz', html );
                             $element.append($compile(html)($scope));
                         });
                     }
