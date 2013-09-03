@@ -2,33 +2,37 @@
 // Service Modules START
 //
 angular.module('app.gridConf', ['app.directives'])
-    .factory('config', function($http) {
-        var tplDir = 'html/grid/';
+    .service('config', function($http) {
+        this.tplDir = 'html/grid/';
+        var _this = this;
+        function setTplDir(arg) {
+            _this.tplDir = 'html/grid/' + (arg ? arg + '/' : '');
+        }
 
         var selects = {};
         $http.get('data/selects').success(function(data) { selects = data; });
 
         return {
             'tplUrls' : {
-                'main'        : tplDir + 'main.html',
-                'mainDiv'     : tplDir + 'mainDiv.html',
-                'mainNoHead'  : tplDir + 'mainNoHead.html',
-                'mainNoButtons': tplDir + 'mainNoButtons.html',
-                'singleLoop'  : tplDir + 'singleLoop.html',
-                'gridHead'    : tplDir + 'gridHead.html',
-                'loopContent' : tplDir + 'loopContent.html',
-                'rowButtons'  : tplDir + 'rowButtons.html',
-                'tdSelect'    : tplDir + 'tdSelect.html',
-                'tdText'      : tplDir + 'tdText.html',
-                'tdRadio'     : tplDir + 'tdRadio.html',
-                'tdCheckbox'  : tplDir + 'tdCheckbox.html',
+                'main'        : 'main.html',
+                'mainDiv'     : 'mainDiv.html',
+                'mainNoHead'  : 'mainNoHead.html',
+                'mainNoButtons': 'mainNoButtons.html',
+                'singleLoop'  : 'singleLoop.html',
+                'gridHead'    : 'gridHead.html',
+                'loopContent' : 'loopContent.html',
+                'rowButtons'  : 'rowButtons.html',
+                'tdSelect'    : 'tdSelect.html',
+                'tdText'      : 'tdText.html',
+                'tdRadio'     : 'tdRadio.html',
+                'tdCheckbox'  : 'tdCheckbox.html',
 
-                'sub'         : tplDir + 'sub.html',
-                'subText'     : tplDir + 'subText.html',
-                'subCheckbox' : tplDir + 'subCheckbox.html',
-                'subSelect'   : tplDir + 'subSelect.html',
-                'pImg'          : tplDir + 'pImg.html',
-                'subRadio'    : tplDir + 'subRadio.html'
+                'sub'         : 'sub.html',
+                'subText'     : 'subText.html',
+                'subCheckbox' : 'subCheckbox.html',
+                'subSelect'   : 'subSelect.html',
+                'pImg'        : 'pImg.html',
+                'subRadio'    : 'subRadio.html'
             },
 
             setParams : function(attrs, params) {
@@ -55,23 +59,26 @@ angular.module('app.gridConf', ['app.directives'])
 
                 setDefault('config',         'PaneConfig');
                 setDefault('grid',           'main');
-                setDefault('tplDir',         'default');
+                setDefault('tplDir',         '');
                 setDefault('childContainer', false);
                 setDefault('header',         false);
                 setDefault('footer',         false);
                 setDefault('autoClose',      false);
                 setDefault('rel',            '');
 
+                setTplDir($ret.tplDir);
                 this.setConfigObject($ret.config);
 
                 return $ret;
             },
 
             getTplUrl : function(tplName) {
-                return this.tplUrls[tplName];
+                $ret = _this.tplDir + this.tplUrls[tplName];
+                return $ret;
             },
 
-            getTpl : function(tplName, cb) {
+            getTpl : function(tplName, tplDir, cb) {
+                setTplDir(tplDir);
                 var tplUrl = this.getTplUrl(tplName);
 
                 if (_.isUndefined(tplUrl))  cb('');

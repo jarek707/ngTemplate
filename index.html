@@ -26,6 +26,7 @@
         <script src='http://ang/js/lib/underscore.js'></script>
         <script src="http://ang/js/lib/jquery.js"></script>
         <script src="http://ang/js/lib/angular.js"></script>
+        <script src="http://ang/js/utils.js"></script>
         <script src="http://ang/js/paneConfig.js"></script>
         <script src="http://ang/js/config.js"></script>
         <script src="http://ang/js/services.js"></script>
@@ -41,20 +42,20 @@
             </div>
             <div class='contentWrap'>
                 <div class='contentPane' ng-controller="contentPane">
-                    <div class='members' grid='main' key='members' config="PaneConfig" rel="friend">
-                        <div td-text></div>
+                    <div class='members' grid='mainDiv' key='members' config="PaneConfig" rel="friend" tpl-dir='bullshit'>
+                        <!-- ITERATE
+                            <div td-text=""></div>
+                        -->
                     </div>
-                    <div grid='main' key='layout' config='PaneConfig'>
-                        <div td-text></div>
-                    </div>
+                    <div grid key='layout' config='PaneConfig'></div>
                     <input type='button' value="Clear Local Storage" ng-click='clearLocalStorage()' />
                 </div>
                 <div class='left'>
-                    <div class='pimg members' grid='singleLoop' key='members' rel="friend">
+                    <div class='pimg members' grid='singleLoop' key='members' rel="friend" tpl-dir='notable'>
                         <div grid-head ng-class="trClass"></div>
-                        <iterate>
+                        <!-- ITERATE
                             <div p-img></div>
-                        </iterate>
+                        -->
                         <div>HERE IS YOUR FOOTER</div>
                     </div>
                 </div>

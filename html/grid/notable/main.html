@@ -1,0 +1,16 @@
+<div grid-head ng-class='trClass'></div>
+<table ng-hide='tableHide'>
+    <thead>
+        <tr>
+            <th ng-repeat="colName in meta.columns.tab">{{colName.name}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="(id,row) in list" ng-class='trClass' sid="{{$id}}">
+            <td ng-repeat='(i,field) in row' hasLimit="true" limit="1" ng-class='getElementClass(i)'>
+                <div loop-content></div>
+            </td>
+            <td row-buttons class="button" pid="{{$parent.$id}}" sid="{{$id}}"></td>
+         </tr>
+    </tbody>
+</table>

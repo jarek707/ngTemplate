@@ -67,7 +67,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         $scope.childGridScope = null;
 
                         var cfgParams = config.setParams($attrs, params);
-                        $scope.meta   = _.extend( config.getMeta($scope.$attrs.key), cfgParams);
+                        $scope.meta = _.extend( config.getMeta($scope.$attrs.key), cfgParams);
 
                         $scope.ngRepeatColumnLimit = $scope.meta.columns.tab.length;
 
@@ -122,8 +122,8 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                                       .addClass('removeButton'); //JQ
 
                         $scope.del = function(cb) {
-                            var activeId     = $scope.parentDataFn({data: 'lastRowScope'}).id;
-                            var relationData = $scope.parentDataFn({data: 'relationData'});
+                            var activeId     = $scope.expose({data: 'lastRowScope'}).id;
+                            var relationData = $scope.expose({data: 'relationData'});
                             relationData[activeId] = _(relationData[activeId]).without($scope.id);
                             if (!_.isUndefined($scope.$parent.meta.mutual) )
                                 relationData[$scope.id] = _(relationData[$scope.id]).without(activeId);
@@ -131,7 +131,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             delete $scope.list[$scope.id];
                             gridDataSrv.sav({key: 'members/friend'}, relationData);
 
-                            $scope.parentDataFn({data: 'lastRowScope'}).rowClicked();
+                            $scope.expose({data: 'lastRowScope'}).rowClicked();
                         }
 
                         $scope.editRow = function() {} //disabled
@@ -156,8 +156,8 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             if ($scope.closeLastRow($scope)) {
                                 var html = 
                                     "<div grid='singleLoop' key='members/" + $scope.id + "/friend'"
-                                        + " parent-data-fn='parentData(data)'  rel='friend'"
-                                        + " config='PaneConfig' child><iterate><div p-img></iterate></div></div>";
+                                        + " expose='exposing(data)'  rel='friend' child>"
+                                        + " <!--ITERATE<div p-img>--></div></div>";
 
                                 $scope.after(html, $scope.$parent);
                                 $scope.sel();
@@ -184,6 +184,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                          
                         //
                         $scope.after = function(html, rowScope) {
+                        LG( $scope.$parent, $scope.$parent.$id);
                             if (!$scope.$parent.meta.autoClose)
                                 $($element.parent().parent().parent()).find('.friend_child').remove();
 
@@ -226,7 +227,11 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         } 
                     },
                     'default' : function($scope, $element) {
-                        $scope.meta     = $scope.$parent.meta.columns;
+                        LG( $scope.meta, 'default row friend');
+                        if ( !_.isUndefined($scope.$parent.meta) )
+                            $scope.meta = $scope.$parent.meta.columns;
+                        LG( $scope.meta, 'default row friend 2');
+
                         $scope.metaType = 'tab';
                         $scope.trClass  = '';
 
@@ -372,8 +377,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             _(config.getChildren($scope.$attrs.key)).each( function(v, childKey) { 
                                 $scope.after(
                                     '<div grid key="' + $scope.$attrs.key + '/' + rowScope.id + '/' + childKey + '" '
-                                    + 'config="' + $scope.configObject + '" '
-                                    + 'parent-data-fn="parentData(data)"></div>', rowScope
+                                    + 'expose="exposing(data)" parentList="list" ></div>', rowScope
                                 );
                             });
                             $scope.openSub(workRow);

@@ -1,0 +1,14 @@
+<ul ng-show='detailShow' sid="{{$id}}">
+    <li ng-repeat="(i, field) in row" >
+          <div ng-switch on="getType(i)" sid="{{$id}}">
+             <div td-text    ng-switch-when='T'></div>
+             <div td-radio    ng-switch-when="R"></div>
+             <div td-checkbox ng-switch-when='C'></div>
+             <div td-select   ng-switch-when='S'></div>
+         </div>
+    </li>
+    <li>
+        <input type='button' ng-click="sav()" ng-show='dirty' value="Save"/>
+        <input type='button' ng-click="close()" value="Close"/>
+    </li>
+</ul>
