@@ -149,7 +149,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                             if (children.indexOf('{{ITERATION}}') > -1)
                                 html = children.replace('{{ITERATION}}',html); 
 
-LG( html );
+LG( 'zz', html );
                             $element.append($compile(html)($scope));
                         });
                     }

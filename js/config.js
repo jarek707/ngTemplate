@@ -45,14 +45,13 @@ angular.module('app.gridConf', ['app.directives'])
                                 'rel'            : params.attr('rel'),
                                 'autoClose'      : params.attr('auto-close')
                             };
-                            LG( SER($ret) );
 
                 // attributes override params
                 function setDefault(arg, defaultVal) {
                     if (_.isUndefined(attrs[arg]) && _.isEmpty(attrs[arg]))
                         $ret[arg] = _.isEmpty($ret[arg]) ? defaultVal : $ret[arg];
                     else 
-                        $ret[arg] = attrs[arg];
+                        $ret[arg] = _.isEmpty(attrs[arg]) ? defaultVal : attrs[arg];
                 }
 
                 setDefault('config',         'PaneConfig');
@@ -61,7 +60,6 @@ angular.module('app.gridConf', ['app.directives'])
                 setDefault('childContainer', false);
                 setDefault('autoClose',      false);
                 setDefault('rel',            '');
-                LG( SER($ret), 'ret');
 
                 setTplDir($ret.tplDir);
                 this.setConfigObject($ret.config);
