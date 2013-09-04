@@ -142,7 +142,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                         var metaParams = config.setParams($attrs, params); 
                         $scope.meta = _.extend(config.getMeta($scope.$attrs.key), metaParams); 
 
-                        linkers.set('main', $scope, $attrs, params);
+                        linkers.set('main', $scope, $element);
 
                         config.getTpl($scope.meta.grid, '', function(html) { 
                             if (html.indexOf('{{injectHtml}}') > -1)
@@ -161,7 +161,8 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                     };
 
                     $scope.$attrs = $attrs;
-                    controllers.set('main', $scope, $element);
+                    $scope.key   = $attrs.key;
+                    controllers.set('main', $scope);
                 }
             }
         }

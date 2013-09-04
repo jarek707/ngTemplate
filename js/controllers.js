@@ -62,7 +62,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         $scope.trClass  = '';
 
                         if (_.some($scope.row)) {
-                            $scope.buttons.sub = config.getChildren($scope.$parent.meta.key);
+                            $scope.buttons.sub = config.getChildren($scope.key);
                             $scope.trClass = false; 
                         } else {
                             $scope.trClass = 'editable'; 
@@ -91,19 +91,36 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         }
 
                         $scope.$parent.childGridScope = $scope;
-                        $scope.id   = $scope.meta.key.split('/')[1];
+                        $scope.id   = $scope.key.split('/')[1];
 
                         $scope.list = mkList($scope.$parent.lastRowScope);
                     },
                     'friend' : function($scope) {
                         $scope.relationData = gridDataSrv.getData('members/friend');
                     },
-                    'default' : function($scope) {
+                    'default' : function($scope, $element) {
                         $scope.lastRowScope         = null;
                         $scope.childGridScope       = null;
                         $scope.ngRepeatColumnLimit  = $scope.meta.columns.tab.length;
 
                         gridDataSrv.get($scope.meta, $scope);
+                        
+                        // Append child pane after the table
+                        $scope.after = function(html, rowScope) {
+                            // IE8 needs this
+                            if ( $element.find('table').parent().children().length > 2) 
+                                delete $element.find('table').next().remove();
+
+                            var compiled = $compile(html)(rowScope);
+                            $element.find('table').after( compiled );
+                        }
+
+                        $scope.restore = function() {
+                            $element.find('grid').remove();
+                            $scope.tableHide = false;
+                            return $scope.rowContent = '';
+                        }
+
                     }
                 }
             }
@@ -117,16 +134,16 @@ angular.module('app.directiveScopes', ['app.gridConf'])
     .service('controllers', ['$http', 'config', '$compile', 'gridDataSrv', 
         function($http, config, $compile, gridDataSrv) {
             return {
-                'set' : function(type, $scope, $element) {
-                    this[type]['default']($scope, $element);
+                'set' : function(type, $scope) {
+                    this[type]['default']($scope);
                     
                     if (!_.isUndefined($scope.$attrs.rel) && _.isFunction(this[type][$scope.$attrs.rel]))
                         if (_.isUndefined($scope.$attrs.child))
-                            this[type][$scope.$attrs.rel]($scope, $element);
+                            this[type][$scope.$attrs.rel]($scope);
                         else
-                            this[type][$scope.$attrs.rel + '_child']($scope, $element);
+                            this[type][$scope.$attrs.rel + '_child']($scope);
                 },
-                'head' :  {
+                'head' : {
                     'default' : function($scope) {
                         $scope.peekTable = function() {
                             $scope.tableHide = $scope.tableHide ? false : 'hidden';
@@ -156,7 +173,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
 
                         $scope.editRow = function() {} //disabled
                     },
-                    'friend'     : function($scope, $element) {
+                    'friend'     : function($scope) {
                         $scope.$on('rowClicked', function (evt, scopeId) {
                             $scope.buttons.sub = !_($scope.relationData[$scope.id]).contains(scopeId);
                         });
@@ -217,7 +234,8 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                     if (true && (activeId != $scope.id)) // mutual case
                                         addRelation($scope.id, activeId);
 
-                                    gridDataSrv.sav({key: 'members/friend'}, relationData);
+                                    //TODO normalize $scope.key
+                                    gridDataSrv.sav($scope.key + '/' + $scope.id + '/friend', relationData);
 
                                     // Update child list
                                     var rowContent = '';
@@ -233,7 +251,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             }
                         } 
                     },
-                    'default' : function($scope, $element) {
+                    'default' : function($scope) {
                         function isDirty() { 
                             return $scope.buttons.save = $scope.dirty = !_($scope.row).isEqual($scope.workRow);
                         };
@@ -297,21 +315,15 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                     }
                 },
                 'main' : {
-                    'friend_child' : function($scope, $element) {
+                    'friend_child' : function($scope) {
                     },
-                    'friend' : function($scope, $element) {
+                    'friend' : function($scope) {
                         var parentAdd = $scope.add;
                         $scope.add = function() {
                             parentAdd();
                         }
                     },
-                    'default' : function($scope, $element) {
-                        $scope.restore = function() {
-                            $element.find('grid').remove();
-                            $scope.tableHide = false;
-                            return $scope.rowContent = '';
-                        }
-
+                    'default' : function($scope) {
                         // Turns off selected/edittable in the last row, stores currently clicked row
                         // Returns : true  - different row was clicked
                         //           false - same row was clicked (or double clicked)
@@ -337,7 +349,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
 
                         $scope.save = function(row, id) {
                             $scope.list[id] = _.clone(row);
-                            $scope.notify('sav', gridDataSrv.sav($scope.$attrs, $scope.list, id));
+                            $scope.notify('sav', gridDataSrv.sav($scope.key, $scope.list, id));
 
                             if ($scope.meta.autoAdd) { //autoAdd
                                 $scope.add();
@@ -348,7 +360,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             var firstField = $scope.list[id].shift();
                             delete $scope.list[id];
                             $scope.notify(  'del', 
-                                            gridDataSrv.sav($scope.$attrs, $scope.list), 
+                                            gridDataSrv.sav($scope.key, $scope.list), 
                                             ' <b>"' + firstField + '"</b>'
                                          );
                         };
@@ -371,9 +383,9 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         };
 
                         $scope.subPane = function(rowScope, workRow) {
-                            _(config.getChildren($scope.meta.key)).each( function(v, childKey) { 
+                            _(config.getChildren($scope.key)).each( function(v, childKey) { 
                                 $scope.after(
-                                    '<div grid key="' + $scope.meta.key + '/' + rowScope.id + '/' + childKey + '" '
+                                    '<div grid key="' + $scope.key + '/' + rowScope.id + '/' + childKey + '" '
                                     + 'expose="exposing(data)" parentList="list" ></div>', rowScope
                                 );
                             });
@@ -383,20 +395,10 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                         $scope.detail = function(rowScope, rowText) {
                             $scope.closeLastRow(rowScope);
                             $scope.after(
-                                '<div detail key="' + $scope.meta.key + '/' + rowScope.id + '/"></div>', rowScope
+                                '<div detail key="' + $scope.key + '/' + rowScope.id + '/"></div>', rowScope
                             );
                             $scope.openSub(rowText);
                         };
-                        
-                        // Append child pane after the table
-                        $scope.after = function(html, rowScope) {
-                            // IE8 needs this
-                            if ( $element.find('table').parent().children().length > 2) 
-                                delete $element.find('table').next().remove();
-
-                            var compiled = $compile(html)(rowScope);
-                            $element.find('table').after( compiled );
-                        }
                         // Sub panes END
                     }
                 }

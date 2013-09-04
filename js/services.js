@@ -24,10 +24,10 @@ angular.module('app.services', ['app.gridConf'])
                 _.isEmpty(key) ? localStorage.clear() : delete localStorage[this.prefix + key]; 
             },
 
-            sav: function(attrs, list) {
-                switch (config.findMeta(attrs.key).rel) {
+            sav: function(key, list) {
+                switch (config.findMeta(key).rel) {
                     default :
-                        localStorage[this.prefix + attrs.key] = JSON.stringify(list);
+                        localStorage[this.prefix + key] = JSON.stringify(list);
                         break;
                 }
                 return 'success';
