@@ -14,6 +14,18 @@ PaneConfig  = {
             }
         }
     },
+    'salons' : {
+        'columns' : ["", ""],
+        'rel'     : 'friend',
+        'mutual'  : true,
+        'children' : {
+            'friend' : {
+                'rel'     :'friend',
+                'mutual'  : true,
+                'columns' : [""]
+            }
+        }
+    },
     'layout' : {
         'autoHide' : false,
         'columns' : [ 

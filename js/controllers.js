@@ -36,20 +36,31 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                                       .addClass('addButton'); //JQ
                         //
                         $scope.after = function(html, rowScope) {
+                            if (!rowScope) return;
+
                             var parentMeta = $scope.$parent.meta;
 
+                            // hide open rows before appending the new one
                             if (!parentMeta.autoClose)
-                                if (parentMeta.childContainer) 
-                                    $(parentMeta.childContainer).find('*').remove();
-                                else 
+                                if (parentMeta.childContainer) {
+                                    if ( $(parentMeta.childContainer).children().length ) {
+                                        $scope.relScope.list 
+                                            = $scope.relScope.mkList(rowScope.lastRowScope);
+                                        return;
+                                    }
+                                }
+                                else
                                     $($element.parent().parent().parent()).find('.friend_child').remove();
                                     
-
-                            var compiled = $compile('<li class="row friend_child">' + html +'</li>')(rowScope);
-                            if (parentMeta.childContainer)
-                                $(parentMeta.childContainer).append($compile(html)(rowScope));
-                            else
-                                $element.parent().parent().after( compiled );
+                            if (rowScope) {
+                                if (parentMeta.childContainer) {
+                                    $(parentMeta.childContainer).append($compile(html)(rowScope));
+                                } else {
+                                    $element.parent().parent().after( 
+                                        $compile('<li child>' + html +'</li>')(rowScope)
+                                    );
+                                }
+                            }
                         }
                     },
                     'default' : function($scope) {
@@ -77,7 +88,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                 // Main grid scope
                 'main' : {
                     'friend_child' : function($scope) {
-                        function mkList(memberScope) {
+                        $scope.mkList = function(memberScope) {
                             var $return = {};
                             var data    = memberScope.relationData[memberScope.id];
 
@@ -90,17 +101,17 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             return $return;
                         }
 
-                        $scope.$parent.childGridScope = $scope;
+                        $scope.$parent.relScope = $scope;
                         $scope.id   = $scope.key.split('/')[1];
 
-                        $scope.list = mkList($scope.$parent.lastRowScope);
+                        $scope.list = $scope.mkList($scope.$parent.lastRowScope);
                     },
                     'friend' : function($scope) {
-                        $scope.relationData = gridDataSrv.getData('members/friend');
+                        $scope.relationData = gridDataSrv.getData($scope.key + '/friend');
                     },
                     'default' : function($scope, $element) {
                         $scope.lastRowScope         = null;
-                        $scope.childGridScope       = null;
+                        $scope.relScope       = null;
                         $scope.ngRepeatColumnLimit  = $scope.meta.columns.tab.length;
 
                         gridDataSrv.get($scope.meta, $scope);
@@ -166,7 +177,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                 relationData[$scope.id] = _(relationData[$scope.id]).without(activeId);
 
                             delete $scope.list[$scope.id];
-                            gridDataSrv.sav({key: 'members/friend'}, relationData);
+                            gridDataSrv.save($scope.key, relationData);
 
                             $scope.expose({data: 'lastRowScope'}).rowClicked();
                         }
@@ -185,18 +196,21 @@ angular.module('app.directiveScopes', ['app.gridConf'])
 
                         //
                         $scope.clk =  function(force) { // click on the member list
+                            LG( "CLKKKKKKKKKKKKKKKKKKKKK");
                             // Execute only if row has changed
                             if ($scope.closeLastRow($scope)) {
                                 var html = 
-                                    "<div grid='singleLoop' key='members/" + $scope.id + "/friend'"
+                                    "<div grid='singleLoop' key='" + $scope.key + "/" + $scope.id + "/friend'"
+                                        + " meta='" + JSON.stringify($scope.$parent.meta) + "'"
                                         + " expose='exposing(data)' rel='friend' child" 
                                         + " parent-list='list' >"
                                         + " <!--ITERATE<div p-img>--></div>";
+                                        //+ " <!--ITERATE<div td-text>--></div>";
 
                                 $scope.after(html, $scope.$parent);
-                                $scope.sel();
-                                $scope.rowClicked();
                             }
+                            $scope.sel();
+                            $scope.rowClicked();
                         }
 
                         var defaultFn = $scope.del;
@@ -211,8 +225,9 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                         relationData[$scope.id] = _(relationData[$scope.id]).without(related[i]);
                                 }
 
-                            gridDataSrv.sav({key: 'members/friend'}, _(relationData).omit($scope.id));
-                            delete $scope.childGridScope.list[$scope.id];
+                            gridDataSrv.save($scope.key + '/friend', _(relationData).omit($scope.id));
+                            if ($scope.relScope)
+                                delete $scope.relScope.list[$scope.id];
                             defaultFn();
                         }
 
@@ -231,25 +246,25 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                                     }
 
                                     addRelation(activeId, $scope.id);
-                                    if (true && (activeId != $scope.id)) // mutual case
+                                    if (true && activeId != $scope.id) // mutual case
                                         addRelation($scope.id, activeId);
 
                                     //TODO normalize $scope.key
-                                    gridDataSrv.sav($scope.key + '/' + $scope.id + '/friend', relationData);
+                                    gridDataSrv.save($scope.key + '/' + $scope.id + '/friend', relationData);
 
-                                    // Update child list
-                                    var rowContent = '';
-                                    for (var i = 0 ; i < $scope.row.length; i++) {
-                                        if ($scope.row[i] != '')
-                                            rowContent += ', ' + $scope.row[i];
-                                    }
-                                    //$scope.childGridScope.list[$scope.id] = [ rowContent.substr(2) ];
-                                    $scope.childGridScope.list[$scope.id] = $scope.row;
+                                    $scope.relScope.list[$scope.id] = $scope.row;
 
                                     $scope.buttons.sub = false; 
                                 }
                             }
-                        } 
+                        }
+
+                        var parentSave = $scope.save;
+                        $scope.save = function() {
+                            $scope.after('', null);
+                            $scope.list=$scope.list;
+                            parentSave();
+                        }
                     },
                     'default' : function($scope) {
                         function isDirty() { 
@@ -349,7 +364,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
 
                         $scope.save = function(row, id) {
                             $scope.list[id] = _.clone(row);
-                            $scope.notify('sav', gridDataSrv.sav($scope.key, $scope.list, id));
+                            $scope.notify('sav', gridDataSrv.save($scope.key, $scope.list, id));
 
                             if ($scope.meta.autoAdd) { //autoAdd
                                 $scope.add();
@@ -360,7 +375,7 @@ angular.module('app.directiveScopes', ['app.gridConf'])
                             var firstField = $scope.list[id].shift();
                             delete $scope.list[id];
                             $scope.notify(  'del', 
-                                            gridDataSrv.sav($scope.key, $scope.list), 
+                                            gridDataSrv.save($scope.key, $scope.list), 
                                             ' <b>"' + firstField + '"</b>'
                                          );
                         };

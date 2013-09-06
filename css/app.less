@@ -1,6 +1,6 @@
 @menuHeight: 75px;
-@rightWidth: 80px;
-@leftWidth:  280px;
+@rightWidth: 180px;
+@leftWidth:  180px;
 
 @menuBg: lighten(#377095, 20%);
 @menuColor: #eee;
@@ -15,6 +15,8 @@
 @infoColor: blue;
 @warningColor: yellow;
 @errorColor: #A03A5E;
+
+@bodyMinWidth : 490px;
 
 .glyphBg(@left, @top) {
     background: transparent url('../image/glyph.png') @left @top  no-repeat;
@@ -35,7 +37,7 @@
 .hidden { display:none; }
 
 body {
-    min-width: 790px;
+    min-width: @bodyMinWidth;
     background: #eee;
     margin:  0;
     padding: 0;
@@ -133,6 +135,15 @@ div.gridBox {
         margin-left:2px;
         -webkit-border-radius:0;
     }
+    [td-text] {
+        max-width:500px;
+        min-width:90px;
+        overflow:hidden;
+        & .text {
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+    }
     [grid-head] {
         float:left;
         width:100%;
@@ -202,6 +213,56 @@ div.gridBox {
         span.warning {color:@warningColor;}
         span.error   {color:@errorColor;  }
     }
+    &[key="salons"],
+    &[key="members"] {
+        li {
+            position:relative;
+            float:left;
+            width:100%;
+            div[p-img] {
+                margin:5px;
+                border:1px solid #aaa;
+                padding:5px;
+                .rounded-corners; 
+                img {
+                    width: 40px;
+                    margin:0 8px 0 0;
+                }
+                p {
+                    margin:0;
+                    padding:0;
+                    width:100%;
+                }
+                [row-buttons] {
+                   float:right; 
+                   posiiton:relative;
+                }
+            }
+        }
+    }
+    &[child] {
+        li {
+            position:relative;
+            float:left;
+            width:auto;
+            div[p-img]{
+                margin:5px;
+                border:1px solid #aaa;
+                padding:5px;
+                .rounded-corners; 
+                p {
+                    margin:0;
+                    padding:0;
+                }
+                div[row-buttons] {
+                    float:right;
+                }
+                img {
+                    height:80px;
+                }
+            }
+        }
+    }
 
     div.dataContent {
         .rounded-corners(5px);
@@ -215,7 +276,6 @@ div.gridBox {
             width:100%;
             overflow:hidden;
             li.row {
-                width:100%;
                 background:@mainPaneBg;
                 &.editable .active {
                     display:block;
@@ -238,7 +298,6 @@ div.gridBox {
                         }
                         &.row {
                             background:lighten(@mainPaneBg,5%);
-                            width:100%;
                         }
                     }
                 }
@@ -424,8 +483,6 @@ div.gridBox {
         }
         img {
             float:right;
-            width:40px;
-            height:40px;
         }
         .button {
             float:left;
@@ -457,4 +514,10 @@ div.gridBox {
     input {
         width:100px;
     }
+}
+
+.box {
+    margin:20px 8px 8px 8px;
+    .rounded-corners(8px);
+    border:2px solid #aaa;
 }

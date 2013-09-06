@@ -2,6 +2,7 @@ angular.module('app.services', ['app.gridConf'])
     .factory('gridDataSrv', function($http, config) {
         return  {
             prefix: 'GRID:',
+            useLocal : true,
 
             parentKey : function(attrs) {
                 var sp = attrs.key.split('/');
@@ -24,12 +25,14 @@ angular.module('app.services', ['app.gridConf'])
                 _.isEmpty(key) ? localStorage.clear() : delete localStorage[this.prefix + key]; 
             },
 
-            sav: function(key, list) {
-                switch (config.findMeta(key).rel) {
-                    default :
-                        localStorage[this.prefix + key] = JSON.stringify(list);
-                        break;
+            save: function(key, listOrRow, byRow) {
+                if (_.isUndefined(byRow) || !byRow) {
+                    key = UT.gridKey(key);
                 }
+                if (this.useLocal)
+                    localStorage[this.prefix + key] = JSON.stringify(listOrRow);
+                else // TODO implement real server save
+                    ;
                 return 'success';
             },
 
@@ -38,16 +41,16 @@ angular.module('app.services', ['app.gridConf'])
             },
 
             getData: function(key) {
-                if (!_.isUndefined(config.findMeta(key).url)) {
-                    $http.get(config.findMeta(key).url).success( function(data) { 
-                        return data; 
-                    });
-                 } else {
+                if (this.useLocal) {
                     var localData = localStorage[this.prefix + key];
                     if (_.isUndefined(localData) || _.isEmpty(localData))
                         return {};
                     else 
                         return JSON.parse(localData);
+                } else {
+                    $http.get(config.findMeta(key).url).success( function(data) { 
+                        return data; 
+                    });
                 }
             }
         }

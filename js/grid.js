@@ -1,3 +1,4 @@
+LG( localStorage);
 angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
     .directive('pImg', ['config', function(config) {
         return {
@@ -19,7 +20,8 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
             restrict    : 'A',
             replace     : true,
             transclude  : true,
-            templateUrl : config.getTplUrl('tdText'),
+            //templateUrl : config.getTplUrl('tdText'),
+            templateUrl : 'html/grid/tdText.html',
             link        : function($scope, $element) { 
                 if (!_.isUndefined($scope.meta.columns))
                     $scope.meta = $scope.meta.columns;
@@ -91,6 +93,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                 templateUrl : config.getTplUrl('rowButtons'),
                 link        : function($scope, $element) { 
                     linkers.set('row', $scope, $element); 
+                    LG( 'link row' );
                 },
                 controller  : function($scope, $element) { controllers.set('row', $scope, $element); }
             }
@@ -131,16 +134,24 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                 transclude  : false,
                 template    : "",
                 compile     : function(el, attrs, trans) {
-                    var params   = el.find('params').remove();
-                    var matches = $(el).html().match(/<!--.*?ITERATE([\s\S]*?)-->/);
-                    var iterate = matches ? matches[1] : '';
-                    var children = el.html().replace(/<!--.*?ITERATE[\s\S]*?-->/ , '{{ITERATION}}')
-                                            .replace(/<!--.*?ITERATE[\s\S]*?-->/g, '');
+                    var meta     = !_.isUndefined(attrs.meta) ? JSON.parse(attrs.meta) : {};
+                    var children = '';
+                    var matches  = $(el).html().match(/<!--.*?ITERATE([\s\S]*?)-->/);
+                    var iterate  = matches ? matches[1] : '';
+
+                    if ( el.find('*').length ) {
+                        var params   = el.find('params').remove();
+                        // Use the first comment that has ITERATE string in it, discard such others
+                        children     = el.html().replace(/<!--.*?ITERATE[\s\S]*?-->/, '{{ITERATION}}')
+                                                .replace(/<!--.*?ITERATE[\s\S]*?-->/g, '');
+                    }
                     el.find('*').remove();
                     
                     return  function($scope, $element, $attrs) {
                         var metaParams = config.setParams($attrs, params); 
                         $scope.meta = _.extend(config.getMeta($scope.$attrs.key), metaParams); 
+                        $scope.meta.children = children;
+                        $scope.meta.iterate  = iterate;
 
                         linkers.set('main', $scope, $element);
 
@@ -161,7 +172,7 @@ angular.module('app.directives', ['app.gridConf', 'app.directiveScopes'])
                     };
 
                     $scope.$attrs = $attrs;
-                    $scope.key   = $attrs.key;
+                    $scope.key    = $attrs.key;
                     controllers.set('main', $scope);
                 }
             }

@@ -1,0 +1,9 @@
+<div>
+    <div class='active'>
+        <label class='detailLabel' for="text_{{i}}">{{meta.name}}</label>
+        <input class='active' type="text" ng-model="workRow[0]" ng-change="chg(0)" />
+        <input class='active' type="text" ng-model="workRow[1]" ng-change="chg(1)" />
+    </div>
+    <div class='text' ng-click='clk()' ng-Dblclick="editRow()">{{workRow[0]}}, {{workRow[1]}}</div>
+    <div row-buttons class="button"></div>
+</div>
